@@ -248,53 +248,6 @@ class Taggable_mcp {
 		}
 	}
 	
-	public function ajax_autotag() {
-		$text 	= urldecode($this->ee->input->get("text"));
-		$key 	= $this->ee->preferences->get_by('preference_key', 'alchemy_api_key');
-		$url 	= "http://access.alchemyapi.com/calls/text/TextGetKeywords";
-
-		if (!isset($key->preference_value)) {
-			die(json_encode(array('success' => FALSE, 'error' => 'No Alchemy API Key found. Please enter one on the preferences page before using autotagging')));
-		}
-		
-		$key = $key->preference_value;
-		$curlPost = 'apikey=' . urlencode($key) . '&text=' . urlencode($text) . '';
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
-		$data = curl_exec($ch);
-		curl_close($ch);
-
-	    $xml = new SimpleXMLElement($data);
-	    $results = $xml->keywords;
-	    $children = $results->children();
-	    $total = count($children) - 1;
-	    // echo $total;
-	    $tags = array();
-		
-		foreach ($children as $tag) {
-			$check = $this->ee->db->query('SELECT tag_id FROM exp_tags WHERE site_id = '.$this->site_id.' AND tag_name = \''.(string)$tag.'\'');
-			
-			if ($check->num_rows == 0) {
-				$id = $this->ee->tags->insert(array(
-					"tag_name" => (string)$tag,
-					'site_id'  => $this->ee->config->item('site_id')
-				));
-			} else {
-				$id = $check->row('tag_id');
-			}
-			
-			$tags[] = array(
-				'id' 	=> $id,
-				'name'	=> (string)$tag
-			);
-		}
-		
-		die(json_encode(array('success' => TRUE, 'tags' => $tags)));
-	}
-	
 	public function ajax_stylesheet() {
 		header("Content-type: text/css");
 		die(file_get_contents(PATH_THIRD."taggable/css/autoSuggest.css"));

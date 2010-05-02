@@ -121,6 +121,8 @@ class Taggable_upd {
 			
 			$this->ee->dbforge->add_column('tags_entries', array('template' => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'UPGRADE')));
 			$this->ee->db->set('has_publish_fields', 'n')->where('module_name', 'Taggable')->update('modules');
+			
+			$this->ee->db->where('preference_key', 'enable_autotagging')->where('preference_key', 'alchemy_api_key')->delete('taggable_preferences');
 		}
 
 		return TRUE;

@@ -19,7 +19,4 @@ $config['saef_separator']			= array('type' => 'select', 'options' => array(
 ), 'value' => ',');
 $config['saef_field_name']			= array('type' => 'string', 'value' => 'tags');
 
-$config['enable_autotagging']		= array('type' => 'boolean', 'value' => 'n');
-$config['alchemy_api_key']			= array('type' => 'string',  'value' => '');
-
 $config['license_key']				= array('type' => 'string', 'value' => "");
