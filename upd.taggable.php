@@ -33,7 +33,7 @@ class Taggable_upd {
 			'module_name' 			=> 'Taggable',
 			'module_version'		=> $this->version,
 			'has_cp_backend'		=> 'y',
-			'has_publish_fields' 	=> 'y'
+			'has_publish_fields' 	=> 'n'
 		);
 		
 		$this->ee->db->insert('modules', $module);
@@ -120,6 +120,7 @@ class Taggable_upd {
 			$this->ee->load->dbforge();
 			
 			$this->ee->dbforge->add_column('tags_entries', array('template' => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'UPGRADE')));
+			$this->ee->db->set('has_publish_fields', 'n')->where('module_name', 'Taggable')->update('modules');
 		}
 
 		return TRUE;

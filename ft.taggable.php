@@ -19,14 +19,15 @@ if (!defined("TAGGABLE_VERSION")) {
 }
 
 class Taggable_ft extends EE_Fieldtype {
-	
+	public $has_array_data = TRUE;
 	public $info = array(
-		'name' 		=> 'Tag',
+		'name' 		=> 'Taggable',
 		'version'	=> TAGGABLE_VERSION
 	);
 	
 	public function __construct() {
 		parent::EE_Fieldtype();
+		$this->EE->lang->loadfile('taggable');
 	}
 	
 	public function display_field($data = "") {
@@ -35,7 +36,7 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		$this->EE->load->library('model');
-		$this->EE->load->model('preferences_model', 'preferences');
+		$this->EE->load->model('taggable_preferences_model', 'preferences');
 		
 		$this->_javascript($this->field_name, $data);
 		$this->_stylesheet();
@@ -54,11 +55,50 @@ class Taggable_ft extends EE_Fieldtype {
 		));
 	}
 	
+	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
+		$ids = explode(',', $data);
+		array_pop($ids);
+		
+		if ($ids) {
+			$tags = $this->EE->db->where_in('tag_id', $ids)->get('tags')->result();
+		
+			if ($tags) {
+				// Loop through and arrange everything
+				foreach ($tags as $tag) {
+					$tag_rows[] = array(
+						'tag_name'			=> $tag->tag_name,
+						'tag_id'			=> $tag->tag_id,
+						'tag_description'	=> $tag->tag_description,
+						'entry_count'		=> $this->tag_entries($tag->tag_id),
+						'tag_url_name'		=> str_replace(' ', "_", $tag->tag_name),
+						'tag_pretty_name'	=> $tag->tag_name
+					);
+				}
+			
+				$vars = $tag_rows;			
+				$return = $this->_no_parse_if_no_tags($tagdata);
+			}
+			
+			// parse
+			$return = $this->EE->TMPL->parse_variables($return, $vars);
+			
+			// Backspace
+			if (isset($params['backspace'])) {
+				$return = substr($return, 0, -$params['backspace']);	
+			}
+		} else {
+			$return = "";
+		}
+		
+		// done!
+		return $return;
+	}
+	
 	public function save($str) {
 		return $str;
 	}
 	
-	public function post_save($data) {	
+	public function post_save($data) {
 		// Delete tags
 		if (isset($_POST['taggable_tags_delete'])) {
 			$tags = explode(',', $_POST['taggable_tags_delete']);
@@ -86,7 +126,8 @@ class Taggable_ft extends EE_Fieldtype {
 						$query = $this->EE->db->query("SELECT * FROM exp_tags WHERE tag_name = '$tag' AND site_id = ".$this->EE->config->item('site_id'));
 					
 						if ($query->num_rows == 0) { 
-							$tag = $this->EE->tags->insert(array('tag_name' => $tag, 'site_id' => $this->EE->config->item('site_id')));
+							$tag = $this->EE->db->insert('tags', array('tag_name' => $tag, 'site_id' => $this->EE->config->item('site_id')));
+							$tag = $this->EE->db->insert_id();
 						} else {
 							$tag = $query->row('tag_id');
 						}
@@ -107,29 +148,30 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	public function delete($ids) {
-		$this->ee->db->where_in('entry_id', $ids);
-		$this->ee->db->delete('exp_tags_entries');
+		$this->EE->db->where_in('entry_id', $ids);
+		$this->EE->db->delete('exp_tags_entries');
+	}
+	
+	protected function _parse_if_no_tags($tagdata) {
+		return preg_replace("/{if no_tags}(.*){\/if}/", '$1', $tagdata);
+	}
+		
+	protected function _no_parse_if_no_tags($tagdata) {
+		return preg_replace("/{if no_tags}(.*){\/if}/", '', $tagdata);
+	}
+	
+	protected function tag_entries($id) {
+		return $this->EE->db->select("COUNT(DISTINCT entry_id) AS total")
+							->where("tag_id", $id)
+							->get('tags_entries')
+							->row('total');
 	}
 	
 	private function _get_template() {
-		if (substr($this->field_id, 0, 10) == "taggable__") {
-			$f = str_replace('taggable__', '', $this->field_id);
-		} else {
-			$f = $this->field_id;
-		}
-		
-		$a = $this->EE->preferences->get_by('preference_key', 'default_tag_name')->preference_value;
-		
-		if ($f !== $a) {
-			$q = $this->EE->db->select('field_name')
-									 ->where('field_id', $this->field_id)
-									 ->get('exp_channel_fields')
-									 ->row('field_name');
-		} else {
-			$q = $a;
-		}
-		
-		return $q;
+ 		return $this->EE->db->select('field_name')
+						 	->where('field_id', $this->field_id)
+							->get('exp_channel_fields')
+							->row('field_name');
 	}
 	
 	private function _javascript($field_name, $data = "") {		
@@ -137,7 +179,7 @@ class Taggable_ft extends EE_Fieldtype {
 			'hintText'		 	 	=> lang('taggable_javascript_hint'),
 			'noResultsText'	  		=> lang('taggable_javascript_no_results'),
 			'searchingText'	 	 	=> lang('taggable_javascript_searching'),
-			'pleaseEnterText' 		=> lang('taggable_javascript_please_enter'),
+			'pleasEEnterText' 		=> lang('taggable_javascript_please_enter'),
 			'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
 			'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
 			'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
@@ -199,5 +241,113 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	private function _stylesheet() {
 		$this->EE->cp->load_package_css('autocomplete');
+	}
+	
+	/**
+	 * A pretty sexy method to generically parse a parameter
+	 * that can contain multiple values, with support for "not",
+	 * and then call the correct database methods on it.
+	 *
+	 * Also supports passing through an additional lookup column/table
+	 *
+	 * @param string $string 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function parse_multiple_params($id_col, $string, $lookup_table = '', $lookup_col = '', $lookup_id = '') {
+		if (strpos($string, "not ") !== FALSE) {
+			// It's a "not" query
+			if (strpos($string, "|")) {
+				// multiple nots
+				$string = str_replace("not ", "", $string);
+				$string = str_replace(" ", "", $string);
+				
+				$vals = explode('|', $string);
+				
+				// Lookup?
+				if ($lookup_table) {
+					$new_vals = array();
+					
+					foreach ($vals as $key => $val) {
+						$v = $this->EE->db->where($lookup_col, $val)->get($lookup_table);
+						
+						if ($v->num_rows > 0) {
+							$new_vals[] = $v->row($lookup_id);
+						} else {
+							$new_vals[] = $val;
+						}
+					}
+				} else {
+					$new_vals = $vals;
+				}
+				
+				$this->EE->db->where_not_in($id_col, $new_vals);
+			} else {
+				// one not
+				$string = str_replace("not ", "", $string);
+				$string = trim($string);
+				
+				// Lookup?
+				if ($lookup_table) {
+					$new_val = array();
+					$v = $this->EE->db->where($lookup_col, $string)->get($lookup_table);
+						
+					if ($v->num_rows > 0) {
+						$new_val = $v->row($lookup_id);
+					} else {
+						$new_val = $string;
+					}
+				} else {
+					$new_val = $string;
+				}
+				
+				$this->EE->db->where($id_col.' !=', $new_val);
+			}
+		} else {
+			if (strpos('|', $string)) {
+				// multiple vals
+				$string = str_replace(" ", "", $string);
+				$vals = explode('|', $string);
+				
+				// Lookup?
+				if ($lookup_table) {
+					$new_vals = array();
+					
+					foreach ($vals as $key => $val) {
+						$v = $this->EE->db->where($lookup_col, $val)->get($lookup_table);
+						
+						if ($v->num_rows > 0) {
+							$new_vals[] = $v->row($lookup_id);
+						} else {
+							$new_vals[] = $val;
+						}
+					}
+				} else {
+					$new_vals = $vals;
+				}
+				
+				$this->EE->db->where_in($id_col, $new_vals);
+			} else {
+				// single value
+				$string = str_replace("not ", "", $string);
+				$string = trim($string);
+				
+				// Lookup?
+				if ($lookup_table) {
+					$new_val = array();
+					$v = $this->EE->db->where($lookup_col, $string)->get($lookup_table);
+						
+					if ($v->num_rows > 0) {
+						$new_val = $v->row($lookup_id);
+					} else {
+						$new_val = $string;
+					}
+				} else {
+					$new_val = $string;
+				}
+				
+				$this->EE->db->where($id_col, $new_val);
+			}
+		}
 	}
 }
