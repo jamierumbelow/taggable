@@ -45,6 +45,7 @@ class Taggable_mcp {
 			'taggable_module_name' 			=> TAGGABLE_URL,
 			'taggable_tags_title' 			=> TAGGABLE_URL.AMP.'method=tags',
 			'taggable_preferences_title' 	=> TAGGABLE_URL.AMP.'method=preferences',
+			'taggable_tools_title' 			=> TAGGABLE_URL.AMP.'method=tools',
 			'taggable_doc_title' 			=> $this->docs_url
 		));
 		
@@ -193,6 +194,18 @@ class Taggable_mcp {
 		
 		$this->ee->session->set_flashdata('message_success', lang('taggable_tag_updated'));
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=".$tag_id);
+	}
+	
+	public function tools() {
+		$this->data['import'] = array(
+			'taggable' => 'Taggable',
+			'wordpress' => 'WordPress',
+			'solspace' => 'Solspace Tag',
+			'tagger' => 'Tagger Lite'
+		);
+		
+		$this->_title('taggable_tools_title');
+		return $this->_view('cp/tools');
 	}
 	
 	public function preferences() {

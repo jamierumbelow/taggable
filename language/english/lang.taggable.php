@@ -74,6 +74,10 @@ $lang = array(
 	'taggable_stats_total_tagged_entries'	=> 'Total Tagged Entries',
 	'taggable_stats_top_five_tags'			=> 'Top Five Tags',
 	
+	// Tools
+	'taggable_tools_title'		=> 'Tools',
+	
+	
 	// JavaScript
 	'taggable_javascript_hint'					=> 'Type in a tag',
 	'taggable_javascript_no_results'			=> 'No results',
