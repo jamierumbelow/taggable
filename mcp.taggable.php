@@ -217,14 +217,14 @@ class Taggable_mcp {
 		$tests['generic']['ee_build'] = $this->_test(APP_BUILD, APP_BUILD >= '201004');
 		$tests['generic']['extensions_enabled'] = $this->_test($this->ee->config->item('allow_extensions'), $this->ee->config->item('allow_extensions') == 'y');
 		
+		// Go
+		$this->data['tests'] = $tests;
 		
 		// Download
 		if ($this->ee->input->get('download_report') == 'yes') {
+			$this->ee->load->helper('download');
 			force_download('taggable_diagnostics_'.time().'.txt', $this->_view('other/diagnostics_report'));
 		}
-		
-		// Go
-		$this->data['tests'] = $tests;
 		
 		$this->_title('taggable_diagnostics_title');
 		return $this->_view('cp/diagnostics');
