@@ -208,6 +208,23 @@ class Taggable_mcp {
 		return $this->_view('cp/tools');
 	}
 	
+	public function export() {
+		$tags = $this->ee->db->get('tags');
+		$output = array();
+		
+		foreach ($tags->result() as $tag) {
+			$output[] = array(
+				'name' => $tag->tag_name,
+				'description' => $tag->tag_description
+			);
+		}
+		
+		$content = json_encode($output);
+		
+		$this->ee->load->helper('download');
+		force_download('taggable_export_'.time().'.json', $content);
+	}
+	
 	public function preferences() {
 		if ($this->ee->input->post('save_preferences')) {
 			// Save preference
