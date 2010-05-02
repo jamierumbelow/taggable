@@ -24,25 +24,6 @@ class Taggable_upd {
 		$this->ee =& get_instance();
 	}
 	
-	public function tabs() {
-		$tabs['tags'] = array(
-			'tag' => array(
-				'visible'		=> 'true',
-				'collapse'		=> 'false',
-				'htmlbuttons'	=> 'false',
-				'width'			=> '100%'
-			),
-			'autotag' => array(
-				'visible'		=> 'true',
-				'collapse'		=> 'false',
-				'htmlbuttons'	=> 'false',
-				'width'			=> '100%'
-			)
-		);
-		
-		return $tabs;
-	}
-	
 	public function install() {
 		// Load dbforge
 		$this->ee->load->dbforge();
@@ -103,9 +84,6 @@ class Taggable_upd {
 						 ->insert('taggable_preferences');
 		}
 		
-		// Add layout tabs
-		$this->ee->cp->add_layout_tabs($this->tabs());
-		
 		// Automatically enable extensions
 		if ($this->ee->config->item('allow_extensions') == 'n') {
 			$this->ee->config->_update_config(array('allow_extensions' => 'y'));
@@ -125,9 +103,6 @@ class Taggable_upd {
 		$this->ee->dbforge->drop_table('taggable_preferences');
 		$this->ee->db->where('module_name', 'Taggable')->delete('modules');
 		
-		// Remove layout tabs
-		$this->ee->cp->delete_layout_tabs($this->tabs());
-		
 		// We're done
 		return TRUE;
 	}
@@ -144,7 +119,7 @@ class Taggable_upd {
 		if ($version < 1.2) {
 			$this->ee->load->dbforge();
 			
-			$this->ee->dbforge->add_column('tags_entries', array('template' => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'tags')));
+			$this->ee->dbforge->add_column('tags_entries', array('template' => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'UPGRADE')));
 		}
 
 		return TRUE;
