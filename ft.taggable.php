@@ -38,6 +38,26 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->library('model');
 		$this->EE->load->model('taggable_preferences_model', 'preferences');
 		
+		$tags = explode(',', $data);
+		array_pop($tags);
+		
+		foreach ($tags as $key => $tag) {
+			if (!is_numeric($tag)) {
+				// Is it in the DB? What's the ID?
+				$query = $this->EE->db->where('tag_name', $tag)->get('tags');
+				
+				if ($query->num_rows > 0) {
+					$tags[$key] = $query->row('tag_id');
+				} else {
+					$this->EE->db->insert('tags', array('tag_name' => $tag));
+					$tags[$key] = $this->EE->db->insert_id();
+				}
+			}
+		}
+		
+		$tags = implode(',', $tags).',';
+		$data = $tags;
+		
 		$this->_javascript($this->field_name, $data);
 		$this->_stylesheet();
 		
@@ -220,21 +240,6 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		$js .= 'a:{}});';
-		
-		if ($this->EE->preferences->get_by('preference_key', 'enable_autotagging')->preference_value == 'y' && !isset($this->EE->preferences->punches['autotagged'])) {
-			$js .= '
-			
-				var element = $("<a href=\"\" />");
-				element.attr("id", "autotagging");
-				element.attr("class", "submit");
-				element.attr("style", "color: white; text-decoration: none");
-				element.text("Autotag");
-				
-				$("#sub_hold_field_taggable__taggable_autotag p").append(element);
-			';	
-			
-			$this->EE->preferences->punches['autotagged'] = TRUE;
-		}
 		
 		$this->EE->javascript->output($js);
 	}
