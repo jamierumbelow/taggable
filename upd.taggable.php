@@ -65,6 +65,7 @@ class Taggable_upd {
 		// exp_taggable_preferences
 		$taggable_preferences = array(
 			'preference_id'		=> array('type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE),
+			'site_id'			=> array('type' => 'INT', 'default' => '1'),
 			'preference_key'	=> array('type' => 'VARCHAR', 'constraint' => 50),
 			'preference_type'	=> array('type' => 'VARCHAR', 'constraint' => 10),
 			'preference_value'	=> array('type' => 'TEXT')
@@ -121,8 +122,8 @@ class Taggable_upd {
 			
 			$this->ee->dbforge->add_column('tags_entries', array('template' => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'UPGRADE')));
 			$this->ee->db->set('has_publish_fields', 'n')->where('module_name', 'Taggable')->update('modules');
-			
 			$this->ee->db->where('preference_key', 'enable_autotagging')->where('preference_key', 'alchemy_api_key')->delete('taggable_preferences');
+			$this->ee->dbforge->add_column('taggable_preferences', array('site_id' => array('type' => 'INT', 'default' => '1')));
 		}
 
 		return TRUE;
