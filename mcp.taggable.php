@@ -146,6 +146,7 @@ class Taggable_mcp {
 
 		$this->data['tags'] = $this->ee->db->get()->result();		
 		$this->data['tags_alphabetically'] = $this->ee->tags->get_alphabet_list();
+		$this->data['errors'] = ($this->ee->session->flashdata('create_validate') == 'yes') ? TRUE : FALSE;
 		
 		$this->_title("taggable_tags_title");
 		return $this->_view('cp/tags');
@@ -155,6 +156,7 @@ class Taggable_mcp {
 		$tag = $this->ee->input->get('tag_id');
 		
 		$this->data['tag'] 		= $this->ee->tags->get($tag);
+		$this->data['errors'] 	= ($this->ee->session->flashdata('edit_validate') == 'yes') ? TRUE : FALSE;
 		$this->data['entries']	= $this->ee->db->select('DISTINCT exp_tags_entries.entry_id, exp_channel_titles.title, exp_channel_titles.url_title, exp_channel_titles.channel_id')
 											   ->where('exp_tags_entries.tag_id', $tag)
 											   ->where('exp_channel_titles.entry_id = exp_tags_entries.entry_id')
@@ -166,6 +168,11 @@ class Taggable_mcp {
 	}
 	
 	public function create_tag() {
+		if (empty($_POST['tag']['tag_name'])) {
+			$this->ee->session->set_flashdata('create_validate', 'yes');
+			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tags");
+		}
+				
 		$tag = $this->ee->input->post('tag');
 		$tag['site_id'] = $this->ee->config->item('site_id');
 		$this->ee->tags->insert($tag);
@@ -187,6 +194,11 @@ class Taggable_mcp {
 	}
 	
 	public function update_tag() {
+		if (empty($_POST['tag']['tag_name'])) {
+			$this->ee->session->set_flashdata('edit_validate', 'yes');
+			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tag_entries".AMP.'tag_id='.$this->ee->input->post('tag_id'));
+		}
+		
 		$tag_id = $this->ee->input->post('tag_id');
 		$tag	= $this->ee->input->post('tag');
 		
@@ -210,6 +222,7 @@ class Taggable_mcp {
 	
 	public function import() {
 		$from = $this->ee->input->get_post('from');
+		$this->data['errors'] 	= ($this->ee->session->flashdata('error') == 'yes') ? TRUE : FALSE;
 		
 		$this->_title('taggable_import_'.$from);
 		return $this->_view('other/import/'.$from);
@@ -223,9 +236,12 @@ class Taggable_mcp {
 			if (is_uploaded_file($_FILES['file']['tmp_name'])) {
 				$file = file_get_contents($_FILES['file']['tmp_name']);
 			} else {
-				// error
-				$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=taggable');
+				$this->ee->session->set_flashdata('error', 'yes');
+				$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=import".AMP."from=taggable");
 			}
+		} else {
+			$this->ee->session->set_flashdata('error', 'yes');
+			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=import".AMP."from=taggable");
 		}
 		
 		// Parse the JSON
@@ -254,6 +270,7 @@ class Taggable_mcp {
 		
 		// Are we connected?
 		if (!$db->conn_id) {
+			$this->ee->session->set_flashdata('error', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=wordpress');
 		}
 		
@@ -292,6 +309,7 @@ class Taggable_mcp {
 		
 		// Are we connected?
 		if (!$db->conn_id) {
+			$this->ee->session->set_flashdata('error', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=solspace');
 		}
 		
@@ -321,6 +339,7 @@ class Taggable_mcp {
 		
 		// Are we connected?
 		if (!$db->conn_id) {
+			$this->ee->session->set_flashdata('error', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=tagger');
 		}
 		

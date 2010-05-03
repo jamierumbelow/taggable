@@ -36,6 +36,7 @@
 		<div class="pageContents">
 			<?=form_open(TAGGABLE_PATH.AMP."method=create_tag")?>
 				<table width="100%" cellpadding="5">
+					<?php if ($errors): ?><tr><td></td><td style="color:#FF0000"><?=lang('taggable_errors_tag_name')?></td></tr><?php endif; ?>
 					<tr>
 						<td><strong><?=lang('taggable_tag')?></strong></td>
 						<td style="text-align: left"><?=form_input('tag[tag_name]', "", 'style="width:142px"')?></td>

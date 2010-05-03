@@ -56,6 +56,8 @@ $lang = array(
 	'taggable_search_with_lt'			=> 'Less than',
 	'taggable_search'					=> 'Search',
 	'taggable_reset'					=> 'Reset',
+	'taggable_tag_name'					=> 'Tag Name',
+	'taggable_tag_description'			=> 'Tag Description',
 	
 	// Entries
 	'taggable_entries'				=> 'Entries',
@@ -67,6 +69,7 @@ $lang = array(
 	'taggable_edit_tag'				=> 'Edit Tag',
 	'taggable_tag_updated'			=> 'Tag Updated',
 	'taggable_no_entries'			=> 'There aren\'t any entries for this tag!',
+	'taggable_update_tag'			=> 'Update Tag',
 	
 	// Stats
 	'taggable_stats_title'					=> 'Stats',
@@ -75,8 +78,31 @@ $lang = array(
 	'taggable_stats_top_five_tags'			=> 'Top Five Tags',
 	
 	// Tools
-	'taggable_tools_title'		=> 'Tools',
+	'taggable_tools_title'			=> 'Tools',
+	'taggable_tools_message'		=> 'The tools section of Taggable allows you to access the Import and Export functionality and run diagnostics tests to aid in support requests.',
+	'taggable_diagnostics_download' => 'Download Diagnostics Report',
+	'taggable_diagnostics_download_info' => 'Diagnostics reports can be extremely helpful in answering support requests. If you are having an issue with Taggable, use the link below to download the results file, which you can then attach to a support ticket.',
+	'taggable_diagnostics'			=> 'Diagnostics',
+	'taggable_diagnostics_message'  => 'The Diagnostics Tool runs a few tests on your install of Taggable, gathering important information about your ExpressionEngine environment. This can be extremely helpful in answering support requests. If you are having an issue with Taggable, run the diagnostics tool and download the results file, which you can then attach to a support ticket.',
+	'taggable_run_diagnostics'		=> 'Run Diagnostics',
+	'taggable_diagnostics_test' 	=> 'Test',
+	'taggable_diagnostics_value'	=> 'Value',
+	'taggable_diagnostics_passed'	=> 'Passed?',
+	'taggable_download_report' 		=> 'Download Report',
+	'taggable_import_and_export'	=> 'Import and Export',
+	'taggable_import_and_export_message' => "If you are moving servers, upgrading from a previous version of ExpressionEngine or are moving from a separate CMS, you can use Taggable's Import and Export functionality to export your tags and import from a variety of platforms.",
+	'taggable_import'				=> 'Import',
+	'taggable_from'					=> 'From',
+	'taggable_export'				=> 'Export',
+	'taggable_export_to_json'		=> 'Export to JSON',
+	'taggable_solspace_message'		=> "The Solspace's Tag importer allows you to import tags from Solspace's Tag for ExpressionEngine 1 and 2. To connect to Tag and import the tags, we need your database connection details.",
+	'taggable_taggable_message'		=> "The Taggable importer allows you to import tags from another install of Taggable. It's very easy to do, all you need to do is upload the export file and run the importer engine, and Taggable will import all your tags into the system.",
+		
 	
+	// Errors
+	'taggable_errors_tag_name' 		=> 'Please enter a tag name!',
+	'taggable_errors_database'		=> "Couldn't connect to the database, please ensure your details are correct",
+	'taggable_errors_file'			=> "Couldn't upload file. Please try again",
 	
 	// JavaScript
 	'taggable_javascript_hint'					=> 'Type in a tag',

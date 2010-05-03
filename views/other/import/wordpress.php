@@ -2,6 +2,7 @@
 
 <?=form_open_multipart(TAGGABLE_PATH.AMP.'method=import_wordpress')?>
 <table border="0" cellspacing="0" cellpadding="5" style="margin:25px">
+	<?php if ($errors): ?><tr><td></td><td style="color:#FF0000">Couldn't connect to the database, please ensure your details are correct</td></tr><?php endif; ?>
 	<tr><td><strong>Host:</strong></td><td><?=form_input('wordpress[host]')?></td></tr>
 	<tr><td><strong>User:</strong></td><td><?=form_input('wordpress[user]')?></td></tr>
 	<tr><td><strong>Password:</strong></td><td><?=form_password('wordpress[pass]')?></td></tr>
