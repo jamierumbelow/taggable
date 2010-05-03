@@ -208,6 +208,142 @@ class Taggable_mcp {
 		return $this->_view('cp/tools');
 	}
 	
+	public function import() {
+		$from = $this->ee->input->get_post('from');
+		
+		$this->_title('taggable_import_'.$from);
+		return $this->_view('other/import/'.$from);
+	}
+	
+	public function import_taggable() {
+		// We won't use CI's uploader because we don't want
+		// to move the file anywhere, we just want to store it
+		// in memory.
+		if (isset($_FILES['file'])) {
+			if (is_uploaded_file($_FILES['file']['tmp_name'])) {
+				$file = file_get_contents($_FILES['file']['tmp_name']);
+			} else {
+				// error
+				$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=taggable');
+			}
+		}
+		
+		// Parse the JSON
+		$tags = json_decode($file);
+		
+		// Loop through the tags
+		foreach ($tags as $tag) {
+			if ($this->ee->db->where('tag_name', $tag->name)->get('tags')->num_rows == 0) {
+				// ...and insert!
+				$this->ee->db->insert('tags', array('tag_name' => $tag->name, 'tag_description' => $tag->description));
+			}
+		}
+		
+		// We're done!
+		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
+	}
+	
+	public function import_wordpress() {
+		// Gather the database details, and make a DNS string
+		$con = $this->ee->input->post('wordpress');
+		$dns = "mysql://".$con['user'].":".$con['pass']."@".$con['host']."/".$con['name'];
+		
+		// Try to connect
+		$db = DB($dns);
+		$db->dbprefix = $con['prefix'];
+		
+		// Are we connected?
+		if (!$db->conn_id) {
+			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=wordpress');
+		}
+		
+		// Okay, WP's database is retarded. So we need to get
+		// all the tag IDs and descriptions first, then the names :/
+		$ids = $db->select('term_id, description')->where('taxonomy', 'post_tag')->get('term_taxonomy')->result();
+		$ta = array();
+		
+		foreach ($ids as $id) {
+			$ta[$id->term_id] = array('id' => $id->term_id, 'description' => $id->description);
+		}
+		
+		// See? Really fucked up!
+		$tags = $db->where_in('term_id', array_keys($ta))->get('terms')->result();
+		
+		// Okay, we've got the tags now, let's insert them
+		foreach ($tags as $tag) {
+			if ($this->ee->db->where('tag_name', $tag->name)->get('tags')->num_rows == 0) {
+				// ...and insert!
+				$this->ee->db->insert('tags', array('tag_name' => $tag->name, 'tag_description' => $ta[$tag->term_id]['description']));
+			}
+		}
+		
+		// We're done!
+		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
+	}
+	
+	public function import_solspace() {
+		// Gather the database details, and make a DNS string
+		$con = $this->ee->input->post('solspace');
+		$dns = "mysql://".$con['user'].":".$con['pass']."@".$con['host']."/".$con['name'];
+		
+		// Try to connect
+		$db = DB($dns);
+		$db->dbprefix = $con['prefix'];
+		
+		// Are we connected?
+		if (!$db->conn_id) {
+			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=solspace');
+		}
+		
+		// Get the tags from Tag
+		$tags = $db->get('tag_tags')->result();
+		
+		// Okay, we've got the tags now, let's insert them
+		foreach ($tags as $tag) {
+			if ($this->ee->db->where('tag_name', $tag->tag_name)->get('tags')->num_rows == 0) {
+				// ...and insert!
+				$this->ee->db->insert('tags', array('tag_name' => $tag->tag_name));
+			}
+		}
+		
+		// We're done!
+		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
+	}
+	
+	public function import_tagger() {
+		// Gather the database details, and make a DNS string
+		$con = $this->ee->input->post('tagger');
+		$dns = "mysql://".$con['user'].":".$con['pass']."@".$con['host']."/".$con['name'];
+		
+		// Try to connect
+		$db = DB($dns);
+		$db->dbprefix = $con['prefix'];
+		
+		// Are we connected?
+		if (!$db->conn_id) {
+			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=tagger');
+		}
+		
+		// Get the tags from Tagger
+		$tags = $db->get('tagger')->result();
+		
+		// Okay, we've got the tags now, let's insert them
+		foreach ($tags as $tag) {
+			if ($this->ee->db->where('tag_name', $tag->tag_name)->get('tags')->num_rows == 0) {
+				// ...and insert!
+				$this->ee->db->insert('tags', array('tag_name' => $tag->tag_name));
+			}
+		}
+		
+		// We're done!
+		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
+	}
+	
+	public function import_success() {
+		$this->_title('taggable_import_success');
+		return $this->_view('other/import/success');
+	}
+	
 	public function diagnostics() {
 		$tests = array();
 		
@@ -253,7 +389,7 @@ class Taggable_mcp {
 			$preferences = $this->ee->input->post('preferences');
 			
 			foreach ($preferences as $key => $p): 
-				$this->ee->preferences->update($key, array('preference_value' => $p['preference_value'])); 
+				$this->ee->preferences->update($key, array('preference_value' => $p['preference_value'], 'site_id' => $this->site_id)); 
 			endforeach;
 			
 			// Show alert and redirect
@@ -261,6 +397,7 @@ class Taggable_mcp {
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=preferences");
 		}
 		
+		$this->ee->db->where('site_id', $this->site_id);
 		$this->data['preferences'] = $this->ee->preferences->get_all();
 		
 		$this->_title("taggable_preferences_title");
