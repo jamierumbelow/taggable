@@ -13,6 +13,7 @@
 
 require_once BASEPATH.	"core/Model.php";
 require_once PATH_THIRD."taggable/libraries/Model.php";
+require_once PATH_THIRD."taggable/config.php";
 
 class Taggable {
 	private $ee;

@@ -12,11 +12,7 @@
  **/
 
 require_once PATH_THIRD."taggable/libraries/Model.php";
-
-if (!defined("TAGGABLE_VERSION")) {
-	require PATH_THIRD.'taggable/config.php';
-	define('TAGGABLE_VERSION', $config['version']);
-}
+require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_ft extends EE_Fieldtype {
 	public $has_array_data = TRUE;

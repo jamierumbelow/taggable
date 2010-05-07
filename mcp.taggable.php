@@ -12,11 +12,7 @@
  **/
 
 require_once PATH_THIRD."taggable/libraries/Model.php";
-
-if (!defined("TAGGABLE_VERSION")) {
-	require PATH_THIRD.'taggable/config.php';
-	define('TAGGABLE_VERSION', $config['version']);
-}
+require_once PATH_THIRD."taggable/config.php";
 
 define('TAGGABLE_URL', BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=taggable');
 define('TAGGABLE_PATH', 'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=taggable');
@@ -480,7 +476,7 @@ class Taggable_mcp {
 	
 	// Misc
 	private function _valid($key) {
-		return preg_match("/^([A-Z]{4}\-[0-9]{4}\-[A-Z]{4}\-[0-9]{4})$/", $key);
+		return preg_match("/^([A-Z0-9a-z]{8}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{12})$/", $key);
 	}
 	
 	private function _test($value, $exp) {

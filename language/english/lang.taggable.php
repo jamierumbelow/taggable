@@ -94,9 +94,12 @@ $lang = array(
 	'taggable_import'				=> 'Import',
 	'taggable_from'					=> 'From',
 	'taggable_export'				=> 'Export',
+	'taggable_upload'				=> 'Upload',
 	'taggable_export_to_json'		=> 'Export to JSON',
 	'taggable_solspace_message'		=> "The Solspace's Tag importer allows you to import tags from Solspace's Tag for ExpressionEngine 1 and 2. To connect to Tag and import the tags, we need your database connection details.",
 	'taggable_taggable_message'		=> "The Taggable importer allows you to import tags from another install of Taggable. It's very easy to do, all you need to do is upload the export file and run the importer engine, and Taggable will import all your tags into the system.",
+	'taggable_tagger_message'		=> "The Tagger Lite importer allows you to import tags from Tagger Lite for ExpressionEngine 1 and 2. To connect to Tagger Lite and import the tags, we need your database connection details.",
+	'taggable_wordpress_message'	=> "The WordPress importer allows you to import tags from WordPress. To connect to WordPress and download the tags, we need your database connection details.",
 		
 	
 	// Errors
