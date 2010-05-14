@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://gettaggable.com/docs/introduction#license
- * @version 1.1.0
+ * @version 1.2.0b
  **/
 
 $lang = array(
