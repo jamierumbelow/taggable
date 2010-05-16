@@ -314,6 +314,10 @@ class Taggable {
 		return ucwords($name);
 	}
 	
+	private function _fetch_tag_id($name) {
+		return $this->ee->db->where('tag_name', $name)->get('tags')->row('tag_id');
+	}
+	
 	/**
 	 * A pretty sexy method to generically parse a parameter
 	 * that can contain multiple values, with support for "not",
