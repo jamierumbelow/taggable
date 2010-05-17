@@ -37,4 +37,15 @@
 			<p><a class="submit" href="<?=TAGGABLE_URL.AMP.'method=diagnostics'?>"><?=lang('taggable_run_diagnostics')?></a></p>
 		</div>
 	</div>
+	
+	<div style="width: 49%; float: left; margin-left: 1%;margin-top: 0.75%">
+		<div class="heading"><h2><?=lang('taggable_upgrade_utility')?></h2></div>
+		<div class="pageContents">
+			<p>Taggable 1.2 changed the architecture of Taggable and removed the tags tab from the publish form. Use this tool to migrate tags from earlier channels to a new custom field after the upgrade.</p>
+			
+			<br />
+			
+			<p><a class="submit" href="<?=TAGGABLE_URL.AMP.'method=upgrade'?>"><?=lang('taggable_run_upgrade')?></a></p>
+		</div>
+	</div>
 </div>

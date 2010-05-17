@@ -398,6 +398,58 @@ class Taggable_mcp {
 		force_download('taggable_export_'.time().'.json', $content);
 	}
 	
+	public function upgrade() {
+		$channels = $this->ee->api_channel_structure->get_channels()->result_object();
+		$c_array = array();
+		
+		foreach ($channels as $channel) {
+			$c_array[$channel->channel_id] = $channel->channel_title;
+		}
+		
+		$this->data['channels'] = $c_array;
+		
+		$this->_title('taggable_upgrade_utility_title');
+		return $this->_view('cp/upgrade');
+	}
+	
+	public function upgrade_field() {
+		$this->ee->load->library('api/api_channel_fields');
+		$group = $this->ee->db->select('field_group')->where('channel_id', $this->ee->input->post('channel'))->get('channels')->row('field_group');
+		
+		$this->ee->db->where('group_id', $group);
+		$this->ee->db->where('field_type', 'taggable');
+		
+		$fields = $this->ee->db->get('channel_fields')->result();
+		$f_array = array();
+		
+		foreach ($fields as $field) {
+			$f_array[$field->field_name] = $field->field_label;
+		}
+		
+		$this->data['fields'] = $f_array;
+		$this->data['channel'] = $this->ee->input->post('channel');
+		
+		$this->_title('taggable_upgrade_utility_title');
+		return $this->_view('cp/upgrade_field');
+	}
+	
+	public function upgrade_do() {
+		$channel = $this->ee->input->post('channel');
+		$field = $this->ee->input->post('field');
+		
+		// select all the entries for this channel
+		$entries = $this->ee->db->select('entry_id')->where('channel_id', $channel)->get('channel_titles')->result();
+		
+		// Loop through each entry and assign the template to that entry's tags
+		foreach ($entries as $entry) {
+			$this->ee->db->where('entry_id', $entry->entry_id)->set('template', $field)->update('tags_entries');
+		}
+		
+		// Done!
+		$this->ee->session->set_flashdata('message_success', lang('taggable_entries_upgraded'));
+		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tools");
+	}
+	
 	public function preferences() {
 		if ($this->ee->input->post('save_preferences')) {
 			// Save preference

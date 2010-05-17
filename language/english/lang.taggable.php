@@ -100,6 +100,9 @@ $lang = array(
 	'taggable_taggable_message'		=> "The Taggable importer allows you to import tags from another install of Taggable. It's very easy to do, all you need to do is upload the export file and run the importer engine, and Taggable will import all your tags into the system.",
 	'taggable_tagger_message'		=> "The Tagger Lite importer allows you to import tags from Tagger Lite for ExpressionEngine 1 and 2. To connect to Tagger Lite and import the tags, we need your database connection details.",
 	'taggable_wordpress_message'	=> "The WordPress importer allows you to import tags from WordPress. To connect to WordPress and download the tags, we need your database connection details.",
+	'taggable_upgrade_utility'		=> 'Upgrade Utility',
+	'taggable_run_upgrade'			=> 'Run Upgrade',
+	'taggable_entries_upgraded'		=> 'Upgraded All Tags',
 		
 	
 	// Errors
