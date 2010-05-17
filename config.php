@@ -14,7 +14,7 @@
 // NSM Addon Updater
 $config['name'] 								= "Taggable";
 $config['version'] 								= "1.2.0";
-$config['nsm_addon_updater']['versions_xml'] 	= "http://";
+$config['nsm_addon_updater']['versions_xml'] 	= "http://getsparkplugs.com/?ACT=26&UT=taggable";
 
 // Version constant
 if (!defined("TAGGABLE_VERSION")) {
