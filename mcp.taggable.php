@@ -377,7 +377,7 @@ class Taggable_mcp {
 			force_download('taggable_diagnostics_'.time().'.txt', $this->_view('other/diagnostics_report'));
 		}
 		
-		$this->_title('taggable_diagnostics_title');
+		$this->_title('taggable_diagnostics');
 		return $this->_view('cp/diagnostics');
 	}
 	
@@ -408,7 +408,7 @@ class Taggable_mcp {
 		
 		$this->data['channels'] = $c_array;
 		
-		$this->_title('taggable_upgrade_utility_title');
+		$this->_title('taggable_upgrade_utility');
 		return $this->_view('cp/upgrade');
 	}
 	
@@ -429,7 +429,7 @@ class Taggable_mcp {
 		$this->data['fields'] = $f_array;
 		$this->data['channel'] = $this->ee->input->post('channel');
 		
-		$this->_title('taggable_upgrade_utility_title');
+		$this->_title('taggable_upgrade_utility');
 		return $this->_view('cp/upgrade_field');
 	}
 	

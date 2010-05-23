@@ -103,7 +103,13 @@ $lang = array(
 	'taggable_upgrade_utility'		=> 'Upgrade Utility',
 	'taggable_run_upgrade'			=> 'Run Upgrade',
 	'taggable_entries_upgraded'		=> 'Upgraded All Tags',
-		
+	
+	// Diagnosics
+	'taggable_diagnostics_generic' 						=> 'Generic',
+	'taggable_diagnostics_generic_php_version'			=> 'PHP Version',
+	'taggable_diagnostics_generic_ee_version'			=> 'ExpressionEngine Version',
+	'taggable_diagnostics_generic_ee_build'				=> 'ExpressionEngine Build',
+	'taggable_diagnostics_generic_extensions_enabled'	=> 'Extensions enabled?',
 	
 	// Errors
 	'taggable_errors_tag_name' 		=> 'Please enter a tag name!',
