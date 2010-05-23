@@ -436,6 +436,7 @@ class Taggable_mcp {
 	public function upgrade_do() {
 		$channel = $this->ee->input->post('channel');
 		$field = $this->ee->input->post('field');
+		$field_id = $this->ee->db->select('field_id')->where('field_name', $field)->get('channel_fields')->row('field_id');
 		
 		// select all the entries for this channel
 		$entries = $this->ee->db->select('entry_id')->where('channel_id', $channel)->get('channel_titles')->result();
@@ -443,6 +444,23 @@ class Taggable_mcp {
 		// Loop through each entry and assign the template to that entry's tags
 		foreach ($entries as $entry) {
 			$this->ee->db->where('entry_id', $entry->entry_id)->set('template', $field)->update('tags_entries');
+			
+			// Get all the tags for this entry
+			$tags = $this->ee->db->where('entry_id', $entry->entry_id)->get('tags_entries')->result();
+			$tagi = array();
+			
+			foreach ($tags as $tag) {
+				$tagi[] = $tag->tag_id;
+			}
+			
+			// Build the string
+			$str = implode(',', $tagi);
+			$str = $str . ',';
+			
+			// Set the exp_channel_data
+			$this->ee->db->where('entry_id', $entry->entry_id)
+						 ->set('field_id_'.$field_id, $str)
+						 ->update('channel_data');
 		}
 		
 		// Done!
