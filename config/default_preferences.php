@@ -7,8 +7,8 @@
  *
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
- * @license http://gettaggable.com/docs/introduction#license
- * @version 1.2.0
+ * @license http://getsparkplugs.com/taggable/docs#license
+ * @version 1.2.1
  **/
 
 $config['convert_to_lowercase'] 	= array('type' => 'boolean', 'value' => 'y');
