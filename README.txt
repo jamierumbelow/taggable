@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.2.0
+	Taggable Version 1.2.1
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -14,7 +14,7 @@ Taggable only requires an installed copy of ExpressionEngine 2.0.2 and what’s 
 Install Instructions
 ====================
 
-Install Taggable like any other ExpressionEngine 2 addon. Simply drag the taggable/ folder found in your download into the system/expressionengine/third_party/ folder. Then go into the EE control panel, navigate to the Modules page and find Taggable in the list.
+Install Taggable like any other ExpressionEngine 2 add-on. Simply drag the taggable/ folder found in your download into the system/expressionengine/third_party/ folder. Then go into the EE control panel, navigate to the Modules page and find Taggable in the list.
 
 Click the install link and you should see a set of form fields allowing you to enable or disable the various parts of the addon. Make sure you enable every part of the extension - the module, extension and fieldtype.
 
@@ -22,6 +22,13 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.2.1
+		- Fixed bug where new tags weren't saving correctly
+		- Fixed bug with masked CP access
+		- Added exp_channel_data support to upgrader
+		- Updated license URLs
+		- Completed language pack
 
 	Version 1.2
 		- Taggable Custom Field Support
