@@ -35,22 +35,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->model('taggable_preferences_model', 'preferences');
 		
 		$tags = explode(',', $data);
-		array_pop($tags);
-		
-		foreach ($tags as $key => $tag) {
-			if (!is_numeric($tag)) {
-				// Is it in the DB? What's the ID?
-				$query = $this->EE->db->where('tag_name', $tag)->get('tags');
-				
-				if ($query->num_rows > 0) {
-					$tags[$key] = $query->row('tag_id');
-				} else {
-					$this->EE->db->insert('tags', array('tag_name' => $tag));
-					$tags[$key] = $this->EE->db->insert_id();
-				}
-			}
-		}
-		
+		array_pop($tags);		
 		$tags = implode(',', $tags).',';
 		$data = $tags;
 		
@@ -110,8 +95,28 @@ class Taggable_ft extends EE_Fieldtype {
 		return $return;
 	}
 	
-	public function save($str) {
-		return $str;
+	public function save($data) {
+		$tags = explode(',', $data);
+		array_pop($tags);
+		
+		foreach ($tags as $key => $tag) {
+			if (!is_numeric($tag)) {
+				// Is it in the DB? What's the ID?
+				$query = $this->EE->db->where('tag_name', $tag)->get('tags');
+				
+				if ($query->num_rows > 0) {
+					$tags[$key] = $query->row('tag_id');
+				} else {
+					$this->EE->db->insert('tags', array('tag_name' => $tag));
+					$tags[$key] = $this->EE->db->insert_id();
+				}
+			}
+		}
+		
+		$data = $data . ',';
+		$data = implode(',', $tags);
+		
+		return $data;
 	}
 	
 	public function post_save($data) {
