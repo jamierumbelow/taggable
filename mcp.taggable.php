@@ -514,6 +514,11 @@ class Taggable_mcp {
 		die(file_get_contents(PATH_THIRD."taggable/javascript/jquery.autoSuggest.js"));
 	}
 	
+	public function image() {
+		header("Content-type: image/png");
+		die(file_get_contents(PATH_THIRD."taggable/images/".$_GET['file'].'.png'));
+	}
+	
 	// Layout helpers
 	private function _title($title) {
 		$this->data['title'] = lang($title);
