@@ -59,6 +59,8 @@ class Taggable_ft extends EE_Fieldtype {
 	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
 		$ids = explode(',', $data);
 		array_pop($ids);
+		$return = '';
+	    $vars = '';
 		
 		if ($ids) {
 			$tags = $this->EE->db->where_in('tag_id', $ids)->get('tags')->result();
