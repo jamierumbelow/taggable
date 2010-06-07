@@ -16,7 +16,7 @@ require_once PATH_THIRD."taggable/libraries/Model.php";
 class Taggable_tag_model extends Model {
 	public $primary_key 	= 'tag_id';
 	public $_table 			= 'tags';
-	public $before_create 	= array('lowercase_tag');
+	public $before_create 	= array('lowercase_tag', 'site_id', 'trimmed_name');
 	public $site_id			= 0;
 	
 	public function __construct() {
@@ -27,6 +27,10 @@ class Taggable_tag_model extends Model {
 		$this->db->select('COUNT(exp_tags_entries.entry_id) AS entry_count');
 		$this->db->join('exp_tags_entries', 'exp_tags_entries.tag_id = exp_tags.tag_id');
 		$this->order_by('entry_count');
+	}
+	
+	public function entry_tagged_with_tag($entry, $id) {
+		return (bool)$this->db->where('entry_id', $entry)->where('tag_id', $tag)->get('tags_entries')->num_rows;
 	}
 	
 	public function get_alphabet_list() {
@@ -122,8 +126,20 @@ class Taggable_tag_model extends Model {
 	
 	protected function lowercase_tag($tag) {
 		if ($this->preferences->get_by('preference_key', 'convert_to_lowercase')->preference_value == 'y') {
-			$tag['tag_name'] = strtolower($tag['tag_name']);
+			$tag['name'] = strtolower($tag['name']);
 		}
+		
+		return $tag;
+	}
+	
+	protected function site_id($tag) {
+		$tag['site_id'] = $this->ee->config->item('site_id');
+		
+		return $tag;
+	}
+	
+	protected function trimmed_name($tag) {
+		$tag['name'] = trim($tag['name']);
 		
 		return $tag;
 	}
