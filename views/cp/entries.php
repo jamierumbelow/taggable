@@ -1,9 +1,9 @@
 <?=form_open(TAGGABLE_PATH.AMP.'method=update_tag')?>
-	<?=form_hidden('tag_id', $tag->tag_id)?>
+	<?=form_hidden('tag_id', $tag->id)?>
 	<table border="0" cellspacing="5" cellpadding="5">
 		<?php if ($errors): ?><tr><td></td><td style="color:#FF0000"><?=lang('taggable_errors_tag_name')?></td></tr><?php endif; ?>
-		<tr><td><strong><?=lang('taggable_tag_name')?></strong></td><td><?=form_input('tag[tag_name]', $tag->tag_name)?></td></tr>
-		<tr><td><strong><?=lang('taggable_tag_description')?></strong></td><td><?=form_textarea('tag[tag_description]', $tag->tag_description)?></td></tr>
+		<tr><td><strong><?=lang('taggable_tag_name')?></strong></td><td><?=form_input('tag[name]', $tag->name)?></td></tr>
+		<tr><td><strong><?=lang('taggable_tag_description')?></strong></td><td><?=form_textarea('tag[description]', $tag->description)?></td></tr>
 		<tr><td><?=form_submit('form_submit', lang('taggable_update_tag'), 'class="submit"')?></td></tr>
 	</table>
 <?=form_close()?>

@@ -1,0 +1,4 @@
+Taggable Naming Conventions
+===========================
+
+This is sort of an internal design document I put together for Taggable 1.2.5 so that I could keep track of the conventions used in the system, make everything consistent et cetera. It'll also come in handy when writing modification extensions to Taggable. This is a guide I'll use within Taggable as much as possible, but it may not apply to the whole of the system, so please give me a little leeway. I'd recommend you follow these conventions 

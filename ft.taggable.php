@@ -33,6 +33,7 @@ class Taggable_ft extends EE_Fieldtype {
 		
 		$this->EE->load->library('model');
 		$this->EE->load->model('taggable_preferences_model', 'preferences');
+		$this->EE->load->model('taggable_tag_model', 'tags');
 		
 		$tags = explode(',', $data);
 		array_pop($tags);		
@@ -63,18 +64,18 @@ class Taggable_ft extends EE_Fieldtype {
 	    $vars = '';
 		
 		if ($ids) {
-			$tags = $this->EE->db->where_in('tag_id', $ids)->get('tags')->result();
+			$tags = $this->EE->db->where_in('id', $ids)->get('taggable_tags')->result();
 		
 			if ($tags) {
 				// Loop through and arrange everything
 				foreach ($tags as $tag) {
 					$tag_rows[] = array(
-						'tag_name'			=> $tag->tag_name,
-						'tag_id'			=> $tag->tag_id,
-						'tag_description'	=> $tag->tag_description,
-						'entry_count'		=> $this->tag_entries($tag->tag_id),
-						'tag_url_name'		=> str_replace(' ', "_", $tag->tag_name),
-						'tag_pretty_name'	=> $tag->tag_name
+						'tag_name'			=> $tag->name,
+						'tag_id'			=> $tag->id,
+						'tag_description'	=> $tag->description,
+						'entry_count'		=> $this->tag_entries($tag->id),
+						'tag_url_name'		=> str_replace(' ', "_", $tag->name),
+						'tag_pretty_name'	=> $tag->name
 					);
 				}
 			
@@ -104,19 +105,18 @@ class Taggable_ft extends EE_Fieldtype {
 		foreach ($tags as $key => $tag) {
 			if (!is_numeric($tag)) {
 				// Is it in the DB? What's the ID?
-				$query = $this->EE->db->where('tag_name', $tag)->get('tags');
+				$query = $this->EE->tags->get_by('name', $tag);
 				
-				if ($query->num_rows > 0) {
-					$tags[$key] = $query->row('tag_id');
+				if ($query) {
+					$tags[$key] = $query->id;
 				} else {
-					$this->EE->db->insert('tags', array('tag_name' => $tag));
-					$tags[$key] = $this->EE->db->insert_id();
+					$tags[$key] = $this->EE->tags->insert(array('name' => $tag));
 				}
 			}
 		}
 		
-		$data = $data . ',';
 		$data = implode(',', $tags);
+		$data = $data . ',';
 		
 		return $data;
 	}
@@ -131,7 +131,7 @@ class Taggable_ft extends EE_Fieldtype {
 				if (is_numeric($tag)) {
 					$this->EE->db->where('entry_id', $this->settings['entry_id'])
 								 ->where('tag_id', $tag)
-								 ->delete('exp_tags_entries');
+								 ->delete('exp_taggable_tags_entries');
 				}
 			}
 		}
@@ -146,20 +146,19 @@ class Taggable_ft extends EE_Fieldtype {
 			foreach ($tags as $tag) {
 				if (!empty($tag)) {
 					if (!is_numeric($tag)) {
-						$query = $this->EE->db->query("SELECT * FROM exp_tags WHERE tag_name = '$tag' AND site_id = ".$this->EE->config->item('site_id'));
+						$query = $this->EE->tags->get_by('name', $tag);
 					
-						if ($query->num_rows == 0) { 
-							$tag = $this->EE->db->insert('tags', array('tag_name' => $tag, 'site_id' => $this->EE->config->item('site_id')));
-							$tag = $this->EE->db->insert_id();
+						if ($query) { 
+							$tag = $query->id;
 						} else {
-							$tag = $query->row('tag_id');
+							$tag = $this->EE->tags->insert(array('name' => $tag));
 						}
 					}
 			
-					$num_rows = $this->EE->db->query("SELECT * FROM exp_tags_entries WHERE tag_id = $tag AND entry_id = {$this->settings['entry_id']}")->num_rows;
-				
+					$num_rows = $this->EE->db->query("SELECT * FROM exp_taggable_tags_entries WHERE tag_id = $tag AND entry_id = {$this->settings['entry_id']}")->num_rows;
+					
 					if ($num_rows == 0) {
-						$this->EE->db->insert('exp_tags_entries', array(
+						$this->EE->db->insert('exp_taggable_tags_entries', array(
 							'tag_id' 	=> $tag,
 							'entry_id'	=> $this->settings['entry_id'],
 							'template'	=> $template
@@ -171,8 +170,10 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	public function delete($ids) {
+		$this->EE->db->save_queries = TRUE;
 		$this->EE->db->where_in('entry_id', $ids);
-		$this->EE->db->delete('exp_tags_entries');
+		$this->EE->db->delete('exp_taggable_tags_entries');
+		die(var_dump($this->EE->db));
 	}
 	
 	protected function _parse_if_no_tags($tagdata) {
@@ -186,7 +187,7 @@ class Taggable_ft extends EE_Fieldtype {
 	protected function tag_entries($id) {
 		return $this->EE->db->select("COUNT(DISTINCT entry_id) AS total")
 							->where("tag_id", $id)
-							->get('tags_entries')
+							->get('taggable_tags_entries')
 							->row('total');
 	}
 	
@@ -206,8 +207,7 @@ class Taggable_ft extends EE_Fieldtype {
 			'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
 			'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
 			'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
-			'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create',
-			'autotagUrl'			=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_autotag'			
+			'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
 		);
 		
 		foreach ($js as $name => $value) {
@@ -216,30 +216,32 @@ class Taggable_ft extends EE_Fieldtype {
 		
 		$this->EE->cp->load_package_js('jquery.autocomplete');
 		
-		$js = '$("#'.$field_name.'").tokenInput(EE.tag.searchUrl, EE.tag.createUrl, { autotagUrl: EE.tag.autotagUrl, lang: EE.tag,';
+		$js = '$("#'.$field_name.'").tokenInput(EE.tag.searchUrl, EE.tag.createUrl, { lang: EE.tag,';
 		
 		if ($data) { 
 			$ids 	= explode(',', $data);
 			$datar 	= array();
-			
+
 			foreach ($ids as $id) {
 				if (!empty($id)) {
-					$name = $this->EE->db->select('tag_name')->where('tag_id', $id)->get('exp_tags')->row('tag_name');
+					if (is_numeric($id)) {
+						$name = $this->EE->tags->get($id)->name;
 				
-					$datar[] = array(
-						'id' 	=> $id,
-						'name'	=> $name
-					);
+						$datar[] = array(
+							'id' 	=> $id,
+							'name'	=> $name
+						);
+					}
 				}
 			}
 
 			$js .= 'prePopulate: '.json_encode($datar).',';
 		}
 		
-		$pref = $this->EE->preferences->get_by('preference_key', 'maximum_tags_per_entry');
+		$pref = $this->EE->preferences->get_by('preference', 'maximum_tags_per_entry');
 		
-		if (!(int)$pref->preference_value === 0) {
-			$js .= 'tokenLimit: '.$pref->preference_value.',';
+		if (!(int)$pref->value === 0) {
+			$js .= 'tokenLimit: '.$pref->value.',';
 		}
 		
 		$js .= 'a:{}});';

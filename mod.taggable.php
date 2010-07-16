@@ -50,7 +50,7 @@ class Taggable {
 		$sort		 		 = strtolower($this->ee->TMPL->fetch_param('sort'));
 		$backspace 			 = $this->ee->TMPL->fetch_param('backspace');
 		$limit				 = $this->ee->TMPL->fetch_param('limit');
-		$url_separator		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '-' ;
+		$url_separator		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '_' ;
 		$lookup_tag_url_name = ($this->ee->TMPL->fetch_param('lookup_tag_url_name') == 'no') ? FALSE : TRUE;
 		$vars				 = array();
 		
@@ -66,18 +66,16 @@ class Taggable {
 		
 		// Tag ID
 		if ($tag_id) {
-			$this->parse_multiple_params('exp_tags.tag_id', $tag_id);
+			$this->parse_multiple_params('exp_taggable_tags.id', $tag_id);
 		}
 		
 		// Tag Name
 		if ($tag_name) {
 			if ($lookup_tag_url_name) {
-				foreach ($tag_name as $key => $tag) {
-					$tag_name[$key] = str_replace($url_separator, ' ', $tag);
-				}
+				$tag_name = str_replace($url_separator, ' ', $tag_name);
 			}
 			
-			$this->parse_multiple_params('exp_tags.tag_name', $tag_name);
+			$this->parse_multiple_params('exp_taggable_tags.name', $tag_name);
 		}
 		
 		// taggable_tags_find_query
@@ -86,20 +84,20 @@ class Taggable {
 		// Channel
 		if ($channel) {
 			$this->parse_multiple_params('exp_channel_titles.channel_id', $channel, 'exp_channels', 'channel_name', 'channel_id');
-			$this->ee->db->join('exp_tags_entries', 'exp_tags.tag_id = exp_tags_entries.tag_id');
-			$this->ee->db->join('exp_channel_titles', 'exp_tags_entries.entry_id = exp_channel_titles.entry_id');
+			$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
+			$this->ee->db->join('exp_channel_titles', 'exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id');
 		}
 		
 		// Find the tags
 		if ($entry_id) {
-			$this->ee->db->where('exp_tags.site_id', $this->site_id);
+			$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 			$tags = $this->ee->tags->tags_entry($entry_id);
 		} elseif ($entry_url_title) {
-			$this->ee->db->where('exp_tags.site_id', $this->site_id);
+			$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 			$tags = $this->ee->tags->tags_entry_url_title($entry_url_title);
 		} else {
 			// careful with this one...
-			$this->ee->db->where('exp_tags.site_id', $this->site_id);
+			$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 			$tags = $this->ee->tags->get_all();
 		}
 		
@@ -113,12 +111,12 @@ class Taggable {
 		if ($tags) {
 			foreach ($tags as $tag) {
 				$vars[] = array(
-					'tag_name'			=> $tag->tag_name,
-					'tag_id'			=> $tag->tag_id,
-					'tag_description'	=> $tag->tag_description,
-					'entry_count'		=> $this->ee->tags->tag_entries($tag->tag_id),
-					'tag_url_name'		=> str_replace(' ', $url_separator, $tag->tag_name),
-					'tag_pretty_name'	=> $this->_pretty_tag($tag->tag_name)
+					'tag_name'			=> $tag->name,
+					'tag_id'			=> $tag->id,
+					'tag_description'	=> $tag->description,
+					'entry_count'		=> $this->ee->tags->tag_entries_count($tag->id),
+					'tag_url_name'		=> str_replace(' ', $url_separator, $tag->name),
+					'tag_pretty_name'	=> $this->_pretty_tag($tag->name)
 				);
 			}
 		} else {
@@ -182,12 +180,12 @@ class Taggable {
 			// Tag names require a DB lookup
 			if ($tag_names) {
 				if (!stristr($tag_names, '|')) {
-					$tags[] = $this->_fetch_tag_id(str_replace(' ', $url_separator, $tag_names));
+					$tags[] = $this->_fetch_tag_id(str_replace($url_separator, ' ', $tag_names));
 				} else {
 					$ts	= explode('|', $tag_names);
 			
 					foreach ($ts as $t) {
-						$tags[] = $this->_fetch_tag_id(str_replace(' ', $url_separator, $t));
+						$tags[] = $this->_fetch_tag_id(str_replace($url_separator, ' ', $t));
 					}
 				}
 			}
@@ -207,17 +205,21 @@ class Taggable {
 		}
 		
 		// Get the entries
-		$entries = $this->ee->db->where_in('tag_id', $tags)->get('tags_entries')->result();
-		$es = array();
+		if ($tags) {
+			$entries = $this->ee->db->where_in('tag_id', $tags)->get('taggable_tags_entries')->result();
+			$es = array();
 		
-		foreach ($entries as $entry) {
-			$es[] = $entry->entry_id;
+			foreach ($entries as $entry) {
+				$es[] = $entry->entry_id;
+			}
+		
+			// Prepare the vars
+			$parse[] = array(
+				'entries' => implode('|', $es)
+			);
+		} else {
+			$parse[] = array('entries' => '');
 		}
-		
-		// Prepare the vars
-		$parse[] = array(
-			'entries' => implode('|', $es)
-		);
 		
 		// Parse!
 		$parsed = $this->ee->TMPL->parse_variables($this->tagdata, $parse);
@@ -242,24 +244,24 @@ class Taggable {
 		
 		// Filter by tag ID
 		if ($tag_id) {
-			$this->parse_multiple_params('exp_tags.tag_id', $tag_id);
+			$this->parse_multiple_params('exp_taggable_tags.id', $tag_id);
 		}
 		
 		// Channel
 		if ($channel) {
 			$this->parse_multiple_params('exp_channel_titles.channel_id', $channel, 'exp_channels', 'channel_name', 'channel_id');
-			$this->ee->db->join('exp_tags_entries', 'exp_tags.tag_id = exp_tags_entries.tag_id');
-			$this->ee->db->join('exp_channel_titles', 'exp_tags_entries.entry_id = exp_channel_titles.entry_id');
+			$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
+			$this->ee->db->join('exp_channel_titles', 'exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id');
 		}
 
 		// Find
-		$this->ee->db->where('exp_tags.site_id', $this->site_id);
-		$tags = $this->ee->db->get('exp_tags')->result();
+		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
+		$tags = $this->ee->db->get('exp_taggable_tags')->result();
 		$counts = array();
 
 		// Loop through the tags and count them
         foreach ($tags as $tag) {
-        	$tag->entry_count = $this->ee->tags->tag_entries($tag->tag_id);
+        	$tag->entry_count = $this->ee->tags->tag_entries_count($tag->tag_id);
 			$counts[] = $tag->entry_count;
         }
 
@@ -315,7 +317,7 @@ class Taggable {
 	}
 	
 	private function _fetch_tag_id($name) {
-		return $this->ee->db->where('tag_name', $name)->get('tags')->row('tag_id');
+		return $this->ee->db->where('name', $name)->get('taggable_tags')->row('id');
 	}
 	
 	/**
@@ -379,7 +381,7 @@ class Taggable {
 				$this->ee->db->where($id_col.' !=', $new_val);
 			}
 		} else {
-			if (strpos('|', $string)) {
+			if (strpos($string, '|')) {
 				// multiple vals
 				$string = str_replace(" ", "", $string);
 				$vals = explode('|', $string);

@@ -46,12 +46,11 @@ class Taggable_mcp {
 		));
 		
 		// Global data
-		$this->data['license_key'] = $this->ee->preferences->get_by('preference_key', 'license_key')->preference_value;
+		$this->data['license_key'] = $this->ee->preferences->get_by('preference', 'license_key')->value;
 		
 		// MSM
-		$this->site_id 				= $this->ee->config->item('site_id');
-		$this->ee->tags->site_id	= $this->site_id;
-		
+		$this->site_id = $this->ee->config->item('site_id');
+				
 		// License key check
 		if (empty($this->data['license_key']) || !$this->_valid($this->data['license_key'])) { 
 			$this->ee->cp->add_to_head("
@@ -62,10 +61,6 @@ class Taggable_mcp {
 				</script>
 			");
 		}
-		
-		// debug		// 
-				// $this->ee->db->save_queries = TRUE;
-				// $this->ee->output->enable_profiler(TRUE);
 	}
 	
 	public function index() {
@@ -76,74 +71,33 @@ class Taggable_mcp {
 		return $this->_view('cp/index');
 	}
 	
-	// @todo Put all the queries and such in the model
 	public function tags() {
-		$this->data['order'] 			 = 'tag_id';
-		$this->data['text_search_order'] = 'sw';
-		$this->data['text_search'] 		 = '';
-		$this->data['entry_count_order'] = 'mt';
-		$this->data['entry_count'] 		 = '';
+		// Reset filters and start building the query
+		$this->ee->tags->reset_filters();
+		$this->ee->tags->grouped_tags_lookup();
 		
-		$this->ee->db->select('exp_tags.tag_id, exp_tags.tag_name, exp_tags.tag_description');
-		$this->ee->db->where('exp_tags.site_id', $this->site_id);
-		$this->ee->db->from('exp_tags');
-		$this->ee->db->group_by('exp_tags.tag_id');
-		
+		// Order by
 		if ($this->ee->input->get('order')) {
-			if ($this->ee->input->get('order') == "entries") {
-				$this->ee->tags->order_by_entries();
-			} else {
-				$this->ee->tags->order_by($this->ee->input->get('order'));
-			}
-			
-			$this->data['order'] = $this->ee->input->get('order');
+			$this->ee->tags->order_by($this->ee->input->get('order'));
 		}
 		
+		// Text searching
 		if ($term = $this->ee->input->get('text_search')) {
-			switch ($this->ee->input->get('text_search_order')) {
-				case 'sw':
-					$this->ee->db->where("exp_tags.tag_name LIKE ", $term."%");
-					break;
-				
-				case 'co':
-					$this->ee->db->where("exp_tags.tag_name LIKE ", "%".$term."%");
-					break;
-				
-				case 'ew':
-					$this->ee->db->where("exp_tags.tag_name LIKE ", "%".$term);
-					break;
-			}
-			
-			$this->data['text_search_order'] = $this->ee->input->get('text_search_order');
-			$this->data['text_search']		 = $this->ee->input->get('text_search');
+			$this->ee->tags->where_tag_name_based_on_text_search_term($this->ee->input->get('text_search'), $term);
 		}
 		
+		// Entry count
 		if ($count = $this->ee->input->get('entry_count')) {
-			$this->ee->db->select('COUNT(DISTINCT exp_tags_entries.entry_id) AS entry_count');
-			$this->ee->db->join('exp_tags_entries', 'exp_tags_entries.tag_id = exp_tags.tag_id', 'left');
-			
-			switch ($this->ee->input->get('entry_count_order')) {
-				case 'mt':
-					$this->ee->db->having('entry_count > ', $this->ee->input->get('entry_count'));
-					break;
-					
-				case 'lt':
-					$this->ee->db->having('entry_count < ', $this->ee->input->get('entry_count'));
-					break;
-					
-				case 'et':
-					$this->ee->db->having('entry_count = ', $this->ee->input->get('entry_count'));
-					break;
-			}
-			
-			$this->data['entry_count'] 			= $this->ee->input->get('entry_count');
-			$this->data['entry_count_order']	= $this->ee->input->get('entry_count_order');
+			$this->ee->tags->where_entry_count_based_on_entry_count_order($this->ee->input->get('entry_count_order'), $count);
 		}
 
-		$this->data['tags'] = $this->ee->db->get()->result();		
+		// Get the tags
+		$this->data = $this->ee->tags->filters;
+		$this->data['tags'] = $this->ee->tags->get_all();		
 		$this->data['tags_alphabetically'] = $this->ee->tags->get_alphabet_list();
 		$this->data['errors'] = ($this->ee->session->flashdata('create_validate') == 'yes') ? TRUE : FALSE;
 		
+		// Show the view
 		$this->_title("taggable_tags_title");
 		return $this->_view('cp/tags');
 	}
@@ -153,18 +107,14 @@ class Taggable_mcp {
 		
 		$this->data['tag'] 		= $this->ee->tags->get($tag);
 		$this->data['errors'] 	= ($this->ee->session->flashdata('edit_validate') == 'yes') ? TRUE : FALSE;
-		$this->data['entries']	= $this->ee->db->select('DISTINCT exp_tags_entries.entry_id, exp_channel_titles.title, exp_channel_titles.url_title, exp_channel_titles.channel_id')
-											   ->where('exp_tags_entries.tag_id', $tag)
-											   ->where('exp_channel_titles.entry_id = exp_tags_entries.entry_id')
-											   ->get('exp_tags_entries, exp_channel_titles')
-											   ->result();
+		$this->data['entries']	= $this->ee->tags->tag_entries($tag);
 		
 		$this->_title("taggable_edit_tag");
 		return $this->_view('cp/entries');
 	}
 	
 	public function create_tag() {
-		if (empty($_POST['tag']['tag_name'])) {
+		if (empty($_POST['tag']['name'])) {
 			$this->ee->session->set_flashdata('create_validate', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tags");
 		}
@@ -179,18 +129,16 @@ class Taggable_mcp {
 	
 	public function delete_tags() {
 		$tags = $this->ee->input->post('delete_tags');
-		$this->ee->tags->delete_many($tags);
 		
-		foreach ($tags as $tag) {
-			$this->ee->db->where('tag_id', $tag)->delete('exp_tags_entries');
-		}
+		$this->ee->tags->delete_many($tags);
+		$this->ee->tags->delete_entries($tags);
 		
 		$this->ee->session->set_flashdata('message_success', "Tag(s) deleted");
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tags");
 	}
 	
 	public function update_tag() {
-		if (empty($_POST['tag']['tag_name'])) {
+		if (empty($_POST['tag']['name'])) {
 			$this->ee->session->set_flashdata('edit_validate', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tag_entries".AMP.'tag_id='.$this->ee->input->post('tag_id'));
 		}
@@ -245,9 +193,9 @@ class Taggable_mcp {
 		
 		// Loop through the tags
 		foreach ($tags as $tag) {
-			if ($this->ee->db->where('tag_name', $tag->name)->get('tags')->num_rows == 0) {
+			if (!$this->ee->tags->get_by('name', $tag->name)) {
 				// ...and insert!
-				$this->ee->db->insert('tags', array('tag_name' => $tag->name, 'tag_description' => $tag->description));
+				$this->ee->tags->insert(array('name' => $tag->name, 'description' => $tag->description));
 			}
 		}
 		
@@ -284,9 +232,9 @@ class Taggable_mcp {
 		
 		// Okay, we've got the tags now, let's insert them
 		foreach ($tags as $tag) {
-			if ($this->ee->db->where('tag_name', $tag->name)->get('tags')->num_rows == 0) {
+			if (!$this->ee->tags->get_by('name', $tag->name)) {
 				// ...and insert!
-				$this->ee->db->insert('tags', array('tag_name' => $tag->name, 'tag_description' => $ta[$tag->term_id]['description']));
+				$this->ee->tags->insert(array('name' => $tag->name, 'description' => $tag->description));
 			}
 		}
 		
@@ -314,9 +262,9 @@ class Taggable_mcp {
 		
 		// Okay, we've got the tags now, let's insert them
 		foreach ($tags as $tag) {
-			if ($this->ee->db->where('tag_name', $tag->tag_name)->get('tags')->num_rows == 0) {
+			if (!$this->ee->tags->get_by('name', $tag->name)) {
 				// ...and insert!
-				$this->ee->db->insert('tags', array('tag_name' => $tag->tag_name));
+				$this->ee->tags->insert(array('name' => $tag->name, 'description' => $tag->description));
 			}
 		}
 		
@@ -344,9 +292,9 @@ class Taggable_mcp {
 		
 		// Okay, we've got the tags now, let's insert them
 		foreach ($tags as $tag) {
-			if ($this->ee->db->where('tag_name', $tag->tag_name)->get('tags')->num_rows == 0) {
+			if (!$this->ee->tags->get_by('name', $tag->name)) {
 				// ...and insert!
-				$this->ee->db->insert('tags', array('tag_name' => $tag->tag_name));
+				$this->ee->tags->insert(array('name' => $tag->name, 'description' => $tag->description));
 			}
 		}
 		
@@ -382,13 +330,13 @@ class Taggable_mcp {
 	}
 	
 	public function export() {
-		$tags = $this->ee->db->get('tags');
+		$tags = $this->ee->tags->get_all();
 		$output = array();
 		
-		foreach ($tags->result() as $tag) {
+		foreach ($tags as $tag) {
 			$output[] = array(
-				'name' => $tag->tag_name,
-				'description' => $tag->tag_description
+				'name' => $tag->name,
+				'description' => $tag->description
 			);
 		}
 		
@@ -443,10 +391,10 @@ class Taggable_mcp {
 		
 		// Loop through each entry and assign the template to that entry's tags
 		foreach ($entries as $entry) {
-			$this->ee->db->where('entry_id', $entry->entry_id)->set('template', $field)->update('tags_entries');
+			$this->ee->db->where('entry_id', $entry->entry_id)->set('template', $field)->update('taggable_tags_entries');
 			
 			// Get all the tags for this entry
-			$tags = $this->ee->db->where('entry_id', $entry->entry_id)->get('tags_entries')->result();
+			$tags = $this->ee->db->where('entry_id', $entry->entry_id)->get('taggable_tags_entries')->result();
 			$tagi = array();
 			
 			foreach ($tags as $tag) {
@@ -474,7 +422,7 @@ class Taggable_mcp {
 			$preferences = $this->ee->input->post('preferences');
 			
 			foreach ($preferences as $key => $p): 
-				$this->ee->preferences->update($key, array('preference_value' => $p['preference_value'], 'site_id' => $this->site_id)); 
+				$this->ee->preferences->update($key, array('value' => $p['value'], 'site_id' => $this->site_id)); 
 			endforeach;
 			
 			// Show alert and redirect
@@ -492,13 +440,13 @@ class Taggable_mcp {
 	// AJAX stuff
 	public function ajax_search() {
 		$term = $this->ee->input->get('q');
-		$query = $this->ee->db->where('tag_name LIKE ', "%$term%")->where('site_id', $this->site_id)->get('exp_tags')->result();
+		$query = $this->ee->db->where('name LIKE ', "%$term%")->where('site_id', $this->site_id)->get('exp_taggable_tags')->result();
 		$tags = array();
 		
 		foreach ($query as $tag) {
 			$tags[] = array(
-				'id' 	=> $tag->tag_id,
-				'name'	=> $tag->tag_name
+				'id' 	=> $tag->id,
+				'name'	=> $tag->name
 			);
 		}
 		
@@ -506,14 +454,14 @@ class Taggable_mcp {
 	}
 	
 	public function ajax_create() {
-		$name = $this->ee->input->get('tag_name');
+		$name = htmlentities($this->ee->input->get('tag_name'));
 		$id   = $this->ee->tags->insert(array('tag_name' => $name, 'site_id' => $this->ee->config->item('site_id')));
 		
 		if ($id) {
 			die(json_encode(array(
 				'success'	=> TRUE,
 				'tag_id' 	=> $id,
-				'tag_name'	=> $name
+				'tag_name'	=> html_entity_decode($name)
 			)));
 		} else {
 			die(json_encode(array(

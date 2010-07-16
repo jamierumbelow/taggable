@@ -10,9 +10,9 @@
 		<td><label for="order"><?=lang('taggable_search_order')?></label></td>
 		<td>
 			<?=form_dropdown('order', array(
-				'tag_name' => lang('taggable_search_order_alphabet'),
+				'name' => lang('taggable_search_order_alphabet'),
 				'entries'  => lang('taggable_search_order_entries'),
-				'tag_id'   => lang('taggable_search_order_id')
+				'id'   => lang('taggable_search_order_id')
 			), $order)?>
 		</td>
 	</tr>

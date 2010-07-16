@@ -13,11 +13,11 @@
 		<?=form_open(TAGGABLE_PATH.AMP."method=delete_tags")?>
 			<?php foreach($tags as $tag): ?>
 				<tr class="<?=alternator('even', 'odd')?>">
-					<td><?=$tag->tag_id?></td>
-					<td><a href="<?=TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=".$tag->tag_id?>"> <?=$tag->tag_name?></a></td>
-					<td><?=$tag->tag_description?></td>
-					<td><a href="<?=TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=".$tag->tag_id?>"> <?=$this->tags->tag_entries($tag->tag_id)?></a></td>
-					<td><?=form_checkbox('delete_tags[]', $tag->tag_id)?></td>
+					<td><?=$tag->id?></td>
+					<td><a href="<?=TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=".$tag->id?>"> <?=$tag->name?></a></td>
+					<td><?=$tag->description?></td>
+					<td><a href="<?=TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=".$tag->id?>"> <?=$this->tags->tag_entries_count($tag->id)?></a></td>
+					<td><?=form_checkbox('delete_tags[]', $tag->id)?></td>
 				</tr>
 			<?php endforeach; ?>
 	</table>
@@ -39,11 +39,11 @@
 					<?php if ($errors): ?><tr><td></td><td style="color:#FF0000"><?=lang('taggable_errors_tag_name')?></td></tr><?php endif; ?>
 					<tr>
 						<td><strong><?=lang('taggable_tag')?></strong></td>
-						<td style="text-align: left"><?=form_input('tag[tag_name]', "", 'style="width:142px"')?></td>
+						<td style="text-align: left"><?=form_input('tag[name]', "", 'style="width:142px"')?></td>
 					</tr>
 					<tr>
 						<td><strong><?=lang('taggable_tag_description')?></strong></td>
-						<td style="text-align: left"><?=form_textarea('tag[tag_description]', "", "style='width: 90%; height: 60px'")?></td>
+						<td style="text-align: left"><?=form_textarea('tag[description]', "", "style='width: 90%; height: 60px'")?></td>
 					</tr>
 					<tr><td></td><td><?=form_submit('', lang('taggable_create_tag'), "class='submit'")?></td></tr>
 				</table>

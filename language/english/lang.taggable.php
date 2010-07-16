@@ -103,6 +103,7 @@ $lang = array(
 	'taggable_upgrade_utility'		=> 'Upgrade Utility',
 	'taggable_run_upgrade'			=> 'Run Upgrade',
 	'taggable_entries_upgraded'		=> 'Upgraded All Tags',
+	'taggable_import_success'		=> 'Success',
 	
 	// Diagnosics
 	'taggable_diagnostics_generic' 						=> 'Generic',

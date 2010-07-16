@@ -14,7 +14,7 @@
 require_once PATH_THIRD."taggable/libraries/Model.php";
 
 class Taggable_preferences_model extends Model {
-	public $primary_key = 'preference_id';
+	public $primary_key = 'id';
 	public $_table 		= 'taggable_preferences';
 	
 	// @todo Clean this up - chucking it here for now for sanity's sake
