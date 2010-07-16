@@ -35,8 +35,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->model('taggable_preferences_model', 'preferences');
 		$this->EE->load->model('taggable_tag_model', 'tags');
 		
-		$tags = explode(',', $data);
-		array_pop($tags);		
+		$tags = $this->_get_ids($data);
 		$tags = implode(',', $tags).',';
 		$data = $tags;
 		
@@ -58,8 +57,8 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
-		$ids = explode(',', $data);
-		array_pop($ids);
+		$ids = $this->_get_ids($data);
+		
 		$return = '';
 	    $vars = '';
 		
@@ -102,6 +101,8 @@ class Taggable_ft extends EE_Fieldtype {
 		$tags = explode(',', $data);
 		array_pop($tags);
 		
+		$data = '';
+		
 		foreach ($tags as $key => $tag) {
 			if (!is_numeric($tag)) {
 				// Is it in the DB? What's the ID?
@@ -115,8 +116,13 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		}
 		
-		$data = implode(',', $tags);
-		$data = $data . ',';
+		foreach ($tags as $id) {
+			$tag_names[$id] = $this->EE->db->where('id', $id)->get('taggable_tags')->row('name');
+		}
+		
+		foreach ($tag_names as $id => $name) {
+			$data .= "[".$id."] ".$name."\n";
+		}
 		
 		return $data;
 	}
@@ -174,6 +180,17 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->db->where_in('entry_id', $ids);
 		$this->EE->db->delete('exp_taggable_tags_entries');
 		die(var_dump($this->EE->db));
+	}
+	
+	protected function _get_ids($data) {
+		$lines = explode("\n", $data);
+		$ids = array();
+		
+		foreach ($lines as $line) {
+			$ids[] = (int)preg_replace("/^\[([0-9]+)\]/", "$1", $line);
+		}
+		
+		return $ids;
 	}
 	
 	protected function _parse_if_no_tags($tagdata) {
