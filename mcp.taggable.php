@@ -11,7 +11,6 @@
  * @version 1.2.1
  **/
 
-require_once PATH_THIRD."taggable/libraries/Model.php";
 require_once PATH_THIRD."taggable/config.php";
 
 define('TAGGABLE_URL', BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=taggable');
