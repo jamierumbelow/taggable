@@ -30,3 +30,7 @@ I've got rid of the module entirely, but there'll be one case when you want to p
 	{url_name}
 	{entry_count}
 {/exp:taggable}
+
+## Importer/Exporter ##
+
+I'm moving the importer/exporter into a separate add-on, packaged with the Taggable download. This means we've still got the Import/Export tools, but they don't clog up the system and require a MCP when Taggable doesn't need one.
