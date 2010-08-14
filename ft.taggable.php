@@ -30,6 +30,10 @@ class Taggable_ft extends EE_Fieldtype {
 			$data = $_POST[$this->field_name];
 		}
 		
+		$this->EE->load->library('model');
+		$this->EE->load->model('taggable_preferences_model', 'preferences');
+		$this->EE->load->model('taggable_tag_model', 'tags');
+		
 		$tags = $this->_get_ids($data);
 		$tags = implode(',', $tags).',';
 		$data = $tags;
