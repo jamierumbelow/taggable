@@ -15,18 +15,7 @@ require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_upd {
 	public $version = TAGGABLE_VERSION;
-	
 	private $ee;
-	private $hooks = array(
-        array(
-        	'class'        => "Taggable_ext",
-        	'method'       => "entry_submission_redirect",
-        	'hook'         => "entry_submission_redirect",
-          	'settings'     => "",
-          	'priority'     => 10,
-          	'enabled'      => "y"
-        )
-	);
 	
 	public function __construct() {
 		$this->ee =& get_instance();
@@ -44,60 +33,10 @@ class Taggable_upd {
 		
 		$this->ee->db->insert('modules', $module);
 		
-		// exp_taggable_tags
-		$tags = array(
-			'id' 			=> array('type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE),
-			'name'			=> array('type' => 'VARCHAR', 'constraint' => 100),
-			'description'	=> array('type' => 'TEXT'),
-			'site_id'		=> array('type' => 'INT', 'default' => $this->ee->config->item('site_id'))
-		);
-		
-		$this->ee->dbforge->add_field($tags);
-		$this->ee->dbforge->add_key('id', TRUE);
-		$this->ee->dbforge->create_table('taggable_tags');
-		
-		// exp_taggable_tags_entries
-		$tags_entries = array(
-			'tag_id' 	=> array('type' => 'INT'),
-			'entry_id'	=> array('type' => 'INT'),
-			'template'  => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'tags')
-		);
-		
-		$this->ee->dbforge->add_field($tags_entries);
-		$this->ee->dbforge->add_key('tag_id');
-		$this->ee->dbforge->add_key('entry_id');
-		$this->ee->dbforge->create_table('taggable_tags_entries');
-		
-		// exp_taggable_preferences
-		$taggable_preferences = array(
-			'id'			=> array('type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE),
-			'site_id'		=> array('type' => 'INT', 'default' => '1'),
-			'preference'	=> array('type' => 'VARCHAR', 'constraint' => 50),
-			'type'			=> array('type' => 'VARCHAR', 'constraint' => 10),
-			'value'			=> array('type' => 'TEXT')
-		);
-		
-		$this->ee->dbforge->add_field($taggable_preferences);
-		$this->ee->dbforge->add_key('id', TRUE);
-		$this->ee->dbforge->create_table('taggable_preferences');
-		
-		// Insert default preference values
-		$this->ee->config->load('default_preferences', TRUE);
-		
-		foreach ($this->ee->config->item('default_preferences') as $key => $value) {			
-			$this->ee->db->set('preference', $key)
-						 ->set('value', $value['value'])
-						 ->set('type', $value['type'])
-						 ->set('site_id', $this->ee->config->item('site_id'))
-						 ->insert('taggable_preferences');
-		}
-		
-		// Extension Hooks
-		foreach ($this->hooks as $hook) {
-			$hook['version'] = $this->version;
-			$hook['method'] = (isset($hook['method'])) ? $hook['method'] : $hook['hook'];
-			$this->ee->db->insert('exp_extensions', $hook);
-		}
+		// exp_taggable
+		$this->ee->dbforge->add_field(array('name' => array('type' => 'VARCHAR', 'constraint' => 250), 'entry_count' => array('type' => 'INT')));
+		$this->ee->dbforge->add_key('name'); $this->ee->dbforge->add_key('entry_count');
+		$this->ee->dbforge->create_table('taggable');
 		
 		// We're done!
 		return TRUE;
@@ -105,11 +44,8 @@ class Taggable_upd {
 	
 	public function uninstall() {
 		// Goodbye!
-		$this->ee->dbforge->drop_table('taggable_tags');
-		$this->ee->dbforge->drop_table('taggable_tags_entries');
-		$this->ee->dbforge->drop_table('taggable_preferences');
+		$this->ee->dbforge->drop_table('taggable');
 		$this->ee->db->where('module_name', 'Taggable')->delete('modules');
-		$this->ee->db->where('class', 'Taggable_ext')->delete('exp_extensions');
 		
 		// We're done
 		return TRUE;
@@ -138,14 +74,32 @@ class Taggable_upd {
 			$this->ee->dbforge->add_column('taggable_preferences', array('site_id' => array('type' => 'INT', 'default' => '1')));
 		}
 		
-		// Update from 1.0 to 1.1:
-		//   - Rename tables so they're all prefixed with 'taggable_'
-		//   - Drop table prefix from columns
-		if ($version < '1.2.5') {
-			$this->ee->dbforge->rename_table('tags', 'taggable_tags');
-			$this->ee->dbforge->rename_table('tags_entries', 'taggable_tags_entries');
+		// Update from 1.2 to 1.3:
+		//   - Get rid of the preferences and entries table
+		// 	 - Update the config file with the license key
+		// 	 - Get all the tags, drop the tags table and rebuild
+		// 	 - Re-index all the tags with the denormalised entry count
+		// 	 - Get rid of the extension hooks
+		if ($version < 1.3) {
+			$license_key = $this->ee->db->where('preference_key', 'license_key')->get('taggable_preferences')->row('preference_value');
+			$this->ee->dbforge->drop_table('taggable_preferences');
+			$this->ee->config->_update_config(array('taggable_license_key' => $license_key));
 			
-			// @todo Add renaming of all the columns to upgrade
+			$tags = $this->ee->db->get('tags');
+			$entries = $this->ee->db->get('tags_entries');
+			$this->ee->dbforge->drop_table('tags');
+			$this->ee->dbforge->drop_table('tags_entries');
+			
+			$new_tags = array();
+			foreach ($tags as $tag) { $new_tags[$tag->id] = array($tag->name, 0); }			
+			foreach ($entries as $entry) { $new_tags[$entry->tag_id][1] = $new_tags[$entry->tag_id][1] + 1; }
+			
+			$this->ee->dbforge->add_field(array('name' => array('type' => 'VARCHAR', 'constraint' => 250), 'entry_count' => array('type' => 'INT')));
+			$this->ee->dbforge->add_key('name'); $this->ee->dbforge->add_key('entry_count');
+			$this->ee->dbforge->create_table('taggable');
+			foreach ($new_tags as $tag) { $this->ee->db->insert('taggable', array('name' => $tag[0], 'entry_count' => $tag[1])); }
+			
+			$this->ee->db->where('class', 'Taggable_ext')->delete('extensions');
 		}
 
 		return TRUE;

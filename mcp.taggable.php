@@ -24,28 +24,20 @@ class Taggable_mcp {
 	
 	public function __construct() {
 		$this->ee =& get_instance();
-		
-		// Load libraries
-		$this->ee->load->library('model');
-		$this->ee->load->library('form_validation');
-		
-		// Load models and helpers
-		$this->ee->load->model('taggable_preferences_model', 'preferences');
-		$this->ee->load->model('taggable_tag_model', 'tags');
+
+		// Load helpers
 		$this->ee->load->helper('language');
 		$this->ee->load->helper('string');
 		
 		// Add nav globally
 		$this->ee->cp->set_right_nav(array(
-			'taggable_module_name' 			=> TAGGABLE_URL,
 			'taggable_tags_title' 			=> TAGGABLE_URL.AMP.'method=tags',
-			'taggable_preferences_title' 	=> TAGGABLE_URL.AMP.'method=preferences',
 			'taggable_tools_title' 			=> TAGGABLE_URL.AMP.'method=tools',
 			'taggable_doc_title' 			=> $this->docs_url
 		));
 		
 		// Global data
-		$this->data['license_key'] = $this->ee->preferences->get_by('preference', 'license_key')->value;
+		$this->data['license_key'] = $this->ee->config->item('taggable_license_key');
 		
 		// MSM
 		$this->site_id = $this->ee->config->item('site_id');
@@ -63,11 +55,7 @@ class Taggable_mcp {
 	}
 	
 	public function index() {
-		$this->data['tags_alphabetically'] = $this->ee->tags->get_alphabet_list();
-		$this->data['stats']			   = $this->ee->tags->stats();
-		
-		$this->_title("taggable_module_name");
-		return $this->_view('cp/index');
+		return $this->tags();
 	}
 	
 	public function tags() {
