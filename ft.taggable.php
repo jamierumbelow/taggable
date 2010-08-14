@@ -11,7 +11,6 @@
  * @version 1.2.1
  **/
 
-require_once PATH_THIRD."taggable/libraries/Model.php";
 require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_ft extends EE_Fieldtype {
@@ -30,10 +29,6 @@ class Taggable_ft extends EE_Fieldtype {
 		if (isset($_POST[$this->field_name])) {
 			$data = $_POST[$this->field_name];
 		}
-		
-		$this->EE->load->library('model');
-		$this->EE->load->model('taggable_preferences_model', 'preferences');
-		$this->EE->load->model('taggable_tag_model', 'tags');
 		
 		$tags = $this->_get_ids($data);
 		$tags = implode(',', $tags).',';
