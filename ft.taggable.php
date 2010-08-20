@@ -11,6 +11,7 @@
  * @version 1.2.1
  **/
 
+require_once PATH_THIRD."taggable/libraries/Model.php";
 require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_ft extends EE_Fieldtype {
@@ -181,6 +182,26 @@ class Taggable_ft extends EE_Fieldtype {
 		die(var_dump($this->EE->db));
 	}
 	
+	public function display_settings($data) {
+		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
+		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
+		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
+		
+		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name));
+		$this->EE->table->add_row(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
+			',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
+		), $saef_separator));
+		$this->EE->table->add_row(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit));
+	}
+	
+	public function save_settings() {
+		return array(
+			'taggable_saef_field_name' => $this->EE->input->post('taggable_saef_field_name'),
+			'taggable_saef_separator' => $this->EE->input->post('taggable_saef_separator'),
+			'taggable_tag_limit' => $this->EE->input->post('taggable_tag_limit')
+		);
+	}
+	
 	protected function _get_ids($data) {
 		$lines = explode("\n", $data);
 		$ids = array();
@@ -254,10 +275,8 @@ class Taggable_ft extends EE_Fieldtype {
 			$js .= 'prePopulate: '.json_encode($datar).',';
 		}
 		
-		$pref = $this->EE->preferences->get_by('preference', 'maximum_tags_per_entry');
-		
-		if (!(int)$pref->value === 0) {
-			$js .= 'tokenLimit: '.$pref->value.',';
+		if ((int)$this->settings['taggable_tag_limit'] > 0) {
+			$js .= 'tokenLimit: '.$this->settings['taggable_tag_limit'].',';
 		}
 		
 		$js .= 'a:{}});';
