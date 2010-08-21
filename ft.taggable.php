@@ -69,12 +69,11 @@ class Taggable_ft extends EE_Fieldtype {
 				// Loop through and arrange everything
 				foreach ($tags as $tag) {
 					$tag_rows[] = array(
-						'tag_name'			=> $tag->name,
-						'tag_id'			=> $tag->id,
-						'tag_description'	=> $tag->description,
+						'name'				=> $tag->name,
+						'id'				=> $tag->id,
+						'description'		=> $tag->description,
 						'entry_count'		=> $this->tag_entries($tag->id),
-						'tag_url_name'		=> str_replace(' ', "_", $tag->name),
-						'tag_pretty_name'	=> $tag->name
+						'url_name'			=> str_replace(' ', $this->settings['taggable_url_separator'], $tag->name)
 					);
 				}
 			
@@ -121,7 +120,7 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		foreach ($tag_names as $id => $name) {
-			$data .= "[".$id."] ".$name."\n";
+			$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 		}
 		
 		return $data;
@@ -176,29 +175,30 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	public function delete($ids) {
-		$this->EE->db->save_queries = TRUE;
 		$this->EE->db->where_in('entry_id', $ids);
 		$this->EE->db->delete('exp_taggable_tags_entries');
-		die(var_dump($this->EE->db));
 	}
 	
 	public function display_settings($data) {
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
+		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
 		
 		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name));
 		$this->EE->table->add_row(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
 			',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
 		), $saef_separator));
 		$this->EE->table->add_row(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit));
+		$this->EE->table->add_row(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator));
 	}
 	
 	public function save_settings() {
 		return array(
 			'taggable_saef_field_name' => $this->EE->input->post('taggable_saef_field_name'),
 			'taggable_saef_separator' => $this->EE->input->post('taggable_saef_separator'),
-			'taggable_tag_limit' => $this->EE->input->post('taggable_tag_limit')
+			'taggable_tag_limit' => $this->EE->input->post('taggable_tag_limit'),
+			'taggable_url_separator' => $this->EE->input->post('taggable_url_separator')
 		);
 	}
 	
