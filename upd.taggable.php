@@ -15,18 +15,7 @@ require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_upd {
 	public $version = TAGGABLE_VERSION;
-	
 	private $ee;
-	private $hooks = array(
-        array(
-        	'class'        => "Taggable_ext",
-        	'method'       => "entry_submission_redirect",
-        	'hook'         => "entry_submission_redirect",
-          	'settings'     => "",
-          	'priority'     => 10,
-          	'enabled'      => "y"
-        )
-	);
 	
 	public function __construct() {
 		$this->ee =& get_instance();
@@ -92,13 +81,6 @@ class Taggable_upd {
 						 ->insert('taggable_preferences');
 		}
 		
-		// Extension Hooks
-		foreach ($this->hooks as $hook) {
-			$hook['version'] = $this->version;
-			$hook['method'] = (isset($hook['method'])) ? $hook['method'] : $hook['hook'];
-			$this->ee->db->insert('exp_extensions', $hook);
-		}
-		
 		// We're done!
 		return TRUE;
 	}
@@ -109,7 +91,6 @@ class Taggable_upd {
 		$this->ee->dbforge->drop_table('taggable_tags_entries');
 		$this->ee->dbforge->drop_table('taggable_preferences');
 		$this->ee->db->where('module_name', 'Taggable')->delete('modules');
-		$this->ee->db->where('class', 'Taggable_ext')->delete('exp_extensions');
 		
 		// We're done
 		return TRUE;
@@ -138,12 +119,14 @@ class Taggable_upd {
 			$this->ee->dbforge->add_column('taggable_preferences', array('site_id' => array('type' => 'INT', 'default' => '1')));
 		}
 		
-		// Update from 1.0 to 1.1:
+		// Update from 1.2 to 1.3:
 		//   - Rename tables so they're all prefixed with 'taggable_'
 		//   - Drop table prefix from columns
-		if ($version < '1.2.5') {
+		//	 - Get rid of the extension
+		if ($version < 1.3) {
 			$this->ee->dbforge->rename_table('tags', 'taggable_tags');
 			$this->ee->dbforge->rename_table('tags_entries', 'taggable_tags_entries');
+			$this->ee->db->where('class', 'Taggable_ext')->delete('exp_extensions');
 			
 			// @todo Add renaming of all the columns to upgrade
 		}
