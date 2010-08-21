@@ -26,34 +26,56 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->lang->loadfile('taggable');
 	}
 	
-	public function display_field($data = "") {
+	public function display_field($data = "") {		
 		if (isset($_POST[$this->field_name])) {
 			$data = $_POST[$this->field_name];
 		}
 		
-		$this->EE->load->library('model');
 		$this->EE->load->model('taggable_preferences_model', 'preferences');
 		$this->EE->load->model('taggable_tag_model', 'tags');
 		
 		$tags = $this->_get_ids($data);
 		$tags = implode(',', $tags).',';
 		$data = $tags;
+		$value = '';
+		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		$this->_javascript($this->field_name, $data);
 		$this->_stylesheet();
 		
-		$pre = '';
+		if ($data) { 
+			$ids 	= explode(',', $data);
+			$values = array();
+			
+			foreach ($ids as $id) {
+				if (!empty($id)) {
+					if (is_numeric($id)) {
+						$name = $this->EE->tags->get($id)->name;
+						$values[] = "$id,$name";
+					}
+				}
+			}
+			
+			$value = implode('|', $values);
+		}
+		
+		$pre = "";
 		
 		if (!isset($this->EE->preferences->punches['deleted'])) {
-			$pre = '<input type="hidden" name="taggable_tags_delete" id="taggable_tags_delete" value="" />';
+			$pre .= '<input type="hidden" name="taggable_tags_delete" id="taggable_tags_delete" value="" />';
 			$this->EE->preferences->punches['deleted'] = TRUE;
 		}
 		
-		return $pre . form_input(array(
-			'name' 	=> $this->field_name,
-			'id'	=> $this->field_name,
-			'value'	=> ''
-		));
+		$limit = $this->settings['taggable_tag_limit'];
+		$attrs = array(
+			'name' 				=> (isset($this->cell_name)) ? $this->cell_name : $this->field_name,
+			'class' 			=> 'taggable_replace_token_input',
+			'value'				=> $value,
+			'data-tag-limit'	=> $limit,
+			'data-id-hash'		=> $hash
+		);
+		
+		return $pre . form_input($attrs);
 	}
 	
 	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
@@ -245,6 +267,22 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->table->add_row(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator));
 	}
 	
+	public function display_cell_settings($data) {
+		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
+		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
+		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
+		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
+		
+		return array(
+			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name)),
+			array(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
+				',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
+			), $saef_separator)),
+			array(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit)),
+			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator))
+		);
+	}
+	
 	public function save_settings() {
 		return array(
 			'taggable_saef_field_name' => $this->EE->input->post('taggable_saef_field_name'),
@@ -303,41 +341,27 @@ class Taggable_ft extends EE_Fieldtype {
 			$this->EE->javascript->set_global("tag.$name", $value);
 		}
 		
+		// Matrix compat.
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
+		
 		$this->EE->cp->load_package_js('jquery.autocomplete');
 		
-		$js = '$("#'.$field_name.'").tokenInput(EE.tag.searchUrl, EE.tag.createUrl, { lang: EE.tag,';
+		$this->EE->load->_ci_view_path = $old;
 		
-		if ($data) { 
-			$ids 	= explode(',', $data);
-			$datar 	= array();
-
-			foreach ($ids as $id) {
-				if (!empty($id)) {
-					if (is_numeric($id)) {
-						$name = $this->EE->tags->get($id)->name;
-				
-						$datar[] = array(
-							'id' 	=> $id,
-							'name'	=> $name
-						);
-					}
-				}
-			}
-
-			$js .= 'prePopulate: '.json_encode($datar).',';
-		}
-		
-		if ((int)$this->settings['taggable_tag_limit'] > 0) {
-			$js .= 'tokenLimit: '.$this->settings['taggable_tag_limit'].',';
-		}
-		
-		$js .= 'a:{}});';
+		$js = '$(".taggable_replace_token_input").tokenInput(EE.tag.searchUrl, EE.tag.createUrl, { lang: EE.tag });';
 		
 		$this->EE->javascript->output($js);
 	}
 	
 	private function _stylesheet() {
+		// Matrix compat.
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
+		
 		$this->EE->cp->load_package_css('autocomplete');
+		
+		$this->EE->load->_ci_view_path = $old;
 	}
 	
 	/**
