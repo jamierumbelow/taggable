@@ -34,45 +34,9 @@ class Taggable_ext {
 	public function entry_submission_redirect($entry, $data, $fields, $cp) {
 		$this->ee->load->model('taggable_preferences_model', 'preferences');
 		$this->ee->load->model('taggable_tags_model', 'tags');
-		
+		die(var_dump($data));
 		if (!$cp) {
-			// Get preferences
-			$field_name = $this->ee->preferences->get_by('preference', 'saef_field_name')->value;
-			$separator 	= trim($this->ee->preferences->get_by('preference', 'saef_separator')->value);
-			$separator 	= ($separator == 'newline') ? "\n" : $separator ;
-		
-			// Is there a tags field?
-			if (isset($fields[$field_name])) {
-				// Get tags
-				$tags = $fields[$field_name];
-				$tags = explode($separator, $tags);
-		
-				// Insert tags!
-				foreach ($tags as $tag) {
-					// Does the tag exist? Get its ID
-					$query = $this->ee->tags->get_by('name', $tag);
 			
-					if ($query == array()) {
-						$id = $this->ee->tags->insert(array('tag_name' => $tag));
-					} else {
-						$id = $query->id;
-					}
-			
-					// Insert it under this entry
-					if ($this->ee->tags->entry_tagged_with_tag($entry, $id)) {
-						$this->ee->db->insert('exp_taggable_tags_entries', array('tag_id' => $id, 'entry_id' => $entry));
-					}
-					
-					// Add it to this entry's ID list
-					$entry_id_list[$entry][] = $id;
-			
-					// Awesome
-				}
-				
-				// Then compile the list and save it to this custom field
-		
-				// Oh look, that was easy
-			}
 		} else {
 			return BASE.AMP.'D=cp'.AMP.'C=content_publish'.AMP.'M=view_entry'.AMP."channel_id=".$data['channel_id'].AMP."entry_id=".$entry_id;
 		}

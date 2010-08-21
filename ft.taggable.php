@@ -97,30 +97,61 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	public function save($data) {
-		$tags = explode(',', $data);
-		array_pop($tags);
+		// Are we on a CP request?
+		if (REQ == 'CP') {
+			if ($data) {
+				$tags = explode(',', $data);
+				array_pop($tags);
 		
-		$data = '';
+				$data = '';
 		
-		foreach ($tags as $key => $tag) {
-			if (!is_numeric($tag)) {
-				// Is it in the DB? What's the ID?
-				$query = $this->EE->tags->get_by('name', $tag);
+				foreach ($tags as $key => $tag) {
+					if (!is_numeric($tag)) {
+						// Is it in the DB? What's the ID?
+						$query = $this->EE->tags->get_by('name', $tag);
 				
-				if ($query) {
-					$tags[$key] = $query->id;
-				} else {
-					$tags[$key] = $this->EE->tags->insert(array('name' => $tag));
+						if ($query) {
+							$tags[$key] = $query->id;
+						} else {
+							$tags[$key] = $this->EE->tags->insert(array('name' => $tag));
+						}
+					}
+				}
+		
+				foreach ($tags as $id) {
+					$tag_names[$id] = $this->EE->db->where('id', $id)->get('taggable_tags')->row('name');
+				}
+		
+				foreach ($tag_names as $id => $name) {
+					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
 			}
-		}
-		
-		foreach ($tags as $id) {
-			$tag_names[$id] = $this->EE->db->where('id', $id)->get('taggable_tags')->row('name');
-		}
-		
-		foreach ($tag_names as $id => $name) {
-			$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
+		} else {
+			// Load stuff again
+			$this->EE->load->model('taggable_preferences_model', 'preferences');
+			$this->EE->load->model('taggable_tag_model', 'tags');
+			
+			// Check for the SAEF
+			if (isset($_POST[$this->settings['taggable_saef_field_name']])) {
+				$input = $_POST[$this->settings['taggable_saef_field_name']];
+				$tags = explode($this->settings['taggable_saef_separator'], $input);
+				$taggers = array();
+				$data = '';
+				
+				foreach ($tags as $tag) {
+					$tag = trim($tag);
+					
+					if (!$row = $this->EE->tags->get_by('name', $tag)) {
+						$taggers[$tag] = $this->EE->tags->insert(array('name' => $tag));
+					} else {
+						$taggers[$tag] = (int)$row->id;
+					}
+				}
+				
+				foreach ($taggers as $name => $id) {
+					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
+				}
+			}
 		}
 		
 		return $data;
@@ -142,32 +173,53 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		// Create tags	
-		if (!empty($_POST[$this->field_name])) {
-			$tags = explode(',', $_POST[$this->field_name]);
-			array_pop($tags);
+		if (REQ == 'CP') {
+			if (!empty($_POST[$this->field_name])) {
+				$tags = explode(',', $_POST[$this->field_name]);
+				array_pop($tags);
 			
-			$template = $this->_get_template();
+				$template = $this->_get_template();
 
-			foreach ($tags as $tag) {
-				if (!empty($tag)) {
-					if (!is_numeric($tag)) {
-						$query = $this->EE->tags->get_by('name', $tag);
+				foreach ($tags as $tag) {
+					if (!empty($tag)) {
+						if (!is_numeric($tag)) {
+							$query = $this->EE->tags->get_by('name', $tag);
 					
-						if ($query) { 
-							$tag = $query->id;
-						} else {
-							$tag = $this->EE->tags->insert(array('name' => $tag));
+							if ($query) { 
+								$tag = $query->id;
+							} else {
+								$tag = $this->EE->tags->insert(array('name' => $tag));
+							}
+						}
+			
+						$num_rows = $this->EE->db->query("SELECT * FROM exp_taggable_tags_entries WHERE tag_id = $tag AND entry_id = {$this->settings['entry_id']}")->num_rows;
+					
+						if ($num_rows == 0) {
+							$this->EE->db->insert('exp_taggable_tags_entries', array(
+								'tag_id' 	=> $tag,
+								'entry_id'	=> $this->settings['entry_id'],
+								'template'	=> $template
+							));
 						}
 					}
-			
-					$num_rows = $this->EE->db->query("SELECT * FROM exp_taggable_tags_entries WHERE tag_id = $tag AND entry_id = {$this->settings['entry_id']}")->num_rows;
+				}
+			} else {
+				// Load stuff again
+				$this->EE->load->model('taggable_preferences_model', 'preferences');
+				$this->EE->load->model('taggable_tag_model', 'tags');
+
+				// Check for the SAEF
+				if (isset($_POST[$this->settings['taggable_saef_field_name']])) {
+					$input = $_POST[$this->settings['taggable_saef_field_name']];
+					$tags = explode($this->settings['taggable_saef_separator'], $input);
+					$ids = array();
 					
-					if ($num_rows == 0) {
-						$this->EE->db->insert('exp_taggable_tags_entries', array(
-							'tag_id' 	=> $tag,
-							'entry_id'	=> $this->settings['entry_id'],
-							'template'	=> $template
-						));
+					foreach ($tags as $tag) {
+						$ids[] = $this->EE->tags->get_by('name', trim($tag))->id;
+					}
+					
+					foreach ($ids as $id) {
+						$this->EE->db->insert('taggable_tag_entries', array('tag_id' => $id, 'entry_id' => $this->settings['entry_id']));
 					}
 				}
 			}
