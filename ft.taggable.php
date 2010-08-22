@@ -49,8 +49,9 @@ class Taggable_ft extends EE_Fieldtype {
 			foreach ($ids as $id) {
 				if (!empty($id)) {
 					if (is_numeric($id)) {
-						$name = $this->EE->tags->get($id)->name;
-						$values[] = "$id,$name";
+						if ($tg = $this->EE->tags->get($id)) {
+							$values[] = "$id,$tg->name";
+						}
 					}
 				}
 			}
