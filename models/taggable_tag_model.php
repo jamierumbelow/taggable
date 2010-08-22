@@ -16,7 +16,7 @@ require_once PATH_THIRD."taggable/libraries/Model.php";
 class Taggable_tag_model extends Model {
 	public $primary_key 	= 'id';
 	public $_table 			= 'exp_taggable_tags';
-	public $before_create 	= array('lowercase_tag', 'site_id', 'trimmed_name');
+	public $before_create 	= array('site_id', 'trimmed_name');
 	public $site_id			= 0;
 	public $filters			= array();
 	
@@ -195,14 +195,6 @@ class Taggable_tag_model extends Model {
 		$stats[lang('taggable_stats_top_five_tags')]		= $this->top_five_tags();
 		
 		return $stats;
-	}
-	
-	protected function lowercase_tag($tag) {
-		if ($this->preferences->get_by('preference', 'convert_to_lowercase')->value == 'y') {
-			$tag['name'] = strtolower($tag['name']);
-		}
-		
-		return $tag;
 	}
 	
 	protected function site_id($tag) {

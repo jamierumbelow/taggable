@@ -31,7 +31,6 @@ class Taggable_mcp {
 		$this->ee->load->library('form_validation');
 		
 		// Load models and helpers
-		$this->ee->load->model('taggable_preferences_model', 'preferences');
 		$this->ee->load->model('taggable_tag_model', 'tags');
 		$this->ee->load->helper('language');
 		$this->ee->load->helper('string');
@@ -46,7 +45,7 @@ class Taggable_mcp {
 		));
 		
 		// Global data
-		$this->data['license_key'] = $this->ee->preferences->get_by('preference', 'license_key')->value;
+		$this->data['license_key'] = $this->ee->config->item('taggable_license_key');
 		
 		// MSM
 		$this->site_id = $this->ee->config->item('site_id');
@@ -417,21 +416,15 @@ class Taggable_mcp {
 	}
 	
 	public function preferences() {
-		if ($this->ee->input->post('save_preferences')) {
-			// Save preference
-			$preferences = $this->ee->input->post('preferences');
-			
-			foreach ($preferences as $key => $p): 
-				$this->ee->preferences->update($key, array('value' => $p['value'], 'site_id' => $this->site_id)); 
-			endforeach;
+		if ($this->ee->input->post('taggable_license_key')) {
+			// Save license key
+			$key = $this->ee->input->post('taggable_license_key');
+			$this->ee->config->_update_config(array('taggable_license_key' => $key)); 
 			
 			// Show alert and redirect
 			$this->ee->session->set_flashdata('message_success', lang('taggable_preferences_saved'));
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=preferences");
 		}
-		
-		$this->ee->db->where('site_id', $this->site_id);
-		$this->data['preferences'] = $this->ee->preferences->get_all();
 		
 		$this->_title("taggable_preferences_title");
 		return $this->_view('cp/preferences');

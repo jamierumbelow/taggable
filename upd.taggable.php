@@ -57,30 +57,11 @@ class Taggable_upd {
 		$this->ee->dbforge->add_key('entry_id');
 		$this->ee->dbforge->create_table('taggable_tags_entries');
 		
-		// exp_taggable_preferences
-		$taggable_preferences = array(
-			'id'			=> array('type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE),
-			'site_id'		=> array('type' => 'INT', 'default' => '1'),
-			'preference'	=> array('type' => 'VARCHAR', 'constraint' => 50),
-			'type'			=> array('type' => 'VARCHAR', 'constraint' => 10),
-			'value'			=> array('type' => 'TEXT')
-		);
-		
-		$this->ee->dbforge->add_field($taggable_preferences);
-		$this->ee->dbforge->add_key('id', TRUE);
-		$this->ee->dbforge->create_table('taggable_preferences');
-		
-		// Insert default preference values
-		$this->ee->config->load('default_preferences', TRUE);
-		
-		foreach ($this->ee->config->item('default_preferences') as $key => $value) {			
-			$this->ee->db->set('preference', $key)
-						 ->set('value', $value['value'])
-						 ->set('type', $value['type'])
-						 ->set('site_id', $this->ee->config->item('site_id'))
-						 ->insert('taggable_preferences');
+		// Add license key to config file
+		if (!$this->ee->config->item('taggable_license_key')) {
+			$this->ee->config->_update_config(array('taggable_license_key' => 'ENTER YOUR LICENSE KEY HERE'));
 		}
-		
+				
 		// We're done!
 		return TRUE;
 	}
@@ -89,8 +70,8 @@ class Taggable_upd {
 		// Goodbye!
 		$this->ee->dbforge->drop_table('taggable_tags');
 		$this->ee->dbforge->drop_table('taggable_tags_entries');
-		$this->ee->dbforge->drop_table('taggable_preferences');
 		$this->ee->db->where('module_name', 'Taggable')->delete('modules');
+		$this->ee->config->_update_config(array(), array('taggable_license_key'));
 		
 		// We're done
 		return TRUE;
@@ -123,10 +104,14 @@ class Taggable_upd {
 		//   - Rename tables so they're all prefixed with 'taggable_'
 		//   - Drop table prefix from columns
 		//	 - Get rid of the extension
+		// 	 - Move license key to config file
+		//	 - Drop preferences table
 		if ($version < 1.3) {
 			$this->ee->dbforge->rename_table('tags', 'taggable_tags');
 			$this->ee->dbforge->rename_table('tags_entries', 'taggable_tags_entries');
 			$this->ee->db->where('class', 'Taggable_ext')->delete('exp_extensions');
+			$this->ee->config->_update_config(array('taggable_license_key' => $this->ee->db->where('preference_key', 'license_key')->get('taggable_preferences')->row('preference_value')));
+			$this->ee->dbforge->drop_table('taggable_preferences');
 			
 			// @todo Add renaming of all the columns to upgrade
 		}

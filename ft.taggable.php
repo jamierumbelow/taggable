@@ -31,7 +31,6 @@ class Taggable_ft extends EE_Fieldtype {
 			$data = $_POST[$this->field_name];
 		}
 		
-		$this->EE->load->model('taggable_preferences_model', 'preferences');
 		$this->EE->load->model('taggable_tag_model', 'tags');
 		
 		$tags = $this->_get_ids($data);
@@ -61,9 +60,9 @@ class Taggable_ft extends EE_Fieldtype {
 		
 		$pre = "";
 		
-		if (!isset($this->EE->preferences->punches['deleted'])) {
+		if (!isset($this->EE->db->punches['deleted'])) {
 			$pre .= '<input type="hidden" name="taggable_tags_delete" id="taggable_tags_delete" value="" />';
-			$this->EE->preferences->punches['deleted'] = TRUE;
+			$this->EE->db->punches['deleted'] = TRUE;
 		}
 		
 		$limit = $this->settings['taggable_tag_limit'];
@@ -150,7 +149,6 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		} else {
 			// Load stuff again
-			$this->EE->load->model('taggable_preferences_model', 'preferences');
 			$this->EE->load->model('taggable_tag_model', 'tags');
 			
 			// Check for the SAEF
@@ -227,7 +225,6 @@ class Taggable_ft extends EE_Fieldtype {
 				}
 			} else {
 				// Load stuff again
-				$this->EE->load->model('taggable_preferences_model', 'preferences');
 				$this->EE->load->model('taggable_tag_model', 'tags');
 
 				// Check for the SAEF
@@ -241,7 +238,7 @@ class Taggable_ft extends EE_Fieldtype {
 					}
 					
 					foreach ($ids as $id) {
-						$this->EE->db->insert('taggable_tag_entries', array('tag_id' => $id, 'entry_id' => $this->settings['entry_id']));
+						$this->EE->db->insert('taggable_tags_entries', array('tag_id' => $id, 'entry_id' => $this->settings['entry_id']));
 					}
 				}
 			}
