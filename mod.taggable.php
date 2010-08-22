@@ -21,17 +21,14 @@ class Taggable {
 	public $tagdata;
 	public $site_id;
 	
-	public function __construct() {
+	public function Taggable() {
 		$this->ee =& get_instance();
 		
 		$this->ee->load->library('model');
 			
-		$this->ee->load->model('taggable_preferences_model', 'preferences');
 		$this->ee->load->model('taggable_tag_model', 'tags');
 		
 		$this->tagdata = $this->ee->TMPL->tagdata;
-		
-		// MSM
 		$this->site_id = $this->ee->config->item('site_id');
 		
 		// taggable_vanilla_tagdata
@@ -39,11 +36,11 @@ class Taggable {
 			$this->tagdata = $this->ee->extensions->call('taggable_vanilla_tagdata', $this->tagdata);
 			if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
 		}
-	}
 	
-	public function tags() {
+		// Parameters
 		$tag_id 			 = $this->ee->TMPL->fetch_param('tag_id');
 		$tag_name 			 = $this->ee->TMPL->fetch_param('tag_name');
+		$tag_url_name 		 = $this->ee->TMPL->fetch_param('tag_url_name');
 		$entry_id 			 = $this->ee->TMPL->fetch_param('entry_id');
 		$entry_url_title 	 = $this->ee->TMPL->fetch_param('entry_url_title');
 		$channel			 = $this->ee->TMPL->fetch_param('channel');
@@ -51,7 +48,10 @@ class Taggable {
 		$backspace 			 = $this->ee->TMPL->fetch_param('backspace');
 		$limit				 = $this->ee->TMPL->fetch_param('limit');
 		$url_separator		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '_' ;
-		$lookup_tag_url_name = ($this->ee->TMPL->fetch_param('lookup_tag_url_name') == 'no') ? FALSE : TRUE;
+		$min_size 	   		 = $this->ee->TMPL->fetch_param('min_size');
+		$max_size 	   		 = $this->ee->TMPL->fetch_param('max_size');
+		$min_size 			 = ($min_size) ? $min_size : 12;
+		$max_size 			 = ($max_size) ? $max_size : 12;
 		$vars				 = array();
 		
 		// Limit
@@ -70,12 +70,14 @@ class Taggable {
 		}
 		
 		// Tag Name
-		if ($tag_name) {
-			if ($lookup_tag_url_name) {
-				$tag_name = str_replace($url_separator, ' ', $tag_name);
-			}
-			
+		if ($tag_name) {	
 			$this->parse_multiple_params('exp_taggable_tags.name', $tag_name);
+		}
+		
+		// Tag URL Name
+		if ($tag_url_name) {
+			$tag_url_name = str_replace($url_separator, ' ', $tag_url_name);
+			$this->parse_multiple_params('exp_taggable_tags.name', $tag_url_name);
 		}
 		
 		// taggable_tags_find_query
@@ -84,22 +86,38 @@ class Taggable {
 		// Channel
 		if ($channel) {
 			$this->parse_multiple_params('exp_channel_titles.channel_id', $channel, 'exp_channels', 'channel_name', 'channel_id');
-			$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
 			$this->ee->db->join('exp_channel_titles', 'exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id');
 		}
 		
+		// Entry count
+		$this->ee->db->select('exp_taggable_tags.*');
+		$this->ee->db->select('COUNT(DISTINCT exp_taggable_tags_entries.entry_id) AS entry_count');
+		$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags_entries.tag_id = exp_taggable_tags.id');
+		
+		// MSM
+		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
+		
 		// Find the tags
 		if ($entry_id) {
-			$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 			$tags = $this->ee->tags->tags_entry($entry_id);
 		} elseif ($entry_url_title) {
-			$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 			$tags = $this->ee->tags->tags_entry_url_title($entry_url_title);
 		} else {
 			// careful with this one...
-			$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 			$tags = $this->ee->tags->get_all();
 		}
+		
+		// Get the min and max, then calculate the spread...
+		$min_qty = (empty($counts)) ? 0 : min($counts);
+		$max_qty = (empty($counts)) ? 0 : max($counts);
+		$spread = $max_qty - $min_qty;
+		
+		if ($spread == 0) {
+                $spread = 1;
+        }
+		
+		// Figure out each step
+        $step = ($max_qty - $min_qty) / ($spread);
 		
 		// taggable_tags_pre_loop
 		if ($this->ee->extensions->active_hook('taggable_tags_pre_loop')) {
@@ -110,13 +128,16 @@ class Taggable {
 		// Set up the tag variables
 		if ($tags) {
 			foreach ($tags as $tag) {
+				$size = round(12 + (($tag->entry_count - $min_qty) * $step));
+				
 				$vars[] = array(
-					'tag_name'			=> $tag->name,
-					'tag_id'			=> $tag->id,
-					'tag_description'	=> $tag->description,
-					'entry_count'		=> $this->ee->tags->tag_entries_count($tag->id),
-					'tag_url_name'		=> str_replace(' ', $url_separator, $tag->name),
-					'tag_pretty_name'	=> $this->_pretty_tag($tag->name)
+					'name'			=> $tag->name,
+					'id'			=> $tag->id,
+					'description'	=> $tag->description,
+					'entry_count'	=> $tag->entry_count,
+					'size'			=> $size,
+					'url_name'		=> str_replace(' ', $url_separator, $tag->name),
+					'pretty_name'	=> $this->_pretty_tag($tag->name)
 				);
 			}
 		} else {
@@ -145,170 +166,7 @@ class Taggable {
 		}
 		
 		// We're done!
-		return $parsed;
-	}
-	
-	public function entries() {
-		$tag_ids 		= $this->ee->TMPL->fetch_param('tag_id');
-		$tag_names		= $this->ee->TMPL->fetch_param('tag_name');
-		$url_separator	= ($this->ee->TMPL->fetch_param('url_separator')) ? $this->ee->TMPL->fetch_param('url_separator') : "_";
-		$tag_url_name	= $this->ee->TMPL->fetch_param('tag_url_name');
-		$tags			= array();
-		
-		// Is there a 'not ' ?
-		if (stristr($tag_ids, "not ") && stristr($tag_names, "not ")) {
-			$string = "not ";
-		} else {
-			$string = "";
-		}
-		
-		// Tag IDs are easy peasy
-		if ($tag_ids) {
-			if (!stristr($tag_ids, '|')) {
-				$tags[] = $tag_ids;
-			} else {
-				$ts	= explode('|', $tag_ids);
-			
-				foreach ($ts as $t) {
-					$tags[] = $t;
-				}
-			}
-		}
-		
-		// Tag names with URL separator
-		if ($tag_url_name == 'yes') {
-			// Tag names require a DB lookup
-			if ($tag_names) {
-				if (!stristr($tag_names, '|')) {
-					$tags[] = $this->_fetch_tag_id(str_replace($url_separator, ' ', $tag_names));
-				} else {
-					$ts	= explode('|', $tag_names);
-			
-					foreach ($ts as $t) {
-						$tags[] = $this->_fetch_tag_id(str_replace($url_separator, ' ', $t));
-					}
-				}
-			}
-		} else {
-			// Tag names require a DB lookup
-			if ($tag_names) {
-				if (!stristr($tag_names, '|')) {
-					$tags[] = $this->_fetch_tag_id($tag_names);
-				} else {
-					$ts	= explode('|', $tag_names);
-			
-					foreach ($ts as $t) {
-						$tags[] = $this->_fetch_tag_id($t);
-					}
-				}
-			}
-		}
-		
-		// Get the entries
-		if ($tags) {
-			$entries = $this->ee->db->where_in('tag_id', $tags)->get('taggable_tags_entries')->result();
-			$es = array();
-		
-			foreach ($entries as $entry) {
-				$es[] = $entry->entry_id;
-			}
-		
-			// Prepare the vars
-			$parse[] = array(
-				'entries' => implode('|', $es)
-			);
-		} else {
-			$parse[] = array('entries' => '');
-		}
-		
-		// Parse!
-		$parsed = $this->ee->TMPL->parse_variables($this->tagdata, $parse);
-		
-		// Done!
-		return $parsed;
-	}
-	
-	public function cloud() {
-		$min_size 	   = $this->ee->TMPL->fetch_param('min_size');
-		$max_size 	   = $this->ee->TMPL->fetch_param('max_size');
-		$channel	   = $this->ee->TMPL->fetch_param('channel');
-		$tag_id   	   = $this->ee->TMPL->fetch_param('tag_id');
-		$url_seperator = $this->ee->TMPL->fetch_param('url_seperator');
-		$backspace 	   = $this->ee->TMPL->fetch_param('backspace');
-		
-		// Sensible defaults
-		$min_size 		= ($min_size) ? $min_size : 12;
-		$max_size 		= ($max_size) ? $max_size : 12;
-		$url_seperator  = ($url_seperator) ? $url_seperator : '-';
-		$vars			= array();
-		
-		// Filter by tag ID
-		if ($tag_id) {
-			$this->parse_multiple_params('exp_taggable_tags.id', $tag_id);
-		}
-		
-		// Channel
-		if ($channel) {
-			$this->parse_multiple_params('exp_channel_titles.channel_id', $channel, 'exp_channels', 'channel_name', 'channel_id');
-			$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
-			$this->ee->db->join('exp_channel_titles', 'exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id');
-		}
-
-		// Find
-		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
-		$tags = $this->ee->db->get('exp_taggable_tags')->result();
-		$counts = array();
-
-		// Loop through the tags and count them
-        foreach ($tags as $tag) {
-        	$tag->entry_count = $this->ee->tags->tag_entries_count($tag->tag_id);
-			$counts[] = $tag->entry_count;
-        }
-
-		// Get the min and max, then calculate the spread...
-		$min_qty = (empty($counts)) ? 0 : min($counts);
-		$max_qty = (empty($counts)) ? 0 : max($counts);
-		$spread = $max_qty - $min_qty;
-		
-		if ($spread == 0) {
-                $spread = 1;
-        }
-		
-		// Figure out each step
-        $step = ($max_qty - $min_qty) / ($spread);
-		
-		// Loop through and build the $vars array
-		if ($tags) {
-			foreach ($tags as $tag) {        	
-				$size = round(12 + (($tag->entry_count - $min_qty) * $step));
-            
-	            $vars[] = array(
-	            	'tag_name' 			=> $tag->tag_name,
-	            	'tag_url_name'		=> str_replace(' ', $url_seperator, $tag->tag_name),
-					'tag_pretty_name'	=> $this->_pretty_tag($tag->tag_name),
-	            	'tag_id'			=> $tag->tag_id,
-	            	'tag_description'	=> $tag->tag_description,
-	            	'entry_count'		=> $tag->entry_count,
-	            	'size'				=> $size
-	            );
-	        }
-		} else {
-			$vars[] = array(
-            	'tag_name' 			=> '',
-            	'tag_url_name'		=> '',
-				'tag_pretty_name'	=> '',
-            	'tag_id'			=> '',
-            	'tag_description'	=> '',
-            	'entry_count'		=> '',
-            	'size'				=> ''
-            );
-		}
-		
-		// Parse the template
-		$parsed = $this->ee->TMPL->parse_variables($this->tagdata, $vars);
-		
-		// Away we go!
-		return $parsed;
+		$this->return_data = $parsed;
 	}
 	
 	private function _pretty_tag($name) {
