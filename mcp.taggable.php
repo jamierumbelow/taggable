@@ -305,29 +305,7 @@ class Taggable_mcp {
 		$this->_title('taggable_import_success');
 		return $this->_view('other/import/success');
 	}
-	
-	public function diagnostics() {
-		$tests = array();
 		
-		// Generic tests
-		$tests['generic']['php_version'] = $this->_test(phpversion(), phpversion() > '5.2');
-		$tests['generic']['ee_version'] = $this->_test(APP_VER, APP_VER > '2.0.2');
-		$tests['generic']['ee_build'] = $this->_test(APP_BUILD, APP_BUILD >= '201004');
-		$tests['generic']['extensions_enabled'] = $this->_test($this->ee->config->item('allow_extensions'), $this->ee->config->item('allow_extensions') == 'y');
-		
-		// Go
-		$this->data['tests'] = $tests;
-		
-		// Download
-		if ($this->ee->input->get('download_report') == 'yes') {
-			$this->ee->load->helper('download');
-			force_download('taggable_diagnostics_'.time().'.txt', $this->_view('other/diagnostics_report'));
-		}
-		
-		$this->_title('taggable_diagnostics');
-		return $this->_view('cp/diagnostics');
-	}
-	
 	public function export() {
 		$tags = $this->ee->tags->get_all();
 		$output = array();
@@ -493,12 +471,5 @@ class Taggable_mcp {
 	// Misc
 	private function _valid($key) {
 		return preg_match("/^([A-Z0-9a-z]{8}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{12})$/", $key);
-	}
-	
-	private function _test($value, $exp) {
-		return array(
-			'value' => $value,
-			'success' => (bool)$exp
-		);
 	}
 }
