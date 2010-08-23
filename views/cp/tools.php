@@ -26,4 +26,15 @@
 			<?=form_close()?>
 		</div>
 	</div>
+	
+	<div style="width: 49%; float: left; margin-left: 1%">
+		<div class="heading"><h2><?=lang('taggable_index_tags')?></h2></div>
+		<div class="pageContents">
+			<p><?=lang('taggable_index_messages')?></p>
+			
+			<br />
+			
+			<p><a class="submit" href="<?=TAGGABLE_URL.AMP.'method=index_tags'?>"><?=lang('taggable_index_tags')?></a></p>
+		</div>
+	</div>
 </div>

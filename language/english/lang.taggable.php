@@ -91,6 +91,11 @@ $lang = array(
 	'taggable_wordpress_message'	=> "The WordPress importer allows you to import tags from WordPress. To connect to WordPress and download the tags, we need your database connection details.",
 	'taggable_import_success'		=> 'Success',
 	
+	// Indexing
+	'taggable_index_tags'			=> 'Index Tags',
+	'taggable_index_messages'		=> 'If you\'re having an issue with searching tags or things have become unsynchronised for some reason, you can use the Index Tags tool to go through your channel entries data and re-synchronise the tag data. <strong>Please note, this may take some time</strong>.',
+	'taggable_tags_indexed'			=> 'Tags successfully indexed!',
+	
 	// Errors
 	'taggable_errors_tag_name' 		=> 'Please enter a tag name!',
 	'taggable_errors_database'		=> "Couldn't connect to the database, please ensure your details are correct",

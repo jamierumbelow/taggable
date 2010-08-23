@@ -323,76 +323,70 @@ class Taggable_mcp {
 		force_download('taggable_export_'.time().'.json', $content);
 	}
 	
-	public function upgrade() {
-		$channels = $this->ee->api_channel_structure->get_channels()->result_object();
-		$c_array = array();
+	public function index_tags() {
+		// Let's first get the IDs of every Taggable field
+		$ids = $this->ee->db->select('field_id, field_name')->where('field_type', 'taggable')->get('channel_fields')->result();
+		$entry_data = array();
 		
-		foreach ($channels as $channel) {
-			$c_array[$channel->channel_id] = $channel->channel_title;
-		}
-		
-		$this->data['channels'] = $c_array;
-		
-		$this->_title('taggable_upgrade_utility');
-		return $this->_view('cp/upgrade');
-	}
-	
-	public function upgrade_field() {
-		$this->ee->load->library('api/api_channel_fields');
-		$group = $this->ee->db->select('field_group')->where('channel_id', $this->ee->input->post('channel'))->get('channels')->row('field_group');
-		
-		$this->ee->db->where('group_id', $group);
-		$this->ee->db->where('field_type', 'taggable');
-		
-		$fields = $this->ee->db->get('channel_fields')->result();
-		$f_array = array();
-		
-		foreach ($fields as $field) {
-			$f_array[$field->field_name] = $field->field_label;
-		}
-		
-		$this->data['fields'] = $f_array;
-		$this->data['channel'] = $this->ee->input->post('channel');
-		
-		$this->_title('taggable_upgrade_utility');
-		return $this->_view('cp/upgrade_field');
-	}
-	
-	public function upgrade_do() {
-		$channel = $this->ee->input->post('channel');
-		$field = $this->ee->input->post('field');
-		$field_id = $this->ee->db->select('field_id')->where('field_name', $field)->get('channel_fields')->row('field_id');
-		
-		// select all the entries for this channel
-		$entries = $this->ee->db->select('entry_id')->where('channel_id', $channel)->get('channel_titles')->result();
-		
-		// Loop through each entry and assign the template to that entry's tags
-		foreach ($entries as $entry) {
-			$this->ee->db->where('entry_id', $entry->entry_id)->set('template', $field)->update('taggable_tags_entries');
+		// Now, let's go and get every entry with tags. Get the channel_data!
+		foreach ($ids as $id) {
+			$id = $id->field_id;
 			
-			// Get all the tags for this entry
-			$tags = $this->ee->db->where('entry_id', $entry->entry_id)->get('taggable_tags_entries')->result();
-			$tagi = array();
+			// Unfortunately, we don't know how many fields there are,
+			// so we have to SELECT *.
+			$query = $this->ee->db->where("field_id_$id != ''")->get('channel_data');
 			
-			foreach ($tags as $tag) {
-				$tagi[] = $tag->tag_id;
+			foreach ($query->result() as $row) {
+				// Check for dupes!
+				if (!in_array($row, $entry_data)) {
+					$entry_data[] = $row;
+				}
 			}
-			
-			// Build the string
-			$str = implode(',', $tagi);
-			$str = $str . ',';
-			
-			// Set the exp_channel_data
-			$this->ee->db->where('entry_id', $entry->entry_id)
-						 ->set('field_id_'.$field_id, $str)
-						 ->update('channel_data');
 		}
 		
-		// Done!
-		$this->ee->session->set_flashdata('message_success', lang('taggable_entries_upgraded'));
+		// Now we've got the entries, get the tag data!
+		foreach ($ids as $ar_id) {
+			$id = $ar_id->field_id;
+			$template = $ar_id->field_name;
+			
+			foreach ($entry_data as $entry) {
+				$key = "field_id_$id";
+				
+				if ($entry->$key) {
+					$tags = $this->_index_tags_parse($entry->$key);
+					
+					// Are the tags in the taggable_tags_entries table?
+					foreach ($tags as $tag) {
+						$params = array('tag_id' => $tag, 'entry_id' => $entry->entry_id, 'template' => $template);
+						
+						if ($this->ee->db->where($params)->get('taggable_tags_entries')->num_rows == 0) {
+							$this->ee->db->insert('taggable_tags_entries', $params);
+						}
+					}
+				}
+			}
+		}
+		
+		// That went well! Redirect back!
+		$this->ee->session->set_flashdata('message_success', lang('taggable_tags_indexed'));
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tools");
 	}
 	
+	public function _index_tags_parse($string) {
+		$lines = explode("\n", $string);
+		$tags = array();
+		
+		foreach ($lines as $line) {
+			$id = (int)preg_replace("/^\[([0-9]+)\]/", "$1", $line);
+			
+			if ($id > 0) {
+				$tags[] = $id;
+			}
+		}
+		
+		return $tags;
+	}
+		
 	public function preferences() {
 		if ($this->ee->input->post('taggable_license_key')) {
 			// Save license key
