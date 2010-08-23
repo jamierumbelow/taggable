@@ -143,7 +143,7 @@ class Taggable_tag_model extends Model {
 		$tagnames = array();
 		
 		foreach ($tags as $tag) {
-			$tagnames[] = "<a href=\"".TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=$tag->tag_id\">$tag->tag_name</a>";
+			$tagnames[] = "<a href=\"".TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=$tag->id\">$tag->name</a>";
 		}
 		
 		return implode(', ', $tagnames);
@@ -151,7 +151,7 @@ class Taggable_tag_model extends Model {
 	
 	public function tags_entry($entry) {
 		return $this->db->where('exp_taggable_tags_entries.entry_id', $entry)
-						 ->join('exp_taggable_tags_entries', 'exp_taggable_tags.tag_id = exp_taggable_tags_entries.tag_id')
+						 ->join('exp_taggable_tags_entries', 'exp_taggable_tags.id = exp_taggable_tags_entries.tag_id')
 						 ->get('exp_taggable_tags')
 						 ->result();
 	}
