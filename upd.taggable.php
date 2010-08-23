@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.2.1
+ * @version 1.3.0
  **/
 
 require_once PATH_THIRD."taggable/config.php";
@@ -113,7 +113,11 @@ class Taggable_upd {
 			$this->ee->config->_update_config(array('taggable_license_key' => $this->ee->db->where('preference_key', 'license_key')->get('taggable_preferences')->row('preference_value')));
 			$this->ee->dbforge->drop_table('taggable_preferences');
 			
-			// @todo Add renaming of all the columns to upgrade
+			$this->ee->dbforge->modify_column('taggable_tags', array(
+				'tag_id' => array('name' => 'id'),
+				'tag_name' => array('name' => 'name'),
+				'tag_description' => array('name' => 'description')
+			));
 		}
 
 		return TRUE;
