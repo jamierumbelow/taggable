@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.2.1
+	Taggable Version 1.3.0
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -16,12 +16,22 @@ Install Instructions
 
 Install Taggable like any other ExpressionEngine 2 add-on. Simply drag the taggable/ folder found in your download into the system/expressionengine/third_party/ folder. Then go into the EE control panel, navigate to the Modules page and find Taggable in the list.
 
-Click the install link and you should see a set of form fields allowing you to enable or disable the various parts of the addon. Make sure you enable every part of the extension - the module, extension and fieldtype.
+Click the install link and you should see a set of form fields allowing you to enable or disable the various parts of the addon. Make sure you enable every part of the extension - the module and fieldtype.
 
 And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.3.0
+		- Reworked the internal tag-storing
+		- Removed nearly all the module tags and moved everything into fieldtype
+		- Added support for search:tags
+		- Added per-fieldtype settings
+		- Added tag indexing
+		- Added PHP5.1 support
+		- Fixed many many bugs
+		- Enhanced SAEF support
 
 	Version 1.2.1
 		- Fixed bug where new tags weren't saving correctly
