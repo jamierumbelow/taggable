@@ -257,12 +257,14 @@ class Taggable_ft extends EE_Fieldtype {
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
 		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
 		
-		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name));
+		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'id="taggable_saef_field_name"'));
 		$this->EE->table->add_row(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
 			',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
 		), $saef_separator));
 		$this->EE->table->add_row(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit));
 		$this->EE->table->add_row(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator));
+		
+		$this->EE->javascript->output("$('#field_name').change(function(){ $('#taggable_saef_field_name').val($(this).val()); })");
 	}
 	
 	public function display_cell_settings($data) {
