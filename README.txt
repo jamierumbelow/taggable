@@ -23,6 +23,11 @@ And you’ve installed Taggable!
 Changelog
 =========
 
+	Version 1.3.1
+		- Fixed a problem with the updater
+		- Fixed an issue with running under FireFox
+		- Fixed a bug with a faulty SQL query
+
 	Version 1.3.0
 		- Reworked the internal tag-storing
 		- Removed nearly all the module tags and moved everything into fieldtype
