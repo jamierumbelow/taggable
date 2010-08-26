@@ -92,7 +92,6 @@ class Taggable {
 		// Entry count
 		$this->ee->db->select('exp_taggable_tags.*');
 		$this->ee->db->select('COUNT(DISTINCT exp_taggable_tags_entries.entry_id) AS entry_count');
-		$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags_entries.tag_id = exp_taggable_tags.id');
 		
 		// MSM
 		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
@@ -104,6 +103,7 @@ class Taggable {
 			$tags = $this->ee->tags->tags_entry_url_title($entry_url_title);
 		} else {
 			// careful with this one...
+			$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags_entries.tag_id = exp_taggable_tags.id');
 			$tags = $this->ee->tags->get_all();
 		}
 		
