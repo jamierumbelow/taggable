@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.3.0
+	Taggable Version 1.3.2
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -22,6 +22,10 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.3.2
+		- Fixed a bug with the module tag
+		- Removed 1.2-1.3 upgrade compatibility
 
 	Version 1.3.1
 		- Fixed a problem with the updater
