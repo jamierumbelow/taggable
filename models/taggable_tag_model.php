@@ -150,9 +150,7 @@ class Taggable_tag_model extends Model {
 	}
 	
 	public function tags_entry($entry) {
-		return $this->db->where('exp_taggable_tags_entries.entry_id', $entry)
-						 ->join('exp_taggable_tags_entries', 'exp_taggable_tags.id = exp_taggable_tags_entries.tag_id')
-						 ->get('exp_taggable_tags')
+		return $this->db->get('exp_taggable_tags')
 						 ->result();
 	}
 	

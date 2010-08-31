@@ -43,7 +43,6 @@ class Taggable {
 		$tag_url_name 		 = $this->ee->TMPL->fetch_param('tag_url_name');
 		$entry_id 			 = $this->ee->TMPL->fetch_param('entry_id');
 		$entry_url_title 	 = $this->ee->TMPL->fetch_param('entry_url_title');
-		$channel			 = $this->ee->TMPL->fetch_param('channel');
 		$sort		 		 = strtolower($this->ee->TMPL->fetch_param('sort'));
 		$backspace 			 = $this->ee->TMPL->fetch_param('backspace');
 		$limit				 = $this->ee->TMPL->fetch_param('limit');
@@ -83,29 +82,29 @@ class Taggable {
 		// taggable_tags_find_query
 		$this->ee->extensions->call('taggable_tags_find_query');
 		
-		// Channel
-		if ($channel) {
-			$this->parse_multiple_params('exp_channel_titles.channel_id', $channel, 'exp_channels', 'channel_name', 'channel_id');
-			$this->ee->db->join('exp_channel_titles', 'exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id');
+		// Entry ID
+		if ($entry_id) {
+			$this->parse_multiple_params('exp_taggable_tags_entries.entry_id', $entry_id);
 		}
 		
-		// Entry count
+		// Entry Title
+		if ($entry_url_title) {
+			$this->parse_multiple_params("exp_channel_titles.url_title", $entry_url_title);
+			$this->ee->db->where("exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id")->from('exp_channel_titles');
+		}
+				
+		// Select star
 		$this->ee->db->select('exp_taggable_tags.*');
-		$this->ee->db->select('COUNT(DISTINCT exp_taggable_tags_entries.entry_id) AS entry_count');
 		
 		// MSM
 		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 		
 		// Find the tags
-		if ($entry_id) {
-			$tags = $this->ee->tags->tags_entry($entry_id);
-		} elseif ($entry_url_title) {
-			$tags = $this->ee->tags->tags_entry_url_title($entry_url_title);
-		} else {
-			// careful with this one...
-			$this->ee->db->join('exp_taggable_tags_entries', 'exp_taggable_tags_entries.tag_id = exp_taggable_tags.id');
-			$tags = $this->ee->tags->get_all();
-		}
+		$this->ee->db->where('exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
+		$this->ee->db->from('exp_taggable_tags_entries');
+		
+		$this->ee->db->save_queries = TRUE;
+		$tags = $this->ee->tags->get_all();
 		
 		// Get the min and max, then calculate the spread...
 		$min_qty = (empty($counts)) ? 0 : min($counts);
@@ -118,6 +117,13 @@ class Taggable {
 		
 		// Figure out each step
         $step = ($max_qty - $min_qty) / ($spread);
+
+		// Entry count
+		if ($tags) {
+			foreach ($tags as $tag) {
+				$tag->entry_count = $this->ee->tags->tag_entries_count($tag->id);
+			}
+		}
 		
 		// taggable_tags_pre_loop
 		if ($this->ee->extensions->active_hook('taggable_tags_pre_loop')) {
