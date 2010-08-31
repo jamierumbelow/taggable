@@ -100,25 +100,33 @@ class Taggable_upd {
 			$this->ee->dbforge->add_column('taggable_preferences', array('site_id' => array('type' => 'INT', 'default' => '1')));
 		}
 		
+		// -------------------------
+		// 		TAGGABLE 1.3 IS INCOMPATIBLE WITH 1.2
+		// -------------------------
+		
+		if ($version < 1.3) {
+			show_error("Taggable 1.3 is incompatible with Taggable 1.2. Please re-install 1.2, export your tags, un-install 1.2 and install 1.3 from scratch before importing your tags.");
+		}
+		
 		// Update from 1.2 to 1.3:
 		//   - Rename tables so they're all prefixed with 'taggable_'
 		//   - Drop table prefix from columns
 		//	 - Get rid of the extension
 		// 	 - Move license key to config file
 		//	 - Drop preferences table
-		if ($version < 1.3) {
-			$this->ee->dbforge->rename_table('tags', 'taggable_tags');
-			$this->ee->dbforge->rename_table('tags_entries', 'taggable_tags_entries');
-			$this->ee->db->where('class', 'Taggable_ext')->delete('exp_extensions');
-			$this->ee->config->_update_config(array('taggable_license_key' => $this->ee->db->where('preference_key', 'license_key')->get('taggable_preferences')->row('preference_value')));
-			$this->ee->dbforge->drop_table('taggable_preferences');
-			
-			$this->ee->dbforge->modify_column('taggable_tags', array(
-				'tag_id' => array('name' => 'id'),
-				'tag_name' => array('name' => 'name'),
-				'tag_description' => array('name' => 'description')
-			));
-		}
+		// if ($version < 1.3) {
+		// 			$this->ee->dbforge->rename_table($this->ee->db->dbprefix . 'tags', $this->ee->db->dbprefix . 'taggable_tags');
+		// 			$this->ee->dbforge->rename_table($this->ee->db->dbprefix . 'tags_entries', $this->ee->db->dbprefix . 'taggable_tags_entries');
+		// 			$this->ee->db->where('class', 'Taggable_ext')->delete('exp_extensions');
+		// 			$this->ee->config->_update_config(array('taggable_license_key' => $this->ee->db->where('preference_key', 'license_key')->get('taggable_preferences')->row('preference_value')));
+		// 			$this->ee->dbforge->drop_table('taggable_preferences');
+		// 			
+		// 			$this->ee->dbforge->modify_column('taggable_tags', array(
+		// 				'tag_id' => array('name' => 'id'),
+		// 				'tag_name' => array('name' => 'name'),
+		// 				'tag_description' => array('name' => 'description')
+		// 			));
+		// 		}
 
 		return TRUE;
 	}
