@@ -93,8 +93,9 @@ class Taggable {
 			$this->ee->db->where("exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id")->from('exp_channel_titles');
 		}
 				
-		// Select star
-		$this->ee->db->select('exp_taggable_tags.*');
+		// Select star distinct
+		$this->ee->db->distinct();
+		$this->ee->db->select('exp_taggable_tags.id, exp_taggable_tags.name, exp_taggable_tags.description');
 		
 		// MSM
 		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
@@ -105,6 +106,14 @@ class Taggable {
 		
 		$this->ee->db->save_queries = TRUE;
 		$tags = $this->ee->tags->get_all();
+		
+		// Entry count
+		if ($tags) {
+			foreach ($tags as $tag) {
+				$tag->entry_count = $this->ee->tags->tag_entries_count($tag->id);
+				$counts[] = $tag->entry_count;
+			}
+		}
 		
 		// Get the min and max, then calculate the spread...
 		$min_qty = (empty($counts)) ? 0 : min($counts);
@@ -117,13 +126,6 @@ class Taggable {
 		
 		// Figure out each step
         $step = ($max_qty - $min_qty) / ($spread);
-
-		// Entry count
-		if ($tags) {
-			foreach ($tags as $tag) {
-				$tag->entry_count = $this->ee->tags->tag_entries_count($tag->id);
-			}
-		}
 		
 		// taggable_tags_pre_loop
 		if ($this->ee->extensions->active_hook('taggable_tags_pre_loop')) {
@@ -134,7 +136,9 @@ class Taggable {
 		// Set up the tag variables
 		if ($tags) {
 			foreach ($tags as $tag) {
-				$size = round(12 + (($tag->entry_count - $min_qty) * $step));
+				$size = round($min_size + (($tag->entry_count - $min_qty) * $step));
+				if ($size < $min_size) { $size = $min_size; }
+				if ($size > $max_size) { $size = $max_size; }
 				
 				$vars[] = array(
 					'name'			=> $tag->name,
