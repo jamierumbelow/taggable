@@ -43,6 +43,7 @@ class Taggable {
 		$tag_url_name 		 = $this->ee->TMPL->fetch_param('tag_url_name');
 		$entry_id 			 = $this->ee->TMPL->fetch_param('entry_id');
 		$entry_url_title 	 = $this->ee->TMPL->fetch_param('entry_url_title');
+		$orderby	 		 = ($this->ee->TMPL->fetch_param('orderby')) ? strtolower($this->ee->TMPL->fetch_param('orderby')) : 'name';
 		$sort		 		 = strtolower($this->ee->TMPL->fetch_param('sort'));
 		$backspace 			 = $this->ee->TMPL->fetch_param('backspace');
 		$limit				 = $this->ee->TMPL->fetch_param('limit');
@@ -60,7 +61,7 @@ class Taggable {
 		
 		// Sort
 		if ($sort) {
-			$this->ee->db->order_by("tag_name ".strtoupper($sort));
+			$this->ee->db->order_by($orderby . " " . strtoupper($sort));
 		}
 		
 		// Tag ID
