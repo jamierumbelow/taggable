@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.3.3
+ * @version 1.3.4
  **/
 
 require_once PATH_THIRD."taggable/libraries/Model.php";
@@ -21,11 +21,23 @@ class Taggable_ft extends EE_Fieldtype {
 		'version'	=> TAGGABLE_VERSION
 	);
 	
+	/**
+	 * Constructor
+	 *
+	 * @author Jamie Rumbelow
+	 */
 	public function __construct() {
 		parent::EE_Fieldtype();
 		$this->EE->lang->loadfile('taggable');
 	}
 	
+	/**
+	 * display_field()
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function display_field($data = "") {		
 		if (isset($_POST[$this->field_name])) {
 			$data = $_POST[$this->field_name];
@@ -78,6 +90,15 @@ class Taggable_ft extends EE_Fieldtype {
 		return $pre . form_input($attrs);
 	}
 	
+	/**
+	 * replace_tag()
+	 *
+	 * @param string $data 
+	 * @param string $params 
+	 * @param string $tagdata 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
 		$ids = $this->_get_ids($data);
 		
@@ -118,6 +139,13 @@ class Taggable_ft extends EE_Fieldtype {
 		return $return;
 	}
 	
+	/**
+	 * save()
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function save($data) {
 		// Are we on a CP request?
 		if (REQ == 'CP') {
@@ -178,6 +206,13 @@ class Taggable_ft extends EE_Fieldtype {
 		return $data;
 	}
 	
+	/**
+	 * post_save()
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function post_save($data) {
 		// Delete tags
 		if (isset($_POST['taggable_tags_delete'])) {
@@ -246,11 +281,25 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 	}
 	
+	/**
+	 * delete()
+	 *
+	 * @param string $ids 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function delete($ids) {
 		$this->EE->db->where_in('entry_id', $ids);
 		$this->EE->db->delete('exp_taggable_tags_entries');
 	}
 	
+	/**
+	 * display_settings()
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function display_settings($data) {
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
@@ -267,6 +316,15 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->javascript->output("$('#field_name').change(function(){ $('#taggable_saef_field_name').val($(this).val()); })");
 	}
 	
+	/**
+	 * display_cell_settings()
+	 *
+	 * MATRIX COMPAT. NOT COMPLETE
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function display_cell_settings($data) {
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
@@ -283,6 +341,12 @@ class Taggable_ft extends EE_Fieldtype {
 		);
 	}
 	
+	/**
+	 * save_settings()
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function save_settings() {
 		return array(
 			'taggable_saef_field_name' => $this->EE->input->post('taggable_saef_field_name'),
@@ -292,6 +356,13 @@ class Taggable_ft extends EE_Fieldtype {
 		);
 	}
 	
+	/**
+	 * Get the IDs from the exp_channel_data
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	protected function _get_ids($data) {
 		$lines = explode("\n", $data);
 		$ids = array();
@@ -303,14 +374,36 @@ class Taggable_ft extends EE_Fieldtype {
 		return $ids;
 	}
 	
+	/**
+	 * There's no tags, so get the {if no_tags}{/if}
+	 * and display it.
+	 *
+	 * @param string $tagdata 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	protected function _parse_if_no_tags($tagdata) {
 		return preg_replace("/{if no_tags}(.*){\/if}/", '$1', $tagdata);
 	}
 		
+	/**
+	 * There are tags, so get rid of the {if no_tags}{/if}
+	 *
+	 * @param string $tagdata 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	protected function _no_parse_if_no_tags($tagdata) {
 		return preg_replace("/{if no_tags}(.*){\/if}/", '', $tagdata);
 	}
 	
+	/**
+	 * Get the tag's entry count
+	 *
+	 * @param string $id 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	protected function tag_entries($id) {
 		return $this->EE->db->select("COUNT(DISTINCT entry_id) AS total")
 							->where("tag_id", $id)
@@ -318,6 +411,12 @@ class Taggable_ft extends EE_Fieldtype {
 							->row('total');
 	}
 	
+	/**
+	 * Get the field_name of the custom field
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _get_template() {
  		return $this->EE->db->select('field_name')
 						 	->where('field_id', $this->field_id)
@@ -325,6 +424,14 @@ class Taggable_ft extends EE_Fieldtype {
 							->row('field_name');
 	}
 	
+	/**
+	 * display_field() - JavaScript
+	 *
+	 * @param string $field_name 
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _javascript($field_name, $data = "") {		
 		$js = array(
 			'hintText'		 	 	=> lang('taggable_javascript_hint'),
@@ -354,6 +461,12 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->javascript->output($js);
 	}
 	
+	/**
+	 * display_field() - stylesheet
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _stylesheet() {
 		// Matrix compat.
 		$old = $this->EE->load->_ci_view_path;

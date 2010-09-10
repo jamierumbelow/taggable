@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.3.3
+ * @version 1.3.4
  **/
 
 require_once PATH_THIRD."taggable/libraries/Model.php";
@@ -23,6 +23,11 @@ class Taggable_mcp {
 	public $data 		= array();
 	public $docs_url	= "http://gettaggable.com/docs/";
 	
+	/**
+	 * Constructor
+	 *
+	 * @author Jamie Rumbelow
+	 */
 	public function __construct() {
 		$this->ee =& get_instance();
 		
@@ -62,6 +67,12 @@ class Taggable_mcp {
 		}
 	}
 	
+	/**
+	 * MCP Dashboard
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function index() {
 		$this->data['tags_alphabetically'] = $this->ee->tags->get_alphabet_list();
 		$this->data['stats']			   = $this->ee->tags->stats();
@@ -70,6 +81,12 @@ class Taggable_mcp {
 		return $this->_view('cp/index');
 	}
 	
+	/**
+	 * Tags list, search and filtering
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function tags() {
 		// Reset filters and start building the query
 		$this->ee->tags->reset_filters();
@@ -101,6 +118,12 @@ class Taggable_mcp {
 		return $this->_view('cp/tags');
 	}
 	
+	/**
+	 * Entries tagged with tag
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function tag_entries() {
 		$tag = $this->ee->input->get('tag_id');
 		
@@ -112,6 +135,12 @@ class Taggable_mcp {
 		return $this->_view('cp/entries');
 	}
 	
+	/**
+	 * Create a new tag
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function create_tag() {
 		if (empty($_POST['tag']['name'])) {
 			$this->ee->session->set_flashdata('create_validate', 'yes');
@@ -126,6 +155,12 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tags");
 	}
 	
+	/**
+	 * Delete a tag
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function delete_tags() {
 		$tags = $this->ee->input->post('delete_tags');
 		
@@ -136,6 +171,12 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tags");
 	}
 	
+	/**
+	 * Update/edit a tag
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function update_tag() {
 		if (empty($_POST['tag']['name'])) {
 			$this->ee->session->set_flashdata('edit_validate', 'yes');
@@ -151,6 +192,12 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tag_entries".AMP."tag_id=".$tag_id);
 	}
 	
+	/**
+	 * Tools page
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function tools() {
 		$this->data['import'] = array(
 			'taggable' => 'Taggable',
@@ -163,6 +210,12 @@ class Taggable_mcp {
 		return $this->_view('cp/tools');
 	}
 	
+	/**
+	 * Import from...
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function import() {
 		$from = $this->ee->input->get_post('from');
 		$this->data['errors'] 	= ($this->ee->session->flashdata('error') == 'yes') ? TRUE : FALSE;
@@ -171,6 +224,12 @@ class Taggable_mcp {
 		return $this->_view('other/import/'.$from);
 	}
 	
+	/**
+	 * Import from Taggable
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function import_taggable() {
 		// We won't use CI's uploader because we don't want
 		// to move the file anywhere, we just want to store it
@@ -202,6 +261,12 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
 	}
 	
+	/**
+	 * Import from WordPress
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function import_wordpress() {
 		// Gather the database details, and make a DNS string
 		$con = $this->ee->input->post('wordpress');
@@ -241,6 +306,12 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
 	}
 	
+	/**
+	 * Import from Solspace
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function import_solspace() {
 		// Gather the database details, and make a DNS string
 		$con = $this->ee->input->post('solspace');
@@ -271,6 +342,12 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
 	}
 	
+	/**
+	 * Import from Tagger Lite / Tagger
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function import_tagger() {
 		// Gather the database details, and make a DNS string
 		$con = $this->ee->input->post('tagger');
@@ -301,11 +378,23 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import_success');
 	}
 	
+	/**
+	 * Successful import!
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function import_success() {
 		$this->_title('taggable_import_success');
 		return $this->_view('other/import/success');
 	}
 		
+	/**
+	 * Export
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function export() {
 		$tags = $this->ee->tags->get_all();
 		$output = array();
@@ -323,6 +412,12 @@ class Taggable_mcp {
 		force_download('taggable_export_'.time().'.json', $content);
 	}
 	
+	/**
+	 * Tag indexing tool
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function index_tags() {
 		// Let's first get the IDs of every Taggable field
 		$ids = $this->ee->db->select('field_id, field_name')->where('field_type', 'taggable')->get('channel_fields')->result();
@@ -372,6 +467,13 @@ class Taggable_mcp {
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tools");
 	}
 	
+	/**
+	 * Parse the tags from exp_channel_data
+	 *
+	 * @param string $string 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function _index_tags_parse($string) {
 		$lines = explode("\n", $string);
 		$tags = array();
@@ -387,6 +489,12 @@ class Taggable_mcp {
 		return $tags;
 	}
 		
+	/**
+	 * Preferences page...
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function preferences() {
 		if ($this->ee->input->post('taggable_license_key')) {
 			// Save license key
@@ -402,7 +510,16 @@ class Taggable_mcp {
 		return $this->_view('cp/preferences');
 	}
 	
+	// ----------
 	// AJAX stuff
+	// ----------
+	
+	/**
+	 * Search the tag database!
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function ajax_search() {
 		$term = $this->ee->input->get('q');
 		$query = $this->ee->db->where('name LIKE ', "%$term%")->where('site_id', $this->site_id)->get('exp_taggable_tags')->result();
@@ -418,6 +535,12 @@ class Taggable_mcp {
 		die(json_encode($tags));
 	}
 	
+	/**
+	 * Create a new tag via AJAX
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function ajax_create() {
 		$name = htmlentities($this->ee->input->get('tag_name'));
 		$id   = $this->ee->tags->insert(array('tag_name' => $name, 'site_id' => $this->ee->config->item('site_id')));
@@ -435,22 +558,50 @@ class Taggable_mcp {
 		}
 	}
 	
+	/**
+	 * Output the stylesheet
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function ajax_stylesheet() {
 		header("Content-type: text/css");
 		die(file_get_contents(PATH_THIRD."taggable/css/autoSuggest.css"));
 	}
 	
+	/**
+	 * Output the Taggable JavaScript
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function ajax_javascript() {
 		header("Content-type: text/javascript");
 		die(file_get_contents(PATH_THIRD."taggable/javascript/jquery.autoSuggest.js"));
 	}
 	
+	/**
+	 * Output an image
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function image() {
 		header("Content-type: image/png");
 		die(file_get_contents(PATH_THIRD."taggable/images/".$_GET['file'].'.png'));
 	}
 	
+	// --------------
 	// Layout helpers
+	// --------------
+	
+	/**
+	 * Set page titles and breadcrumb
+	 *
+	 * @param string $title 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _title($title) {
 		$this->data['title'] = lang($title);
 		
@@ -458,11 +609,28 @@ class Taggable_mcp {
 		$this->ee->cp->set_breadcrumb(TAGGABLE_URL, "Taggable");
 	}
 	
+	/**
+	 * Load the view through $this->data
+	 *
+	 * @param string $view 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _view($view) {
 		return $this->ee->load->view($view, $this->data, TRUE);
 	}
 	
+	// ------
 	// Misc
+	// ------
+	
+	/**
+	 * Is the license key valid?
+	 *
+	 * @param string $key 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _valid($key) {
 		return preg_match("/^([A-Z0-9a-z]{8}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{12})$/", $key);
 	}

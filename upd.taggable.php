@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.3.3
+ * @version 1.3.4
  **/
 
 require_once PATH_THIRD."taggable/config.php";
@@ -17,11 +17,22 @@ class Taggable_upd {
 	public $version = TAGGABLE_VERSION;
 	private $ee;
 	
+	/**
+	 * Constructor
+	 *
+	 * @author Jamie Rumbelow
+	 */
 	public function __construct() {
 		$this->ee =& get_instance();
 		$this->ee->load->dbforge();
 	}
 	
+	/**
+	 * Install
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function install() {
 		// exp_modules
 		$module = array(
@@ -66,6 +77,12 @@ class Taggable_upd {
 		return TRUE;
 	}
 	
+	/**
+	 * Uninstall
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function uninstall() {
 		// Goodbye!
 		$this->ee->dbforge->drop_table('taggable_tags');
@@ -77,6 +94,13 @@ class Taggable_upd {
 		return TRUE;
 	}
 	
+	/**
+	 * Update
+	 *
+	 * @param string $version 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function update($version = '') {
 		// Update from 1.0 to 1.1:
 		//   - Add the site ID to the tags table, set the current ID as the default

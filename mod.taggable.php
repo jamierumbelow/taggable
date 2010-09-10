@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.3.3
+ * @version 1.3.4
  **/
 
 require_once BASEPATH.	"core/Model.php";
@@ -21,6 +21,21 @@ class Taggable {
 	public $tagdata;
 	public $site_id;
 	
+	/**
+	 * {exp:taggable tag_id="1" tag_name="some tag" tag_url_name="some-tag" entry_id="1" entry_url_title="entry" 
+	 * 				 orderby="name" sort="asc" limit="10" url_separator="-" min_size="10" max_size="25" backspace="2"}
+	 * 		{name}
+	 *		{id}
+	 *		{description}
+	 *		{entry_count}
+	 *		{size}
+	 *		{url_name}
+	 *		{pretty_name}
+	 * {/exp:taggable}
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	public function Taggable() {
 		$this->ee =& get_instance();
 		
@@ -43,7 +58,8 @@ class Taggable {
 		$tag_url_name 		 = $this->ee->TMPL->fetch_param('tag_url_name');
 		$entry_id 			 = $this->ee->TMPL->fetch_param('entry_id');
 		$entry_url_title 	 = $this->ee->TMPL->fetch_param('entry_url_title');
-		$orderby	 		 = ($this->ee->TMPL->fetch_param('orderby')) ? strtolower($this->ee->TMPL->fetch_param('orderby')) : 'name';
+		$orderby	 		 = ($this->ee->TMPL->fetch_param('orderby') && in_array($this->ee->TMPL->fetch_param('orderby'), array('id', 'name', ''))) ? 
+								strtolower($this->ee->TMPL->fetch_param('orderby')) : 'name';
 		$sort		 		 = strtolower($this->ee->TMPL->fetch_param('sort'));
 		$backspace 			 = $this->ee->TMPL->fetch_param('backspace');
 		$limit				 = $this->ee->TMPL->fetch_param('limit');
@@ -180,11 +196,25 @@ class Taggable {
 		$this->return_data = $parsed;
 	}
 	
+	/**
+	 * Return pretty tag name
+	 *
+	 * @param string $name 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _pretty_tag($name) {
 		// @todo want to do more with this, not sure what yet :)
 		return ucwords($name);
 	}
 	
+	/**
+	 * Fetch the tag ID from the tag name
+	 *
+	 * @param string $name 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
 	private function _fetch_tag_id($name) {
 		return $this->ee->db->where('name', $name)->get('taggable_tags')->row('id');
 	}

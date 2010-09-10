@@ -8,12 +8,12 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.3.3
+ * @version 1.3.4
  **/
 
 // NSM Addon Updater
 $config['name'] 								= "Taggable";
-$config['version'] 								= "1.3.3";
+$config['version'] 								= "1.3.4";
 $config['nsm_addon_updater']['versions_xml'] 	= "http://getsparkplugs.com/?ACT=26&UT=taggable";
 
 // Version constant
