@@ -53,7 +53,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
-		$theme = "taggable-smooth";
+		$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : "taggable-smooth";
 		
 		// Setup the JavaScript
 		$this->_setup_javascript($hash);
@@ -291,6 +291,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
+		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : "taggable-light";
 		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
 		
 		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'id="taggable_saef_field_name"'));
@@ -298,6 +299,7 @@ class Taggable_ft extends EE_Fieldtype {
 			',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
 		), $saef_separator));
 		$this->EE->table->add_row(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit));
+		$this->EE->table->add_row(lang('taggable_preference_theme'), form_dropdown('taggable_theme', $this->_get_themes(), $theme));
 		$this->EE->table->add_row(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator));
 		
 		$this->EE->javascript->output("$('#field_name').change(function(){ $('#taggable_saef_field_name').val($(this).val()); })");
@@ -339,6 +341,7 @@ class Taggable_ft extends EE_Fieldtype {
 			'taggable_saef_field_name' => $this->EE->input->post('taggable_saef_field_name'),
 			'taggable_saef_separator' => $this->EE->input->post('taggable_saef_separator'),
 			'taggable_tag_limit' => $this->EE->input->post('taggable_tag_limit'),
+			'taggable_theme' => $this->EE->input->post('taggable_theme'),
 			'taggable_url_separator' => $this->EE->input->post('taggable_url_separator')
 		);
 	}
@@ -498,6 +501,32 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	private function _insert_theme_css($file) {
 		$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$this->_theme_url().'css/'.$file.'" />');
+	}
+	
+	/**
+	 * Get jQuery UI themes
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _get_themes() {
+		if (!isset($this->cache['themes'])) {
+			$theme_folder_path = $this->EE->config->item('theme_folder_path');
+			if (substr($theme_folder_path, -1) != '/') $theme_folder_path .= '/';
+			
+			$themes = array();
+			$dir = @scandir($theme_folder_path . 'third_party/taggable/css/');
+			
+			foreach ($dir as $file) {
+				if ($file[0] !== '.') {
+					$themes[$file] = ucwords(str_replace('-', ' ', $file));
+				}
+			}
+			
+			$this->cache['themes'] = $themes;
+		}
+		
+		return $this->cache['themes'];
 	}
 	
 	/**

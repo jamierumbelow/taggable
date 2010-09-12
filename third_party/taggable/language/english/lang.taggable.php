@@ -24,6 +24,7 @@ $lang = array(
 	'taggable_preference_saef_separator'			=> 'SAEF Separator',
 	'taggable_preference_saef_field_name'			=> 'SAEF Field Name',
 	'taggable_preference_url_separator'				=> 'URL Separator',
+	'taggable_preference_theme'						=> 'jQuery UI Theme',
 	'taggable_preference_license_key'				=> 'License Key',
 	'taggable_preference_key'						=> 'Key',
 	'taggable_preference_value'						=> 'Value',
