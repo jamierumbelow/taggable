@@ -53,7 +53,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
-		$theme = "taggable-light";
+		$theme = "taggable-smooth";
 		
 		// Setup the JavaScript
 		$this->_setup_javascript($hash);
