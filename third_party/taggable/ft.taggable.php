@@ -51,9 +51,16 @@ class Taggable_ft extends EE_Fieldtype {
 		$value = '';
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
-		$this->_javascript($this->field_name, $data);
-		$this->_stylesheet();
+		// What theme are we using?
+		$theme = "taggable-light";
 		
+		// Setup the JavaScript
+		$this->_setup_javascript();
+		
+		// Include the theme JS and CSS
+		$this->_insert_theme_js('jquery-ui-1.8.4.custom.min.js');
+		$this->_insert_theme_css("$theme/$theme.css");
+				
 		if ($data) { 
 			$ids 	= explode(',', $data);
 			$values = array();
@@ -375,6 +382,29 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	/**
+	 * Sets up JavaScript globals
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _setup_javascript() {		
+		$js = array(
+			'hintText'		 	 	=> lang('taggable_javascript_hint'),
+			'noResultsText'	  		=> lang('taggable_javascript_no_results'),
+			'searchingText'	 	 	=> lang('taggable_javascript_searching'),
+			'pleasEEnterText' 		=> lang('taggable_javascript_please_enter'),
+			'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
+			'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
+			'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
+			'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
+		);
+		
+		foreach ($js as $name => $value) {
+			$this->EE->javascript->set_global("taggable.$name", $value);
+		}
+	}
+	
+	/**
 	 * There's no tags, so get the {if no_tags}{/if}
 	 * and display it.
 	 *
@@ -425,56 +455,41 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	/**
-	 * display_field() - JavaScript
+	 * Get the theme folder URL
 	 *
-	 * @param string $field_name 
-	 * @param string $data 
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	private function _javascript($field_name, $data = "") {		
-		$js = array(
-			'hintText'		 	 	=> lang('taggable_javascript_hint'),
-			'noResultsText'	  		=> lang('taggable_javascript_no_results'),
-			'searchingText'	 	 	=> lang('taggable_javascript_searching'),
-			'pleasEEnterText' 		=> lang('taggable_javascript_please_enter'),
-			'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
-			'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
-			'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
-			'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
-		);
-		
-		foreach ($js as $name => $value) {
-			$this->EE->javascript->set_global("tag.$name", $value);
+	private function _theme_url() {
+		if (! isset($this->cache['theme_url'])) {
+			$theme_folder_url = $this->EE->config->item('theme_folder_url');
+			if (substr($theme_folder_url, -1) != '/') $theme_folder_url .= '/';
+			$this->cache['theme_url'] = $theme_folder_url.'third_party/taggable/';
 		}
-		
-		// Matrix compat.
-		$old = $this->EE->load->_ci_view_path;
-		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
-		
-		$this->EE->cp->load_package_js('jquery.autocomplete');
-		
-		$this->EE->load->_ci_view_path = $old;
-		
-		$js = '$(".taggable_replace_token_input").tokenInput(EE.tag.searchUrl, EE.tag.createUrl, { lang: EE.tag });';
-		
-		$this->EE->javascript->output($js);
+
+		return $this->cache['theme_url'];
 	}
 	
 	/**
-	 * display_field() - stylesheet
+	 * Insert JS into the CP
 	 *
+	 * @param string $file 
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	private function _stylesheet() {
-		// Matrix compat.
-		$old = $this->EE->load->_ci_view_path;
-		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
-		
-		$this->EE->cp->load_package_css('autocomplete');
-		
-		$this->EE->load->_ci_view_path = $old;
+	private function _insert_theme_js($file) {
+		$this->EE->cp->add_to_foot('<script type="text/javascript" src="'.$this->_theme_url().'javascript/'.$file.'"></script>');
+	}
+	
+	/**
+	 * Insert CSS into the CP
+	 *
+	 * @param string $file 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _insert_theme_css($file) {
+		$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$this->_theme_url().'css/'.$file.'" />');
 	}
 	
 	/**
