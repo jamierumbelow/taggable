@@ -45,10 +45,11 @@ class Taggable_ft extends EE_Fieldtype {
 		
 		$this->EE->load->model('taggable_tag_model', 'tags');
 		
-		$tags = $this->_get_ids($data);
-		$tags = implode(',', $tags).',';
+		// Get the names
+		$tags = $this->_get_names($data);
+		$tags = implode(', ', $tags);
+		
 		$data = $tags;
-		$value = '';
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
@@ -60,41 +61,19 @@ class Taggable_ft extends EE_Fieldtype {
 		// Include the theme JS and CSS
 		$this->_insert_theme_js('jquery-ui-1.8.4.custom.min.js');
 		$this->_insert_theme_css("$theme/$theme.css");
-				
-		if ($data) { 
-			$ids 	= explode(',', $data);
-			$values = array();
-			
-			foreach ($ids as $id) {
-				if (!empty($id)) {
-					if (is_numeric($id)) {
-						if ($tg = $this->EE->tags->get($id)) {
-							$values[] = "$id,$tg->name";
-						}
-					}
-				}
-			}
-			
-			$value = implode('|', $values);
-		}
 		
-		$pre = "";
-		
-		if (!isset($this->EE->db->punches['deleted'])) {
-			$pre .= '<input type="hidden" name="taggable_tags_delete" id="taggable_tags_delete" value="" />';
-			$this->EE->db->punches['deleted'] = TRUE;
-		}
-		
+		// Setup the input
 		$limit = $this->settings['taggable_tag_limit'];
 		$attrs = array(
 			'name' 				=> (isset($this->cell_name)) ? $this->cell_name : $this->field_name,
 			'class' 			=> 'taggable_replace_token_input',
-			'value'				=> $value,
+			'value'				=> $data,
 			'data-tag-limit'	=> $limit,
 			'data-id-hash'		=> $hash
 		);
 		
-		return $pre . form_input($attrs);
+		// And we're done!
+		return form_input($attrs);
 	}
 	
 	/**
@@ -379,6 +358,24 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		return $ids;
+	}
+	
+	/**
+	 * Get the names from the exp_channel_data
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _get_names($data) {
+		$lines = explode("\n", $data);
+		$names = array();
+		
+		foreach ($lines as $line) {
+			$names[] = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$2", $line);
+		}
+		
+		return $names;
 	}
 	
 	/**
