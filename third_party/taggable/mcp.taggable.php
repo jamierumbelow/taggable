@@ -528,7 +528,8 @@ class Taggable_mcp {
 		foreach ($query as $tag) {
 			$tags[] = array(
 				'id' 	=> $tag->id,
-				'name'	=> $tag->name
+				'name'	=> $tag->name,
+				'value' => $tag->name
 			);
 		}
 		

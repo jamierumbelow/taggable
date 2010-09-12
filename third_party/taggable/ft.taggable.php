@@ -56,10 +56,11 @@ class Taggable_ft extends EE_Fieldtype {
 		$theme = "taggable-light";
 		
 		// Setup the JavaScript
-		$this->_setup_javascript();
+		$this->_setup_javascript($hash);
 		
 		// Include the theme JS and CSS
 		$this->_insert_theme_js('jquery-ui-1.8.4.custom.min.js');
+		$this->_insert_theme_js('jquery.taggable.js');
 		$this->_insert_theme_css("$theme/$theme.css");
 		
 		// Setup the input
@@ -384,21 +385,31 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	private function _setup_javascript() {		
-		$js = array(
-			'hintText'		 	 	=> lang('taggable_javascript_hint'),
-			'noResultsText'	  		=> lang('taggable_javascript_no_results'),
-			'searchingText'	 	 	=> lang('taggable_javascript_searching'),
-			'pleasEEnterText' 		=> lang('taggable_javascript_please_enter'),
-			'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
-			'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
-			'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
-			'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
-		);
+	private function _setup_javascript($hash) {		
+		// Set lang globals
+		if (!isset($this->cache['js_globals'])) {
+			$js = array(
+				'hintText'		 	 	=> lang('taggable_javascript_hint'),
+				'noResultsText'	  		=> lang('taggable_javascript_no_results'),
+				'searchingText'	 	 	=> lang('taggable_javascript_searching'),
+				'pleasEEnterText' 		=> lang('taggable_javascript_please_enter'),
+				'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
+				'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
+				'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
+				'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
+			);
 		
-		foreach ($js as $name => $value) {
-			$this->EE->javascript->set_global("taggable.$name", $value);
+			// Loop thru the array and set the JS
+			foreach ($js as $name => $value) {
+				$this->EE->javascript->set_global("taggable.$name", $value);
+			}
+			
+			// Make sure we only bother once
+			$this->cache['js_globals'] = TRUE;
 		}
+		
+		// Output field-specific JS
+		$this->EE->cp->add_to_foot('<script type="text/javascript">$(document).ready(function(){ $("input[data-id-hash=\''.$hash.'\']").taggableAutocomplete(); });</script>');
 	}
 	
 	/**
