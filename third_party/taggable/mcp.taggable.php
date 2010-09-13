@@ -13,6 +13,7 @@
 
 require_once PATH_THIRD."taggable/libraries/Model.php";
 require_once PATH_THIRD."taggable/config.php";
+require_once PATH_THIRD."taggable/libraries/eh_compat.php";
 
 define('TAGGABLE_URL', BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=taggable');
 define('TAGGABLE_PATH', 'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=taggable');
