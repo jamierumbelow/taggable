@@ -16,7 +16,7 @@
  */
 
 if (!function_exists('json_encode')) {
-	
+
 	/**
 	 * Input an object, returns a json-ized string of said object
 	 * 

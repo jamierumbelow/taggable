@@ -168,7 +168,7 @@ class Taggable {
 				);
 			}
 		} else {
-			return $this->ee->TMPL->no_results();
+			$this->return_data = $this->ee->TMPL->no_results();
 		}
 		
 		// taggable_tags_post_loop
