@@ -138,6 +138,9 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function save($data) {
+		// Load stuff again
+		$this->EE->load->model('taggable_tag_model', 'tags');
+		
 		// Are we on a CP request?
 		if (REQ == 'CP') {
 			if ($data) {
@@ -166,9 +169,6 @@ class Taggable_ft extends EE_Fieldtype {
 				}
 			}
 		} else {
-			// Load stuff again
-			$this->EE->load->model('taggable_tag_model', 'tags');
-			
 			// Check for the SAEF
 			if (isset($_POST[$this->settings['taggable_saef_field_name']])) {
 				$input = $_POST[$this->settings['taggable_saef_field_name']];
@@ -324,7 +324,14 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function display_var_field($data) {
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
+		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
+
 		$html = $this->display_field($data);
+		$this->EE->load->_ci_view_path = $old;
+		
+		return $html;
 	}
 	
 	/**
@@ -335,7 +342,14 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function save_var_field($data) {
-		return $this->save($data);
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
+		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
+
+		$return = $this->save($data);
+		$this->EE->load->_ci_view_path = $old;
+		
+		return $return;
 	}
 	
 	/**
@@ -348,7 +362,14 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function display_var_tag($data, $params, $tagdata) {
-		return $this->replace_tag($data, $params, $tagdata);
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
+		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
+
+		$html = $this->replace_tag($data, $params, $tagdata);
+		$this->EE->load->_ci_view_path = $old;
+		
+		return $html;
 	}
 	
 	/**
@@ -359,7 +380,18 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function display_var_settings($data) {
-		return $this->display_cell_settings($data);
+		return $this->display_settings($data, TRUE);
+	}
+	
+	/**
+	 * Save Low Variables Settings
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function save_var_settings($data) {
+		return $this->save_settings($data);
 	}
 	
 	/**

@@ -41,7 +41,7 @@ $.fn.tokenInput = function () {
 		lang: EE.taggable
     };
 
-    settings.classes = $.extend({
+    settings.classes = {
         tokenList: "token-input-list",
         token: "token-input-token",
         tokenDelete: "token-input-delete-token",
@@ -52,7 +52,7 @@ $.fn.tokenInput = function () {
         dropdownItem2: "token-input-dropdown-item",
         selectedDropdownItem: "token-input-selected-dropdown-item",
         inputToken: "token-input-input-token"
-    }, options.classes);
+    };
     
     return this.each(function () {
         var list = new $.TokenList(this, settings);
