@@ -165,9 +165,9 @@ class Taggable_mcp {
 	public function delete_tags() {
 		$tags = $this->ee->input->post('delete_tags');
 		
-		// $this->ee->tags->delete_many($tags);
+		$this->ee->tags->delete_many($tags);
 		$this->ee->tags->delete_from_channel_data($tags);
-		// $this->ee->tags->delete_entries($tags);
+		$this->ee->tags->delete_entries($tags);
 		
 		$this->ee->session->set_flashdata('message_success', "Tag(s) deleted");
 		$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=tags");

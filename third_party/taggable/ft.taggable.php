@@ -46,8 +46,8 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->model('taggable_tag_model', 'tags');
 		
 		// Get the names
-		$tags = $this->_get_names($data);
-		if ($tags) { $tags = implode(', ', $tags) . ', '; } else { $tags = ''; }
+		$tags = $this->_get_ids_and_names($data);
+		$tags = $this->_format_for_field($tags);
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
@@ -57,7 +57,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->_setup_javascript($hash);
 		
 		// Include the theme JS and CSS
-		$this->_insert_theme_js('jquery-ui-1.8.4.custom.min.js');
+		$this->_insert_theme_js('jquery.autocomplete.js');
 		$this->_insert_theme_js('jquery.taggable.js');
 		$this->_insert_theme_css("$theme/$theme.css");
 		
@@ -344,6 +344,50 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		return $names;
+	}
+	
+	/**
+	 * Get an assoc array of IDs and names
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _get_ids_and_names($data) {
+		$lines = explode("\n", $data);
+		$names = array();
+		
+		foreach ($lines as $line) {
+			if ($line) {
+				$id = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$1", $line);
+				$name = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$2", $line);
+				
+				$names[$id] = $name;
+			}
+		}
+		
+		return $names;
+	}
+	
+	/**
+	 * Format the tags for tag fields
+	 *
+	 * @param string $tags 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _format_for_field($tags) {
+		if ($tags) { 
+			foreach($tags as $id => $tag) { 
+				$new_tags[] = "$id,$tag"; 
+			} 
+			
+			$tags = implode("|", $new_tags);
+		} else {
+			$tags = ''; 
+		}
+		
+		return $tags;
 	}
 	
 	/**
