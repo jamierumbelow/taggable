@@ -365,8 +365,18 @@ class Taggable_ft extends EE_Fieldtype {
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
-
-		$html = $this->replace_tag($data, $params, $tagdata);
+		
+		// Reset LV settings
+		foreach ($params as $key => $value) {
+			$this->settings[$key] = $value;
+		}
+		
+		// Remove {tags}
+		$html = str_replace(LD.$params['var'].RD, '', $tagdata);
+		$html = str_replace(LD.'/'.$params['var'].RD, '', $html);
+		
+		// Run replace_tag()
+		$html = $this->replace_tag($data, $params, $html);
 		$this->EE->load->_ci_view_path = $old;
 		
 		return $html;
