@@ -135,29 +135,27 @@ class Taggable_ft extends EE_Fieldtype {
 		// Are we on a CP request?
 		if (REQ == 'CP') {
 			if ($data) {
-				$tags = explode(', ', $data);
+				$tags = explode(',', $data);
+				$newt = array();
 				$data = '';
 				
-				foreach ($tags as $key => $tag) {
+				foreach ($tags as $tag) {
 					if ($tag) {
-						// Is it in the DB? What's the ID?
-						$query = $this->EE->tags->get_by('name', $tag);
-				
-						if ($query) {
-							$tags[$key] = $query->id;
+						if (is_numeric($tag)) {
+							// Is it in the DB? What's the name?
+							$query = $this->EE->tags->get($tag);
+						
+							if ($query) {
+								$newt[$tag] = $query->name;
+							}
 						} else {
-							$tags[$key] = $this->EE->tags->insert(array('name' => $tag));
+							$new_tag = $this->EE->tags->insert(array('name' => $tag));
+							$newt[$new_tag] = $tag;
 						}
-					} else {
-						unset($tags[$key]);
 					}
 				}
 		
-				foreach ($tags as $id) {
-					$tag_names[$id] = $this->EE->db->where('id', $id)->get('taggable_tags')->row('name');
-				}
-		
-				foreach ($tag_names as $id => $name) {
+				foreach ($newt as $id => $name) {
 					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
 			}

@@ -49,7 +49,7 @@ $.fn.tokenInput = function () {
         highlightedToken: "token-input-highlighted-token",
         dropdown: "token-input-dropdown",
         dropdownItem: "token-input-dropdown-item",
-        dropdownItem2: "token-input-dropdown-item2",
+        dropdownItem2: "token-input-dropdown-item",
         selectedDropdownItem: "token-input-selected-dropdown-item",
         inputToken: "token-input-input-token"
     }, options.classes);
