@@ -136,6 +136,48 @@ class Taggable_tag_model extends Model {
 	}
 	
 	/**
+	 * Delete tags from exp_channel_data
+	 *
+	 * @param string $tags
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function delete_from_channel_data($tags) {
+		// Get tag entries
+		$entries = $this->db->where_in('tag_id', $tags)->get('exp_taggable_tags_entries')->result();
+		
+		// Loop through entries
+		foreach ($entries as $entry) {
+			// Get taggable field
+			$id = $this->db->select('field_id, field_settings')->where('field_name', $entry->template)->get('channel_fields')->row();
+			$settings = unserialize(base64_decode($id->field_settings));
+			$field = $this->db->select("field_id_".$id->field_id)->where('entry_id', $entry->entry_id)->get('channel_data')->row('field_id_'.$id->field_id);
+			
+			// Look for the tags
+			$old_tags = $this->_get_ids($field);
+			$new_tags = array();
+			
+			// Loop through the old tags
+			foreach ($old_tags as $old_tag) {
+				if (!in_array($old_tag, $tags)) {
+					$new_tags[] = $old_tag;
+				}
+			}
+			
+			// Recreate the field
+			$field = '';
+			
+			foreach ($new_tags as $tag) {
+				$data = $this->db->where('id', $tag)->get('taggable_tags')->row();
+				$field .= "[$tag] $data->name ".str_replace(' ', $settings['taggable_url_separator'], $data->name)."\n";
+			}
+			
+			// Update field
+			$this->db->where('entry_id', $entry->entry_id)->set('field_id_'.$id, $field)->update('channel_data');
+		}
+	}
+	
+	/**
 	 * Lookup grouped on tag IDs
 	 *
 	 * @return void
@@ -334,5 +376,25 @@ class Taggable_tag_model extends Model {
 		$tag['name'] = trim($tag['name']);
 		
 		return $tag;
+	}
+	
+	/**
+	 * Get the IDs from the exp_channel_data
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _get_ids($data) {
+		$lines = explode("\n", $data);
+		$ids = array();
+		
+		foreach ($lines as $line) {
+			if ($line) {
+				$ids[] = (int)preg_replace("/^\[([0-9]+)\]/", "$1", $line);
+			}
+		}
+		
+		return $ids;
 	}
 }

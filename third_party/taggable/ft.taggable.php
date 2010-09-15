@@ -47,7 +47,7 @@ class Taggable_ft extends EE_Fieldtype {
 		
 		// Get the names
 		$tags = $this->_get_names($data);
-		$tags = implode(', ', $tags) . ', ';
+		if ($tags) { $tags = implode(', ', $tags) . ', '; } else { $tags = ''; }
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
