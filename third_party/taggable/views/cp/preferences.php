@@ -11,6 +11,11 @@
 					<td><strong><?=lang("taggable_preference_license_key")?></strong></td>
 					<td><?=form_input('taggable_license_key', $license_key)?></td>
 				</tr>
+				
+				<tr>
+					<td><strong><?=lang("taggable_preference_default_theme")?></strong></td>
+					<td><?=form_dropdown('taggable_default_theme', $themes, $default_theme)?></td>
+				</tr>
 	</tbody>
 </table>
 

@@ -499,14 +499,19 @@ class Taggable_mcp {
 	 */
 	public function preferences() {
 		if ($this->ee->input->post('taggable_license_key')) {
-			// Save license key
+			// Save license key & theme
 			$key = $this->ee->input->post('taggable_license_key');
-			$this->ee->config->_update_config(array('taggable_license_key' => $key)); 
+			$default_theme = $this->ee->input->post('taggable_default_theme');
+			
+			$this->ee->config->_update_config(array('taggable_license_key' => $key, 'taggable_default_theme' => $default_theme)); 
 			
 			// Show alert and redirect
 			$this->ee->session->set_flashdata('message_success', lang('taggable_preferences_saved'));
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP."method=preferences");
 		}
+		
+		$this->data['themes'] = $this->_get_themes();
+		$this->data['default_theme'] = $this->ee->config->item('taggable_default_theme');
 		
 		$this->_title("taggable_preferences_title");
 		return $this->_view('cp/preferences');
@@ -636,5 +641,31 @@ class Taggable_mcp {
 	 */
 	private function _valid($key) {
 		return preg_match("/^([A-Z0-9a-z]{8}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{4}\-[A-Z0-9a-z]{12})$/", $key);
+	}
+	
+	/**
+	 * Get UI themes
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _get_themes() {
+		if (!isset($this->cache['themes'])) {
+			$theme_folder_path = $this->ee->config->item('theme_folder_path');
+			if (substr($theme_folder_path, -1) != '/') $theme_folder_path .= '/';
+			
+			$themes = array();
+			$dir = @scandir($theme_folder_path . 'third_party/taggable/css/');
+			
+			foreach ($dir as $file) {
+				if ($file[0] !== '.') {
+					$themes[$file] = ucwords(str_replace('-', ' ', $file));
+				}
+			}
+			
+			$this->cache['themes'] = $themes;
+		}
+		
+		return $this->cache['themes'];
 	}
 }

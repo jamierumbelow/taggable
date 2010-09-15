@@ -151,6 +151,12 @@ class Taggable_upd {
 		// 				'tag_description' => array('name' => 'description')
 		// 			));
 		// 		}
+		
+		// Update from 1.3 to 1.4
+		// 	  - Add a config option for default theme
+		if ($version < 1.4) {
+			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-classic'));
+		}
 
 		return TRUE;
 	}

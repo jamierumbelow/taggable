@@ -51,7 +51,8 @@ class Taggable_ft extends EE_Fieldtype {
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
-		$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : "taggable-classic";
+		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
+		$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : $default_theme;
 		
 		// Setup the JavaScript
 		$this->_setup_javascript($hash);
@@ -254,7 +255,8 @@ class Taggable_ft extends EE_Fieldtype {
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
-		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : "taggable-classic";
+		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
+		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $default_theme;
 		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
 		
 		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'id="taggable_saef_field_name"'));
@@ -515,7 +517,7 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	/**
-	 * Get jQuery UI themes
+	 * Get UI themes
 	 *
 	 * @return void
 	 * @author Jamie Rumbelow
