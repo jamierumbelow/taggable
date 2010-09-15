@@ -51,7 +51,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 		// What theme are we using?
-		$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : "taggable-light";
+		$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : "taggable-classic";
 		
 		// Setup the JavaScript
 		$this->_setup_javascript($hash);
@@ -71,8 +71,13 @@ class Taggable_ft extends EE_Fieldtype {
 			'data-id-hash'		=> $hash
 		);
 		
+		// Wrap in theme container
+		$html = "<div class='$theme'>";
+		$html .= form_input($attrs);
+		$html .= "</div>";
+		
 		// And we're done!
-		return form_input($attrs);
+		return $html;
 	}
 	
 	/**
