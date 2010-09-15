@@ -38,7 +38,7 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	public function display_field($data = "") {		
+	public function display_field($data = "") {
 		if (isset($_POST[$this->field_name])) {
 			$data = $_POST[$this->field_name];
 		}
@@ -251,7 +251,8 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	public function display_settings($data) {
+	public function display_settings($data, $ret = FALSE) {
+		// Sensible defaults
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
@@ -259,15 +260,28 @@ class Taggable_ft extends EE_Fieldtype {
 		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $default_theme;
 		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
 		
-		$this->EE->table->add_row(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'id="taggable_saef_field_name"'));
-		$this->EE->table->add_row(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
-			',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
-		), $saef_separator));
-		$this->EE->table->add_row(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit));
-		$this->EE->table->add_row(lang('taggable_preference_theme'), form_dropdown('taggable_theme', $this->_get_themes(), $theme));
-		$this->EE->table->add_row(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator));
+		// Output the autocomplete JavaScript
+		$this->EE->javascript->output("$('#field_name, #low_variable_name').change(function(){ $('#taggable_saef_field_name').val($(this).val()); })");
 		
-		$this->EE->javascript->output("$('#field_name').change(function(){ $('#taggable_saef_field_name').val($(this).val()); })");
+		// Build up the settings array?
+		$settings = array(
+			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'id="taggable_saef_field_name"')),
+			array(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
+				',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
+			), $saef_separator)),
+			array(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit)),
+			array(lang('taggable_preference_theme'), form_dropdown('taggable_theme', $this->_get_themes(), $theme)),
+			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator))
+		);
+		
+		// Do we return it or output it as a table?
+		if ($ret) {
+			return $settings;
+		} else {
+			foreach ($settings as $setting) {
+				$this->EE->table->add_row($setting[0], $setting[1]);
+			}
+		}
 	}
 	
 	/**
@@ -280,19 +294,7 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function display_cell_settings($data) {
-		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
-		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
-		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
-		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
-		
-		return array(
-			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name)),
-			array(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
-				',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
-			), $saef_separator)),
-			array(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit)),
-			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator))
-		);
+		return $this->display_settings($data, TRUE);
 	}
 	
 	/**
@@ -309,6 +311,55 @@ class Taggable_ft extends EE_Fieldtype {
 			'taggable_theme' => $this->EE->input->post('taggable_theme'),
 			'taggable_url_separator' => $this->EE->input->post('taggable_url_separator')
 		);
+	}
+	
+	// ------------------------
+	// LOW VARIABLES SUPPORT
+	// ------------------------
+	
+	/**
+	 * Display Low Variables field
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function display_var_field($data) {
+		$html = $this->display_field($data);
+	}
+	
+	/**
+	 * Save Low Variables field
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function save_var_field($data) {
+		return $this->save($data);
+	}
+	
+	/**
+	 * Display Low Variables tag
+	 *
+	 * @param string $data 
+	 * @param string $params 
+	 * @param string $tagdata 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function display_var_tag($data, $params, $tagdata) {
+		return $this->replace_tag($data, $params, $tagdata);
+	}
+	
+	/**
+	 * Display Low Variables Settings
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function display_var_settings($data) {
+		return $this->display_cell_settings($data);
 	}
 	
 	/**
