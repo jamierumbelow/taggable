@@ -347,7 +347,8 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	public function display_cell_settings($data) {
 		// Output the autocomplete JavaScript
-		$this->EE->javascript->output("$('.matrix.matrix-text input.matrix-textarea[name*=\"[name]\"]').change(function(){ $(this).parent().parent().parent().find('.taggable_saef_field_name').val($(this).val()); })");
+		$this->_insert_theme_js('jquery.taggable.js');
+		$this->EE->javascript->output("$('.matrix.matrix-text input.matrix-textarea[name*=\"[name]\"]').change(function() { $(this).matrixNameAutocomplete() });");
 		
 		return $this->display_settings($data, TRUE);
 	}

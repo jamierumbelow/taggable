@@ -11,7 +11,15 @@
  */
  
 (function($){
-    $.fn.taggableAutocomplete = function() {
+    jQuery.prototype.taggableAutocomplete = function() {
         $(this).tokenInput();
-    }
+    };
+    
+    jQuery.prototype.matrixNameAutocomplete = function() {
+        var name = $(this).attr('name');
+        var col = name.match(/matrix\[cols\]\[([a-z0-9_]+)\]\[name\]/);
+        var col = col[1];
+        
+        $("input.taggable_saef_field_name[name*=" + col + "]").val($("#field_name").val() + "_" + $(this).val());
+    };
 })(jQuery);
