@@ -49,7 +49,7 @@
     display: block;
 }
 
-.taggable-classic li.token-input-token p {
+.taggable-classic li.token-input-token p, #mainContent .taggable-classic li.token-input-token p {
     float: left;
     padding: 0;
     margin: 0;
