@@ -631,7 +631,7 @@ $.TokenList = function (input, settings) {
             .append(input_box);
 
         init_list();
-
+        
     	// Autotagging
     	$("#autotagging").live('click', function(e){
     		var field = $("#taggable_autotag").val();

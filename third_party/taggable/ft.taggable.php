@@ -290,13 +290,13 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	public function save_settings() {
+	public function save_settings($data) {
 		return array(
-			'taggable_saef_field_name' => $this->EE->input->post('taggable_saef_field_name'),
-			'taggable_saef_separator' => $this->EE->input->post('taggable_saef_separator'),
-			'taggable_tag_limit' => $this->EE->input->post('taggable_tag_limit'),
-			'taggable_theme' => $this->EE->input->post('taggable_theme'),
-			'taggable_url_separator' => $this->EE->input->post('taggable_url_separator')
+			'taggable_saef_field_name' => $data['taggable_saef_field_name'],
+			'taggable_saef_separator' => $data['taggable_saef_separator'],
+			'taggable_tag_limit' => $data['taggable_tag_limit'],
+			'taggable_theme' => $data['taggable_theme'],
+			'taggable_url_separator' => $data['taggable_url_separator']
 		);
 	}
 	
@@ -314,7 +314,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
-
+		
 		$html = $this->display_field($data);
 		$this->EE->load->_ci_view_path = $old;
 		
@@ -350,7 +350,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->_insert_theme_js('jquery.taggable.js');
 		$this->EE->javascript->output("$('.matrix.matrix-text input.matrix-textarea[name*=\"[name]\"]').change(function() { $(this).matrixNameAutocomplete() });");
 		
-		return $this->display_settings($data, TRUE);
+		return $this->display_settings($data, TRUE); 
 	}
 	
 	/**
