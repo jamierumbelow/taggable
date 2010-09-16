@@ -55,6 +55,9 @@ class Taggable_mcp {
 		
 		// MSM
 		$this->site_id = $this->ee->config->item('site_id');
+		
+		// Theme URL
+		define('TAGGABLE_THEME_URL', $this->_theme_url());
 				
 		// License key check
 		if (empty($this->data['license_key']) || !$this->_valid($this->data['license_key'])) { 
@@ -566,39 +569,6 @@ class Taggable_mcp {
 		}
 	}
 	
-	/**
-	 * Output the stylesheet
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function ajax_stylesheet() {
-		header("Content-type: text/css");
-		die(file_get_contents(PATH_THIRD."taggable/css/autoSuggest.css"));
-	}
-	
-	/**
-	 * Output the Taggable JavaScript
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function ajax_javascript() {
-		header("Content-type: text/javascript");
-		die(file_get_contents(PATH_THIRD."taggable/javascript/jquery.autoSuggest.js"));
-	}
-	
-	/**
-	 * Output an image
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function image() {
-		header("Content-type: image/png");
-		die(file_get_contents(PATH_THIRD."taggable/images/".$_GET['file'].'.png'));
-	}
-	
 	// --------------
 	// Layout helpers
 	// --------------
@@ -626,6 +596,22 @@ class Taggable_mcp {
 	 */
 	private function _view($view) {
 		return $this->ee->load->view($view, $this->data, TRUE);
+	}
+	
+	/**
+	 * Get the theme folder URL
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _theme_url() {
+		if (! isset($this->cache['theme_url'])) {
+			$theme_folder_url = $this->ee->config->item('theme_folder_url');
+			if (substr($theme_folder_url, -1) != '/') $theme_folder_url .= '/';
+			$this->cache['theme_url'] = $theme_folder_url.'third_party/taggable/';
+		}
+
+		return $this->cache['theme_url'];
 	}
 	
 	// ------
