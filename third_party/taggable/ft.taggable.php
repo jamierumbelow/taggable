@@ -74,7 +74,7 @@ class Taggable_ft extends EE_Fieldtype {
 			);
 		
 			// Wrap in theme container
-			$html = "<div class='$theme'>";
+			$html = (isset($this->cell_name)) ? "<div class='$theme matrix'>" : "<div class='$theme'>";
 			$html .= form_input($attrs);
 			$html .= "</div>";
 		
@@ -264,13 +264,13 @@ class Taggable_ft extends EE_Fieldtype {
 				
 		// Build up the settings array?
 		$settings = array(
-			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'class="taggable_saef_field_name"')),
+			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'class="taggable-field taggable_saef_field_name"')),
 			array(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
 				',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
 			), $saef_separator)),
-			array(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit)),
+			array(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit, 'class="taggable-field"')),
 			array(lang('taggable_preference_theme'), form_dropdown('taggable_theme', $this->_get_themes(), $theme)),
-			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator))
+			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator, 'class="taggable-field"'))
 		);
 		
 		// Do we return it or output it as a table?
@@ -353,6 +353,7 @@ class Taggable_ft extends EE_Fieldtype {
 		// Output the autocomplete JavaScript
 		$this->_insert_theme_js('jquery.taggable.js');
 		$this->EE->javascript->output("$('.matrix.matrix-text input.matrix-textarea[name*=\"[name]\"]').change(function() { $(this).matrixNameAutocomplete() });");
+		$this->EE->cp->add_to_foot("<style type='text/css'>.matrix .taggable-field { border:0; }</style>");
 		
 		return $this->display_settings($data, TRUE); 
 	}

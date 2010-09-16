@@ -26,6 +26,10 @@
     background-color: #fff;
 }
 
+.matrix .taggable-tokens ul.token-input-list { 
+    border: 0;
+}
+
 .taggable-tokens ul.token-input-list {
     list-style-type: none;
 }
