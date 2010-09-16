@@ -564,7 +564,8 @@ class Taggable_ft extends EE_Fieldtype {
 				'noMoreAllowedText'		=> lang('taggable_javascript_limit'),
 				'autotaggingComplete'	=> lang('taggable_javascript_autotagging_complete'),
 				'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
-				'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
+				'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create',
+				'tags'					=> $this->_get_all_tags_json()
 			);
 			
 			// Set and output the JS
@@ -697,6 +698,26 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		return $this->cache['themes'];
+	}
+	
+	/**
+	 * Return a JSONifiable object of tags
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _get_all_tags_json() {
+		$tags = $this->EE->db->where('site_id', $this->EE->config->item('site_id'))->get('taggable_tags')->result();
+		$json = array();
+		
+		foreach ($tags as $tag) {
+			$json[] = array(
+				'id' => $tag->id,
+				'name' => $tag->name
+			);
+		}
+		
+		return $json;
 	}
 	
 	/**

@@ -415,11 +415,21 @@ $.TokenList = function (input, settings) {
                   populate_dropdown(query, settings.jsonContainer ? results[settings.jsonContainer] : results);
                 };
             
-                if(settings.method == "POST") {
+                /*if(settings.method == "POST") {
     			    $.post(settings.url + queryStringDelimiter + settings.queryParam + "=" + query, {}, callback, settings.contentType);
     		    } else {
     		        $.get(settings.url + queryStringDelimiter + settings.queryParam + "=" + query, {}, callback, settings.contentType);
+    		    }*/
+    		    
+    		    var search_results = new Array();
+    		    
+    		    for (var i in EE.taggable.tags) {    		        
+    		        if (EE.taggable.tags[i].name.search(query) > -1) {
+    		            search_results.push(EE.taggable.tags[i]);
+    		        }
     		    }
+    		    
+    		    callback(search_results);
             }
         }
     
