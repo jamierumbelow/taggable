@@ -259,13 +259,10 @@ class Taggable_ft extends EE_Fieldtype {
 		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
 		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $default_theme;
 		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
-		
-		// Output the autocomplete JavaScript
-		$this->EE->javascript->output("$('#field_name, #low_variable_name').change(function(){ $('#taggable_saef_field_name').val($(this).val()); })");
-		
+				
 		// Build up the settings array?
 		$settings = array(
-			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'id="taggable_saef_field_name"')),
+			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'class="taggable_saef_field_name"')),
 			array(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
 				',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
 			), $saef_separator)),
@@ -278,23 +275,13 @@ class Taggable_ft extends EE_Fieldtype {
 		if ($ret) {
 			return $settings;
 		} else {
+			// Output the autocomplete JavaScript
+			$this->EE->javascript->output("$('#field_name').change(function(){ $('.taggable_saef_field_name').val($(this).val()); })");
+			
 			foreach ($settings as $setting) {
 				$this->EE->table->add_row($setting[0], $setting[1]);
 			}
 		}
-	}
-	
-	/**
-	 * display_cell_settings()
-	 *
-	 * MATRIX COMPAT. NOT COMPLETE
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function display_cell_settings($data) {
-		return $this->display_settings($data, TRUE);
 	}
 	
 	/**
@@ -311,6 +298,69 @@ class Taggable_ft extends EE_Fieldtype {
 			'taggable_theme' => $this->EE->input->post('taggable_theme'),
 			'taggable_url_separator' => $this->EE->input->post('taggable_url_separator')
 		);
+	}
+	
+	// ------------------------
+	// P&T MATRIX SUPPORT
+	// ------------------------
+	
+	/**
+	 * Display Matrix field
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function display_cell($data) {
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
+		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
+
+		$html = $this->display_field($data);
+		$this->EE->load->_ci_view_path = $old;
+		
+		return $html;
+	}
+	
+	/**
+	 * Save Matrix field
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function save_cell() {
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
+		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
+
+		$return = $this->save($data);
+		$this->EE->load->_ci_view_path = $old;
+		
+		return $return;
+	}
+	
+	/**
+	 * Display Matrix settings
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function display_cell_settings($data) {
+		// Output the autocomplete JavaScript
+		$this->EE->javascript->output("$('.matrix.matrix-text input.matrix-textarea[name*=\"[name]\"]').change(function(){ $(this).parent().parent().parent().find('.taggable_saef_field_name').val($(this).val()); })");
+		
+		return $this->display_settings($data, TRUE);
+	}
+	
+	/**
+	 * Save Matrix settings
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function save_cell_settings($data) {
+		return $this->save_settings($data);
 	}
 	
 	// ------------------------
@@ -390,6 +440,9 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function display_var_settings($data) {
+		// Output the autocomplete JavaScript
+		$this->EE->javascript->output("$('#low_variable_name').change(function(){ $('.taggable_saef_field_name').val($(this).val()); })");
+		
 		return $this->display_settings($data, TRUE);
 	}
 	
