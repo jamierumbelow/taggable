@@ -43,42 +43,44 @@ class Taggable_ft extends EE_Fieldtype {
 			$data = $_POST[$this->field_name];
 		}
 		
-		$this->EE->load->model('taggable_tag_model', 'tags');
+		if (is_string($data)) {
+			$this->EE->load->model('taggable_tag_model', 'tags');
+			
+			// Get the names
+			$tags = $this->_get_ids_and_names($data);
+			$tags = $this->_format_for_field($tags);
+			$hash = sha1(microtime(TRUE).rand(0,1000));
 		
-		// Get the names
-		$tags = $this->_get_ids_and_names($data);
-		$tags = $this->_format_for_field($tags);
-		$hash = sha1(microtime(TRUE).rand(0,1000));
+			// What theme are we using?
+			$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
+			$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : $default_theme;
 		
-		// What theme are we using?
-		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
-		$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : $default_theme;
+			// Setup the JavaScript
+			$this->_setup_javascript($hash);
 		
-		// Setup the JavaScript
-		$this->_setup_javascript($hash);
+			// Include the theme JS and CSS
+			$this->_insert_theme_js('jquery.autocomplete.js');
+			$this->_insert_theme_js('jquery.taggable.js');
+			$this->_insert_theme_css("$theme/$theme.css");
 		
-		// Include the theme JS and CSS
-		$this->_insert_theme_js('jquery.autocomplete.js');
-		$this->_insert_theme_js('jquery.taggable.js');
-		$this->_insert_theme_css("$theme/$theme.css");
+			// Setup the input
+			$limit = $this->settings['taggable_tag_limit'];
+			$attrs = array(
+				'name' 				=> (isset($this->cell_name)) ? $this->cell_name : $this->field_name,
+				'class' 			=> 'taggable_replace_token_input',
+				'value'				=> $tags,
+				'data-tag-limit'	=> $limit,
+				'data-id-hash'		=> $hash
+			);
 		
-		// Setup the input
-		$limit = $this->settings['taggable_tag_limit'];
-		$attrs = array(
-			'name' 				=> (isset($this->cell_name)) ? $this->cell_name : $this->field_name,
-			'class' 			=> 'taggable_replace_token_input',
-			'value'				=> $tags,
-			'data-tag-limit'	=> $limit,
-			'data-id-hash'		=> $hash
-		);
+			// Wrap in theme container
+			$html = "<div class='$theme'>";
+			$html .= form_input($attrs);
+			$html .= "</div>";
 		
-		// Wrap in theme container
-		$html = "<div class='$theme'>";
-		$html .= form_input($attrs);
-		$html .= "</div>";
-		
-		// And we're done!
-		return $html;
+			// And we're done!
+			return $html;
+		}
 	}
 	
 	/**
@@ -205,9 +207,9 @@ class Taggable_ft extends EE_Fieldtype {
 	public function post_save($data) {
 		// Get the tags
 		$ids = $this->_get_ids($data);
-		$old = $this->EE->db->where('entry_id', $this->settings['entry_id'])->get('taggable_tags_entries')->result();
-		$delete = array();
 		$template = $this->_get_template();
+		$old = $this->EE->db->where(array('entry_id' => $this->settings['entry_id'], 'template' => $template))->get('taggable_tags_entries')->result();
+		$delete = array();
 		
 		// Check for deleted tags
 		foreach ($old as $row) {
@@ -229,7 +231,7 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		// Cool!
-		return TRUE;
+		return $data;
 	}
 	
 	/**
@@ -327,12 +329,14 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	public function save_cell() {
+	public function save_cell($data) {
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
-
-		$return = $this->save($data);
+		
+		$return = $this->save($data); 
+		$this->post_save($return);
+		
 		$this->EE->load->_ci_view_path = $old;
 		
 		return $return;
@@ -619,10 +623,14 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	private function _get_template() {
- 		return $this->EE->db->select('field_name')
-						 	->where('field_id', $this->field_id)
-							->get('exp_channel_fields')
-							->row('field_name');
+		if ($this->field_id) {
+	 		return $this->EE->db->select('field_name')
+							 	->where('field_id', $this->field_id)
+								->get('exp_channel_fields')
+								->row('field_name');
+		} else {
+			return "matrix_".$this->settings['field_name']."_".$this->settings['row_name']."_".$this->settings['col_name'];
+		}
 	}
 	
 	/**
