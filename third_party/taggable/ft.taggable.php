@@ -43,7 +43,7 @@ class Taggable_ft extends EE_Fieldtype {
 			$data = $_POST[$this->field_name];
 		}
 		
-		if (is_string($data)) {
+		if (is_string($data) || $data === FALSE) {
 			$this->EE->load->model('taggable_tag_model', 'tags');
 			
 			// Get the names
@@ -566,11 +566,12 @@ class Taggable_ft extends EE_Fieldtype {
 				'searchUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_search',
 				'createUrl'				=> '?D=cp&C=addons_modules&M=show_module_cp&module=taggable&method=ajax_create'
 			);
-		
-			// Loop thru the array and set the JS
-			foreach ($js as $name => $value) {
-				$this->EE->javascript->set_global("taggable.$name", $value);
-			}
+			
+			// Set and output the JS
+			$json = $this->EE->javascript->generate_json($js);
+			$output = '<script type="text/javascript">if (typeof EE == "undefined" || ! EE) {'."\n".'var EE = {"taggable": '.$json;
+			$output .= '};} else { EE.taggable = ' . $json . ' }</script>';
+			$this->EE->cp->add_to_foot($output);
 			
 			// Make sure we only bother once
 			$this->cache['js_globals'] = TRUE;
