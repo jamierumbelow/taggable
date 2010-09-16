@@ -605,13 +605,13 @@ class Taggable_mcp {
 	 * @author Jamie Rumbelow
 	 */
 	private function _theme_url() {
-		if (! isset($this->cache['theme_url'])) {
-			$theme_folder_url = $this->ee->config->item('theme_folder_url');
+		if (!isset($this->EE->session->cache['taggable']['theme_url'])) {
+			$theme_folder_url = $this->EE->config->item('theme_folder_url');
 			if (substr($theme_folder_url, -1) != '/') $theme_folder_url .= '/';
-			$this->cache['theme_url'] = $theme_folder_url.'third_party/taggable/';
+			$this->EE->session->cache['taggable']['theme_url'] = $theme_folder_url.'third_party/taggable/';
 		}
 
-		return $this->cache['theme_url'];
+		return $this->EE->session->cache['taggable']['theme_url'];
 	}
 	
 	// ------
@@ -636,7 +636,7 @@ class Taggable_mcp {
 	 * @author Jamie Rumbelow
 	 */
 	private function _get_themes() {
-		if (!isset($this->cache['themes'])) {
+		if (!isset($this->EE->session->cache['taggable']['themes'])) {
 			$theme_folder_path = $this->ee->config->item('theme_folder_path');
 			if (substr($theme_folder_path, -1) != '/') $theme_folder_path .= '/';
 			
@@ -649,9 +649,9 @@ class Taggable_mcp {
 				}
 			}
 			
-			$this->cache['themes'] = $themes;
+			$this->EE->session->cache['taggable']['themes'] = $themes;
 		}
 		
-		return $this->cache['themes'];
+		return $this->EE->session->cache['taggable']['themes'];
 	}
 }

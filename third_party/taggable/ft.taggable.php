@@ -555,7 +555,7 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	private function _setup_javascript($hash) {		
 		// Set lang globals
-		if (!isset($this->cache['js_globals'])) {
+		if (!isset($this->EE->session->cache['taggable']['js_globals'])) {
 			$js = array(
 				'hintText'		 	 	=> lang('taggable_javascript_hint'),
 				'noResultsText'	  		=> lang('taggable_javascript_no_results'),
@@ -575,7 +575,7 @@ class Taggable_ft extends EE_Fieldtype {
 			$this->EE->cp->add_to_foot($output);
 			
 			// Make sure we only bother once
-			$this->cache['js_globals'] = TRUE;
+			$this->EE->session->cache['taggable']['js_globals'] = TRUE;
 		}
 		
 		// Output field-specific JS
@@ -643,13 +643,13 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	private function _theme_url() {
-		if (! isset($this->cache['theme_url'])) {
+		if (!isset($this->EE->session->cache['taggable']['theme_url'])) {
 			$theme_folder_url = $this->EE->config->item('theme_folder_url');
 			if (substr($theme_folder_url, -1) != '/') $theme_folder_url .= '/';
-			$this->cache['theme_url'] = $theme_folder_url.'third_party/taggable/';
+			$this->EE->session->cache['taggable']['theme_url'] = $theme_folder_url.'third_party/taggable/';
 		}
 
-		return $this->cache['theme_url'];
+		return $this->EE->session->cache['taggable']['theme_url'];
 	}
 	
 	/**
@@ -660,7 +660,10 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	private function _insert_theme_js($file) {
-		$this->EE->cp->add_to_foot('<script type="text/javascript" src="'.$this->_theme_url().'javascript/'.$file.'"></script>');
+		if (!isset($this->EE->session->cache['taggable']['javascripts'][$file])) {
+			$this->EE->cp->add_to_foot('<script type="text/javascript" src="'.$this->_theme_url().'javascript/'.$file.'"></script>');
+			$this->EE->session->cache['taggable']['javascripts'][$file] = TRUE;
+		}
 	}
 	
 	/**
@@ -671,7 +674,10 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	private function _insert_theme_css($file) {
-		$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$this->_theme_url().'css/'.$file.'" />');
+		if (!isset($this->EE->session->cache['taggable']['stylesheets'][$file])) {
+			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$this->_theme_url().'css/'.$file.'" />');
+			$this->EE->session->cache['taggable']['stylesheets'][$file] = TRUE;
+		}
 	}
 	
 	/**
@@ -681,7 +687,7 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	private function _get_themes() {
-		if (!isset($this->cache['themes'])) {
+		if (!isset($this->EE->session->cache['taggable']['themes'])) {
 			$theme_folder_path = $this->EE->config->item('theme_folder_path');
 			if (substr($theme_folder_path, -1) != '/') $theme_folder_path .= '/';
 			
@@ -694,10 +700,10 @@ class Taggable_ft extends EE_Fieldtype {
 				}
 			}
 			
-			$this->cache['themes'] = $themes;
+			$this->EE->session->cache['taggable']['themes'] = $themes;
 		}
 		
-		return $this->cache['themes'];
+		return $this->EE->session->cache['taggable']['themes'];
 	}
 	
 	/**
