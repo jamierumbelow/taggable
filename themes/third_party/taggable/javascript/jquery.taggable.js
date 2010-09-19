@@ -46,10 +46,12 @@ s=s+e&4294967295;t=t+f&4294967295;u=u+j&4294967295}k=p(q)+p(r)+p(s)+p(t)+p(u);re
          * Create Taggable field on row create.
          * Change the random ID hash, which must be unique.
          */
-        Matrix.bind('taggable', 'display', function(cell){
-            cell.dom.$inputs.attr('data-id-hash', SHA1(Date()+Math.random(0, 1000)));
-            cell.dom.$inputs.taggableAutocomplete()
-        });
+        if (typeof Matrix !== 'undefined') {
+            Matrix.bind('taggable', 'display', function(cell){
+                cell.dom.$inputs.attr('data-id-hash', SHA1(Date()+Math.random(0, 1000)));
+                cell.dom.$inputs.taggableAutocomplete()
+            });
+        }
     });
     
     
