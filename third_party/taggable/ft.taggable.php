@@ -294,11 +294,11 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	public function save_settings($data) {
 		return array(
-			'taggable_saef_field_name' => $data['taggable_saef_field_name'],
-			'taggable_saef_separator' => $data['taggable_saef_separator'],
-			'taggable_tag_limit' => $data['taggable_tag_limit'],
-			'taggable_theme' => $data['taggable_theme'],
-			'taggable_url_separator' => $data['taggable_url_separator']
+			'taggable_saef_field_name' => (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : $_POST['taggable_saef_field_name'],
+			'taggable_saef_separator' => (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : $_POST['taggable_saef_separator'],
+			'taggable_tag_limit' => (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : $_POST['taggable_tag_limit'],
+			'taggable_theme' => (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $_POST['taggable_theme'],
+			'taggable_url_separator' => (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : $_POST['taggable_url_separator']
 		);
 	}
 	
