@@ -53,7 +53,7 @@ class Taggable_tag_model extends Model {
 	 * @author Jamie Rumbelow
 	 */
 	public function reset_filters() {
-		$this->filters['order'] 			 = 'tag_id';
+		$this->filters['order'] 			 = 'id';
 		$this->filters['text_search_order']  = 'sw';
 		$this->filters['text_search'] 		 = '';
 		$this->filters['entry_count_order']  = 'mt';
@@ -300,8 +300,8 @@ class Taggable_tag_model extends Model {
 	 * @author Jamie Rumbelow
 	 */
 	public function tags_entry_url_title($url_title) {
-		return $this->db->select("exp_taggable_tags.tag_id, exp_taggable_tags.tag_name, exp_taggable_tags.tag_description")
-						->where("exp_taggable_tags.tag_id = exp_taggable_tags_entries.tag_id")
+		return $this->db->select("exp_taggable_tags.id, exp_taggable_tags.name, exp_taggable_tags.description")
+						->where("exp_taggable_tags.id = exp_taggable_tags_entries.tag_id")
 						->where("exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id")
 						->where("exp_channel_titles.url_title", $url_title)
 						->from("exp_taggable_tags, exp_taggable_tags_entries, exp_channel_titles")
