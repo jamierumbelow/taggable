@@ -262,6 +262,26 @@ class Taggable_tag_model extends Model {
 	}
 	
 	/**
+	 * What's these tags' entry count?
+	 *
+	 * @param string $id 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function tag_entries_counts($ids) {
+		$entries = $this->db->where_in("tag_id", $ids)
+							->get('exp_taggable_tags_entries')
+							->result();
+		$counts = array();
+							
+		foreach ($entries as $entry) {
+			$counts[$entry->tag_id] = (isset($counts[$entry->tag_id])) ? $counts[$entry->tag_id] + 1 : 1;
+		}
+		
+		return $counts;
+	}
+	
+	/**
 	 * Tag list for entries
 	 *
 	 * @param string $entry 

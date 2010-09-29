@@ -127,8 +127,18 @@ class Taggable {
 		// Entry count
 		if ($tags) {
 			foreach ($tags as $tag) {
-				$tag->entry_count = $this->ee->tags->tag_entries_count($tag->id);
-				$counts[] = $tag->entry_count;
+				$ids[] = $tag->id;
+				$tgs[$tag->id] = $tag;
+			}
+			
+			$counts = $this->ee->tags->tag_entries_counts($ids);
+			
+			foreach ($counts as $id => $count) {
+				$tgs[$id]->entry_count = $count;
+			}
+			
+			foreach ($tags as $tag) {
+				$tag->entry_count = $tgs[$tag->id]->entry_count;
 			}
 		}
 		
