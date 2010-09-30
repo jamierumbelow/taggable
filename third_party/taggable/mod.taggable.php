@@ -13,6 +13,7 @@
 
 require_once BASEPATH.	"core/Model.php";
 require_once PATH_THIRD."taggable/libraries/Model.php";
+require_once PATH_THIRD."taggable/libraries/eh_compat.php";
 require_once PATH_THIRD."taggable/config.php";
 
 class Taggable {
@@ -136,6 +137,73 @@ class Taggable {
 			// We're done!
 			$this->return_data = $parsed;
 		}
+	}
+	
+	/**
+	 * A duplicate of {exp:taggable}, exposed through
+	 * an action for front-end AJAX requests.
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function api_entries() {
+		// Setup
+		$this->site_id = $this->ee->config->item('site_id');
+		$data = array();
+		
+		// Parameters
+		$this->params['tag_id'] 			 = $this->ee->input->get('tag_id');
+		$this->params['tag_name'] 			 = $this->ee->input->get('tag_name');
+		$this->params['tag_url_name'] 		 = $this->ee->input->get('tag_url_name');
+		$this->params['entry_id'] 			 = $this->ee->input->get('entry_id');
+		$this->params['entry_url_title'] 	 = $this->ee->input->get('entry_url_title');
+		$this->params['orderby']	 		 = ($this->ee->input->get('orderby') && in_array($this->ee->input->get('orderby'), array('id', 'name', ''))) ? 
+								strtolower($this->ee->input->get('orderby')) : 'name';
+		$this->params['sort']		 		 = strtolower($this->ee->input->get('sort'));
+		$this->params['limit']				 = $this->ee->input->get('limit');
+		$this->params['url_separator']		 = ($u = $this->ee->input->get('url_separator')) ? $u : '_' ;
+		$this->params['min_size'] 	   		 = $this->ee->input->get('min_size');
+		$this->params['max_size'] 	   		 = $this->ee->input->get('max_size');
+		$min_size 							 = ($this->params['min_size']) ? $this->params['min_size'] : 12;
+		$max_size 							 = ($this->params['max_size']) ? $this->params['max_size'] : 12;
+		
+		// Run the lookup
+		$tags = $this->_search_tags();
+	
+		// Get the min and max, then calculate the spread...
+		$min_qty = (empty($counts)) ? 0 : min($counts);
+		$max_qty = (empty($counts)) ? 0 : max($counts);
+		$spread = $max_qty - $min_qty;
+	
+		if ($spread == 0) {
+                $spread = 1;
+        }
+	
+		// Figure out each step
+        $step = ($max_qty - $min_qty) / ($spread);
+		
+		// Set up the tag variables
+		if ($tags) {
+			foreach ($tags as $tag) {
+				$size = round($min_size + (($tag->entry_count - $min_qty) * $step));
+				if ($size < $min_size) { $size = $min_size; }
+				if ($size > $max_size) { $size = $max_size; }
+			
+				$data[] = array(
+					'name'			=> $tag->name,
+					'id'			=> $tag->id,
+					'description'	=> $tag->description,
+					'entry_count'	=> $tag->entry_count,
+					'size'			=> $size,
+					'url_name'		=> str_replace(' ', $this->params['url_separator'], $tag->name),
+					'pretty_name'	=> $this->_pretty_tag($tag->name)
+				);
+			}
+		}
+		
+		// We're done! Set the output type as JSON and go go go
+		header('Content-type: application/json');
+		exit(json_encode($data));
 	}
 	
 	/**

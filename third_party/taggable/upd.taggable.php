@@ -68,6 +68,14 @@ class Taggable_upd {
 		$this->ee->dbforge->add_key('entry_id');
 		$this->ee->dbforge->create_table('taggable_tags_entries');
 		
+		// exp_actions
+		$action = array(
+			'class' => 'Taggable',
+			'method' => 'api_entries'
+		);
+		
+		$this->ee->db->insert('actions', $action);
+		
 		// Add license key to config file
 		if (!$this->ee->config->item('taggable_license_key')) {
 			$this->ee->config->_update_config(array('taggable_license_key' => 'ENTER YOUR LICENSE KEY HERE'));
