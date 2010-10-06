@@ -133,6 +133,28 @@ class Taggable_ft extends EE_Fieldtype {
 	}
 	
 	/**
+	 * {tags:ul}
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function replace_ul($data, $params = array(), $tagdata = FALSE) {
+		$html = '<ul>'.$this->_generate_list($data).'</ul>';
+		return $html;
+	}
+	
+	/**
+	 * {tags:ol}
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function replace_ol($data, $params = array(), $tagdata = FALSE) {
+		$html = '<ol>'.$this->_generate_list($data).'</ol>';
+		return $html;
+	}
+	
+	/**
 	 * save()
 	 *
 	 * @param string $data 
@@ -524,6 +546,27 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		return $names;
+	}
+	
+	/**
+	 * Generate a HTML list
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _generate_list($data) {
+		$ids = $this->_get_ids($data);
+		$html = "";
+		
+		if ($ids) {
+			$tags = $this->EE->db->select('id, name')->where_in('id', $ids)->get('taggable_tags')->result();
+			
+			foreach ($tags as $tag) {
+				$html .= '<li data-id="'.$tag->id.'">'.$tag->name.'</li>';
+			}
+		}
+		
+		return $html;
 	}
 	
 	/**
