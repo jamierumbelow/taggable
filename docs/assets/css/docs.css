@@ -15,23 +15,28 @@
 	(c)2010 Sparkplugs
 */
 
+#unsupported-browser {
+    padding: 50px;
+    width: 500px;
+    margin: 50px auto;
+    background: #FFF;
+    border: 1px solid #999;
+}
+
+#unsupported-browser h2 {
+    font-size: 26px;
+    padding: 10px 0;
+}
+
+#unsupported-browser p {
+    line-height: 1.5;
+}
+
 .clear { clear: both; }
 .act a:hover { opacity: 0.7; }
 
 .act a {
     text-align: center;
-}
-
-.tooltip .act .docs {
-    width: 50px;
-    background: #ff9c00;
-    padding: 10px;
-    margin: 10px auto 5px auto;
-    display: block;
-    
-/*    border-radius: 15px;
-    -moz-border-radius: 15px;
-    -webkit-border-radius: 15px; */
 }
 
 input.save {
@@ -88,38 +93,6 @@ strong { font-weight: bold; }
     width: 50px;
     background: #ff9c00;
     padding: 10px;
-}
-
-.tooltip .act .support {
-    width: 70px;
-    background: #FF003C;
-    padding: 10px;
-    margin: 10px auto 5px auto;
-    display: block;
-    
-/*    border-radius: 15px;
-    -moz-border-radius: 15px;
-    -webkit-border-radius: 15px; */
-}
-
-.tooltip .act {
-    float: left;
-    margin: 22px 0 25px 25px;
-    width: 120px;
-}
-
-.tooltip {
-   position: absolute;
-   z-index: 3;
-   display: none;
-   margin-top: -15px;
-   width: 400px;
-   height: 150px;
-   background: rgba(0,0,0,0.6);
-   color: #CCC;
-   border-radius: 5px;
-   -moz-border-radius: 5px;
-   -webkit-border-radius: 5px;
 }
 
 table {
@@ -259,7 +232,7 @@ article h2 a {
     font-size: 40px;
     color: #445;
     float: left;
-    margin: 40px 0 0 0;
+    margin: 40px auto;
     width: 450px;
     line-height: 1.3;
 }
@@ -339,10 +312,10 @@ article#main {
     height: 200px;
 }
 
-article#main h2 {
-    margin: 0 auto;
-    width: 350px;
+article#main h2 a {
+    margin: 75px auto;
     text-align: center;
+    width: 900px;
 }
 
 article#main h3 {
@@ -413,8 +386,7 @@ article.taggable { background: url(/assets/images/taggable-banner.png) no-repeat
 article.mojoblog { background: url(/assets/images/mojoblog-banner.png) no-repeat; }
 
 article#content {
-    margin-top: 10px;
-    padding-top: 180px;
+    margin-top: 0;
     height: 100%;
 }
 

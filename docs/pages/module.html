@@ -1,0 +1,87 @@
+<h3>Module</h3>
+
+<p>The Taggable Module provides a template tag which makes displaying your tags and associated data in your templates a breeze. There are a vast array of parameters you can use to filter, limit and alter your results, and lots of variables so you can get at the data you want. This tag functions as a system-wide outputter, as well as a tag cloud.</p>
+
+<h3 id="taggable">{exp:taggable}</h3>
+
+<h4>Parameters</h4>
+
+<dl>
+	<dt>tag_id</dt>
+	<dd>Tag ID or IDs to lookup</dd>
+	
+	<dt>tag_name</dt>
+	<dd>Tag name or names to lookup</dd>
+	
+	<dt>tag_url_name</dt>
+	<dd>Tag URL name to lookup</dd>
+	
+	<dt>url_separator</dt>
+	<dd>The URL separator to use when looking up by tag name and displaying a tag's URL name</dd>
+	
+	<dt>entry_id</dt>
+	<dd>Finds all tags associated with a specific entry ID</dd>
+	
+	<dt>entry_url_title</dt>
+	<dd>Finds all tags associated with a specific entry URL title</dd>
+	
+	<dt>channel</dt>
+	<dd>Limit result set to specific channel or channels</dd>
+	
+	<dt>sort</dt>
+	<dd>Sort results in ascending order or descending order</dd>
+		
+	<dt>limit</dt>
+	<dd>Finds all tags associated with a specific entry ID</dd>
+	
+	<dt>min_size</dt>
+	<dd>The minimum size in pixels</dd>
+	
+	<dt>max_size</dt>
+	<dd>The maximum size in pixels</dd>
+	
+	<dt>backspace</dt>
+	<dd>Strip the last X characters from the tag output</dd>
+</dl>
+
+<p>And you can use the following variables within that tag:</p>
+
+<dl>
+	<dt>name</dt>
+	<dd>A tag name</dd>
+	
+	<dt>id</dt>
+	<dd>A tag's numerical ID</dd>
+	
+	<dt>description</dt>
+	<dd>A tag description</dd>
+		
+	<dt>entry_count</dt>
+	<dd>The count of entries associated with a tag</dd>
+	
+	<dt>url_name</dt>
+	<dd>A tag URL name</dd>
+	
+	<dt>pretty_name</dt>
+	<dd>A tag name, formatted</dd>
+	
+	<dt>size</dt>
+	<dd>The size of the tag in the cloud, in pixels</dd>
+</dl>
+
+<p>You can optionally specify some text, a redirect or something else to be outputted/executed when there are no tags. All you need to do is create a no_results conditional in your template, inside the <var>{exp:taggable:tags}</var> loop.</p>
+
+<pre>
+&lt;ul&gt;
+	{exp:taggable entry_url_title=&quot;{segment_3}&quot; limit=&quot;10&quot;}
+		&lt;li&gt;
+			&lt;h3&gt;&lt;a href=&quot;{path=tags}/{url_name}&quot;&gt;{name}&lt;/a&gt;&lt;/h3&gt;
+			&lt;p&gt;{description}&lt;/p&gt;
+		&lt;/li&gt;
+		
+		{if no_results}
+			&lt;p&gt;No tags!&lt;/p&gt;
+		{/if}
+	{/exp:taggable:tags}
+&lt;/ul&gt;
+</pre>

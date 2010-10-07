@@ -1,0 +1,186 @@
+<h3>Developers</h3>
+
+<p>I'm a techy at heart, and so love messing around with other people's code and making it do things I want it to do. If you'd like Taggable to do something unusual, I've exposed the majority of the system to extension hooks, allowing you to manipulate the data at various stages in execution.</p>
+
+<h3>Module Hooks</h3>
+<ul>
+	<li><a href="#hooktvt">taggable_vanilla_tagdata</a></li>
+	<li><a href="#hookttfq">taggable_tags_find_query</a></li>
+	<li><a href="#hookttpl">taggable_tags_pre_loop</a></li>
+	<li><a href="#hookttpol">taggable_tags_post_loop</a></li>
+	<li><a href="#hooktte">taggable_tags_end</a></li>
+	<li><a href="#hooktefq">taggable_entries_find_query</a></li>
+	<li><a href="#hooktepl">taggable_entries_pre_loop</a></li>
+	<li><a href="#hooktepol">taggable_entries_post_loop</a></li>
+	<li><a href="#hooktee">taggable_entries_end</a></li>
+</ul>
+
+<h3>Extension Hooks</h3>
+<ul>
+	<li><a href="#hookexttd">taggable_ext_tagdata</a></li>
+	<li><a href="#hookextc">taggable_ext_chunks</a></li>
+	<li><a href="#hookextcf">taggable_ext_custom_find</a></li>
+	<li><a href="#hookextpv">taggable_ext_pre_vars</a></li>
+	<li><a href="#hookextpov">taggable_ext_post_vars</a></li>
+	<li><a href="#hookextcd">taggable_ext_chunk_done</a></li>
+	<li><a href="#hookexte">taggable_ext_end</a></li>
+</ul>
+
+<h3 id="hooktvt">taggable_vanilla_tagdata</h3>
+
+<p>Called in the class constructor and passed the vanilla, untouched tag data. Useful for parsing custom, module-global template tags.</p>
+
+<pre>
+// taggable_vanilla_tagdata
+$this->tagdata = $this->ee->extensions->call('taggable_vanilla_tagdata', $this->tagdata);
+if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
+</pre>
+
+<h3 id="hookttfq">taggable_tags_find_query</h3>
+
+<p>Called just before the database find query is executed in {exp:taggable:tags}. Allows you to add custom conditions to the SQL with CodeIgniter's ActiveRecord.</p>
+
+<pre>
+// taggable_tags_find_query
+$this->ee->extensions->call('taggable_tags_find_query');
+</pre>
+
+<h3 id="hookttpl">taggable_tags_pre_loop</h3>
+
+<p>Called just before the main template loop in {exp:taggable:tags}. Passed the tags and the tagdata, returns the tag array.</p>
+
+<pre>
+// taggable_tags_pre_loop
+$tags = $this->ee->extensions->call('taggable_tags_pre_loop', $tags, $this->tagdata);
+if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
+</pre>
+
+<h3 id="hookttpol">taggable_tags_post_loop</h3>
+
+<p>Called straight after the main template loop in {exp:taggable:tags}. Passed the template variables to parse and the tagdata, and returns the template variables.</p>
+
+<pre>
+// taggable_tags_post_loop
+$vars = $this->ee->extensions->call('taggable_tags_post_loop', $vars, $this->tagdata);
+if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
+</pre>
+
+<h3 id="hooktte">taggable_tags_end</h3>
+
+<p>Called after all finding and parsing has taken place inside {exp:taggable:tags}, and is passed the final tagdata. Returns the tagdata to be outputted.</p>
+
+<pre>
+// taggable_tags_end
+$parsed = $this->ee->extensions->call('taggable_tags_end', $parsed);
+</pre>
+
+<h3 id="hooktefq">taggable_entries_find_query</h3>
+
+<p>Called just before the database find query is executed in {exp:taggable:entries}. Allows you to add custom conditions to the SQL with CodeIgniter's ActiveRecord.</p>
+
+<pre>
+// taggable_entries_find_query
+$this->ee->extensions->call('taggable_entries_find_query');
+</pre>
+
+<h3 id="hooktepl">taggable_entries_pre_loop</h3>
+
+<p>Called just before the main template loop in {exp:taggable:entries}. Passed the entries and the tagdata, returns the entry array.</p>
+
+<pre>
+// taggable_entries_pre_loop
+$entries = $this->ee->extensions->call('taggable_entries_pre_loop', $entries, $this->tagdata);
+if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
+</pre>
+
+<h3 id="hooktepol">taggable_entries_post_loop</h3>
+
+<p>Called straight after the main template loop in {exp:taggable:entries}. Passed the template variables to parse and the tagdata, and returns the template variables.</p>
+
+<pre>
+// taggable_entries_post_loop
+$vars = $this->ee->extensions->call('taggable_entries_post_loop', $vars, $this->tagdata);
+if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
+</pre>
+
+<h3 id="hooktte">taggable_entries_end</h3>
+
+<p>Called after all finding and parsing has taken place inside {exp:taggable:entries}, and is passed the final tagdata. Returns the tagdata to be outputted.</p>
+
+<pre>
+// taggable_entries_end
+$parsed = $this->ee->extensions->call('taggable_entries_end', $parsed);
+</pre>
+
+<h3 id="hookexttd">taggable_ext_tagdata</h3>
+
+<p>Called before any processing is made in the extension, passing the tagdata through.</p>
+
+<pre>
+// taggable_ext_tagdata
+if ($this->ee->extensions->active_hook('taggable_ext_tagdata')) {
+	$tagdata = $this->ee->extensions->call('taggable_ext_tagdata', $tagdata);
+	if ($this->ee->extensions->end_script === TRUE) return $tagdata;
+}
+</pre>
+
+<h3 id="hookextc">taggable_ext_chunks</h3>
+
+<p>Called after all the tag pair chunks have been found in the extension. Passed the chunks array and tagdata.</p>
+
+<pre>
+// taggable_ext_chunks
+if ($this->ee->extensions->active_hook('taggable_ext_chunks')) {
+	$tagdata = $this->ee->extensions->call('taggable_ext_chunks', $chunks, $tagdata);
+	if ($this->ee->extensions->end_script === TRUE) return $tagdata;
+}
+</pre>
+
+<h3 id="hookextcf">taggable_ext_custom_find</h3>
+
+<p>Inside the main chunks loop. Allows you to add custom parameters to SELECT tags statement.</p>
+
+<pre>
+// taggable_ext_custom_find
+$this->ee->extensions->call('taggable_ext_custom_find', $params, $chunk);
+</pre>
+
+<h3 id="hookextpv">taggable_ext_pre_vars</h3>
+
+<p>Called after finding the tags, but before the template vars array is built.</p>
+
+<pre>
+// taggable_ext_pre_vars
+$this->ee->extensions->call('taggable_ext_pre_vars', $tags);
+</pre>
+
+<h3 id="hookextpov">taggable_ext_post_vars</h3>
+
+<p>Called after the variable array has been built.</p>
+
+<pre>
+// taggable_ext_post_vars
+$this->ee->extensions->call('taggable_ext_post_vars', $vars);
+</pre>
+
+<h3 id="hookextcd">taggable_ext_chunk_done</h3>
+
+<p>Called after the chunk has been parsed.</p>
+
+<pre>
+// taggable_ext_chunk_done
+if ($this->ee->extensions->active_hook('taggable_ext_chunk_done')) {
+	$tagdata = $this->ee->extensions->call('taggable_ext_chunk_done', $tagdata);
+}
+</pre>
+
+<h3 id="hookexte">taggable_ext_end</h3>
+
+<p>Called after all proccessing has taken place.</p>
+
+<pre>
+// taggable_ext_end
+if ($this->ee->extensions->active_hook('taggable_ext_end')) {
+	$tagdata = $this->ee->extensions->call('taggable_ext_end', $tagdata);	
+}
+</pre>
