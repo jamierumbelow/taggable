@@ -77,6 +77,11 @@ class Taggable_ft extends EE_Fieldtype {
 			$html = (isset($this->cell_name)) ? "<div class='$theme matrix'>" : "<div class='$theme'>";
 			$html .= form_input($attrs);
 			$html .= "</div>";
+			
+			// taggable_ft_display_field
+			if ($this->ee->extensions->active_hook('taggable_ft_display_field')) {
+				$html = $this->ee->extensions->call('taggable_ft_display_field', $html);
+			}
 		
 			// And we're done!
 			return $html;
@@ -94,6 +99,12 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
 		$ids = $this->_get_ids($data);
+		
+		// taggable_ft_tag_ids
+		if ($this->ee->extensions->active_hook('taggable_ft_tag_ids')) {
+			$ids = $this->ee->extensions->call('taggable_ft_tag_ids', $ids);
+			if ($this->ee->extensions->end_script === TRUE) return $tagdata;
+		}
 		
 		$return = '';
 	    $vars = '';
@@ -117,15 +128,27 @@ class Taggable_ft extends EE_Fieldtype {
 				$return = $this->_no_parse_if_no_tags($tagdata);
 			}
 			
+			// taggable_ft_tag_vars
+			if ($this->ee->extensions->active_hook('taggable_ft_tag_vars')) {
+				$vars = $this->ee->extensions->call('taggable_ft_tag_vars', $vars, $return);
+				if ($this->ee->extensions->end_script === TRUE) return $return;
+			}
+			
 			// parse
 			$return = $this->EE->TMPL->parse_variables($return, $vars);
 			
 			// Backspace
 			if (isset($params['backspace'])) {
-				$return = substr($return, 0, -$params['backspace']);	
+				$return = substr($return, 0, -$params['backspace']);
 			}
 		} else {
 			$return = "";
+		}
+		
+		// taggable_ft_tag_end
+		if ($this->ee->extensions->active_hook('taggable_ft_tag_end')) {
+			$return = $this->ee->extensions->call('taggable_ft_tag_end', $return);
+			if ($this->ee->extensions->end_script === TRUE) return $return;
 		}
 		
 		// done!
@@ -168,6 +191,12 @@ class Taggable_ft extends EE_Fieldtype {
 		// Are we on a CP request?
 		if (REQ == 'CP') {
 			if ($data) {
+				// taggable_ft_save_cp
+				if ($this->ee->extensions->active_hook('taggable_ft_save_cp')) {
+					$data = $this->ee->extensions->call('taggable_ft_save_cp', $data);
+					if ($this->ee->extensions->end_script === TRUE) return $data;
+				}
+				
 				$tags = explode(',', $data);
 				$newt = array();
 				$data = '';
@@ -252,6 +281,11 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		}
 		
+		// taggable_ft_post_save
+		if ($this->ee->extensions->active_hook('taggable_ft_post_save')) {
+			$this->ee->extensions->call('taggable_ft_post_save', $ids, $this);
+		}
+		
 		// Cool!
 		return $data;
 	}
@@ -264,6 +298,12 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function delete($ids) {
+		// taggable_ft_delete
+		if ($this->ee->extensions->active_hook('taggable_ft_delete')) {
+			$ids = $this->ee->extensions->call('taggable_ft_delete', $ids);
+			if ($this->ee->extensions->end_script === TRUE) return $data;
+		}
+		
 		$this->EE->db->where_in('entry_id', $ids);
 		$this->EE->db->delete('exp_taggable_tags_entries');
 	}
@@ -295,6 +335,11 @@ class Taggable_ft extends EE_Fieldtype {
 			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator, 'class="taggable-field"'))
 		);
 		
+		// taggable_ft_settings
+		if ($this->ee->extensions->active_hook('taggable_ft_settings')) {
+			$settings = $this->ee->extensions->call('taggable_ft_settings', $settings);
+		}
+		
 		// Do we return it or output it as a table?
 		if ($ret) {
 			return $settings;
@@ -315,13 +360,21 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function save_settings($data) {
-		return array(
+		$settings = array(
 			'taggable_saef_field_name' => (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : $_POST['taggable_saef_field_name'],
 			'taggable_saef_separator' => (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : $_POST['taggable_saef_separator'],
 			'taggable_tag_limit' => (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : $_POST['taggable_tag_limit'],
 			'taggable_theme' => (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $_POST['taggable_theme'],
 			'taggable_url_separator' => (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : $_POST['taggable_url_separator']
 		);
+		
+		// taggable_ft_save_settings
+		if ($this->ee->extensions->active_hook('taggable_ft_save_settings')) {
+			$settings = $this->ee->extensions->call('taggable_ft_save_settings', $settings);
+		}
+		
+		// Done
+		return $settings;
 	}
 	
 	// ------------------------
