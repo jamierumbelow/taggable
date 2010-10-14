@@ -16,6 +16,7 @@ require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_ft extends EE_Fieldtype {
 	public $has_array_data = TRUE;
+	public $safecracker = FALSE;
 	public $info = array(
 		'name' 		=> 'Taggable',
 		'version'	=> TAGGABLE_VERSION
@@ -75,12 +76,16 @@ class Taggable_ft extends EE_Fieldtype {
 		
 			// Wrap in theme container
 			$html = (isset($this->cell_name)) ? "<div class='$theme matrix'>" : "<div class='$theme'>";
+			
+			// Output the input - teeheehee
 			$html .= form_input($attrs);
+			
+			// Wrap it up
 			$html .= "</div>";
 			
 			// taggable_ft_display_field
-			if ($this->ee->extensions->active_hook('taggable_ft_display_field')) {
-				$html = $this->ee->extensions->call('taggable_ft_display_field', $html);
+			if ($this->EE->extensions->active_hook('taggable_ft_display_field')) {
+				$html = $this->EE->extensions->call('taggable_ft_display_field', $html);
 			}
 		
 			// And we're done!
@@ -101,9 +106,9 @@ class Taggable_ft extends EE_Fieldtype {
 		$ids = $this->_get_ids($data);
 		
 		// taggable_ft_tag_ids
-		if ($this->ee->extensions->active_hook('taggable_ft_tag_ids')) {
-			$ids = $this->ee->extensions->call('taggable_ft_tag_ids', $ids);
-			if ($this->ee->extensions->end_script === TRUE) return $tagdata;
+		if ($this->EE->extensions->active_hook('taggable_ft_tag_ids')) {
+			$ids = $this->EE->extensions->call('taggable_ft_tag_ids', $ids);
+			if ($this->EE->extensions->end_script === TRUE) return $tagdata;
 		}
 		
 		$return = '';
@@ -129,9 +134,9 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 			
 			// taggable_ft_tag_vars
-			if ($this->ee->extensions->active_hook('taggable_ft_tag_vars')) {
-				$vars = $this->ee->extensions->call('taggable_ft_tag_vars', $vars, $return);
-				if ($this->ee->extensions->end_script === TRUE) return $return;
+			if ($this->EE->extensions->active_hook('taggable_ft_tag_vars')) {
+				$vars = $this->EE->extensions->call('taggable_ft_tag_vars', $vars, $return);
+				if ($this->EE->extensions->end_script === TRUE) return $return;
 			}
 			
 			// parse
@@ -146,9 +151,9 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		// taggable_ft_tag_end
-		if ($this->ee->extensions->active_hook('taggable_ft_tag_end')) {
-			$return = $this->ee->extensions->call('taggable_ft_tag_end', $return);
-			if ($this->ee->extensions->end_script === TRUE) return $return;
+		if ($this->EE->extensions->active_hook('taggable_ft_tag_end')) {
+			$return = $this->EE->extensions->call('taggable_ft_tag_end', $return);
+			if ($this->EE->extensions->end_script === TRUE) return $return;
 		}
 		
 		// done!
@@ -187,14 +192,20 @@ class Taggable_ft extends EE_Fieldtype {
 	public function save($data) {
 		// Load stuff again
 		$this->EE->load->model('taggable_tag_model', 'tags');
+		$name = (isset($this->cell_name)) ? $this->cell_name : $this->field_name;
+		
+		// SafeCracker Settings
+		if ($this->safecracker) {
+			$this->settings = array_merge($this->settings, unserialize(base64_decode($this->settings['field_settings'])));
+		}
 		
 		// Are we on a CP request?
 		if (REQ == 'CP') {
 			if ($data) {
 				// taggable_ft_save_cp
-				if ($this->ee->extensions->active_hook('taggable_ft_save_cp')) {
-					$data = $this->ee->extensions->call('taggable_ft_save_cp', $data);
-					if ($this->ee->extensions->end_script === TRUE) return $data;
+				if ($this->EE->extensions->active_hook('taggable_ft_save_cp')) {
+					$data = $this->EE->extensions->call('taggable_ft_save_cp', $data);
+					if ($this->EE->extensions->end_script === TRUE) return $data;
 				}
 				
 				$tags = explode(',', $data);
@@ -216,10 +227,40 @@ class Taggable_ft extends EE_Fieldtype {
 						}
 					}
 				}
-		
+				
 				foreach ($newt as $id => $name) {
 					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
+				
+				return $data;
+			}
+		} elseif ($this->safecracker) {
+			if ($data) {
+				$tags = explode(',', $data);
+				$newt = array();
+				$data = '';
+				
+				foreach ($tags as $tag) {
+					if ($tag) {
+						if (is_numeric($tag)) {
+							// Is it in the DB? What's the name?
+							$query = $this->EE->tags->get($tag);
+						
+							if ($query) {
+								$newt[$tag] = $query->name;
+							}
+						} else {
+							$new_tag = $this->EE->tags->insert(array('name' => $tag));
+							$newt[$new_tag] = $tag;
+						}
+					}
+				}
+				
+				foreach ($newt as $id => $name) {
+					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
+				}
+				
+				return $data;
 			}
 		} else {
 			// Check for the SAEF
@@ -242,10 +283,10 @@ class Taggable_ft extends EE_Fieldtype {
 				foreach ($taggers as $name => $id) {
 					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
+				
+				return $data;
 			}
 		}
-		
-		return $data;
 	}
 	
 	/**
@@ -282,8 +323,8 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		// taggable_ft_post_save
-		if ($this->ee->extensions->active_hook('taggable_ft_post_save')) {
-			$this->ee->extensions->call('taggable_ft_post_save', $ids, $this);
+		if ($this->EE->extensions->active_hook('taggable_ft_post_save')) {
+			$this->EE->extensions->call('taggable_ft_post_save', $ids, $this);
 		}
 		
 		// Cool!
@@ -299,9 +340,9 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	public function delete($ids) {
 		// taggable_ft_delete
-		if ($this->ee->extensions->active_hook('taggable_ft_delete')) {
-			$ids = $this->ee->extensions->call('taggable_ft_delete', $ids);
-			if ($this->ee->extensions->end_script === TRUE) return $data;
+		if ($this->EE->extensions->active_hook('taggable_ft_delete')) {
+			$ids = $this->EE->extensions->call('taggable_ft_delete', $ids);
+			if ($this->EE->extensions->end_script === TRUE) return $data;
 		}
 		
 		$this->EE->db->where_in('entry_id', $ids);
@@ -336,8 +377,8 @@ class Taggable_ft extends EE_Fieldtype {
 		);
 		
 		// taggable_ft_settings
-		if ($this->ee->extensions->active_hook('taggable_ft_settings')) {
-			$settings = $this->ee->extensions->call('taggable_ft_settings', $settings);
+		if ($this->EE->extensions->active_hook('taggable_ft_settings')) {
+			$settings = $this->EE->extensions->call('taggable_ft_settings', $settings);
 		}
 		
 		// Do we return it or output it as a table?
@@ -369,8 +410,8 @@ class Taggable_ft extends EE_Fieldtype {
 		);
 		
 		// taggable_ft_save_settings
-		if ($this->ee->extensions->active_hook('taggable_ft_save_settings')) {
-			$settings = $this->ee->extensions->call('taggable_ft_save_settings', $settings);
+		if ($this->EE->extensions->active_hook('taggable_ft_save_settings')) {
+			$settings = $this->EE->extensions->call('taggable_ft_save_settings', $settings);
 		}
 		
 		// Done
