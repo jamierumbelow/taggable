@@ -418,6 +418,87 @@ class Taggable_mcp {
 	}
 	
 	/**
+	 * Merge tags
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function merge_tags() {
+		// Get all the tags
+		$this->data['tags'] = $this->ee->db->order_by('name ASC')->get('taggable_tags')->result();
+		
+		// Load the view
+		$this->_title('taggable_merge_tags');
+		return $this->_view('cp/merge');
+	}
+	
+	/**
+	 * Process the merge tags
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function process_merge_tags() {
+		// Get the inputs
+		$master_tag = $this->ee->tags->get($this->ee->tags->input->post('master_tag'));
+		$merge_tags = $this->ee->input->post('merge_tags');
+		
+		// Okay, go and get each entry
+		foreach ($merge_tags as $tag) {
+			$tag = $this->ee->db->where('id', $tag)->get('taggable_tags')->row();
+			
+			// Get the entries
+			$entries = $this->ee->db->where('tag_id', $tag->id)->get('taggable_tags_entries')->result();
+			foreach ($entries as $entry): $nen[] = $entry->entry_id; endforeach;
+						
+			// Loop through the entries and remove from field data
+			foreach ($entries as $entry) {
+				// Let's not support Matrix yet...
+				if (!preg_match("/^matrix_field_id_(\d+)_row_id_(\d+)_col_id_(\d+)$/", $entry->template)) {
+					if ($entry->entry_id) {
+						// Get the field ID from the template
+						$field = $this->_fetch_field_id_and_field_settings($entry->entry_id, $entry->template);
+						
+						$field_id = $field->field_id;
+						$field_settings = unserialize(base64_decode($field->field_settings));
+						
+						// Get the field data from the DB
+						$data = $this->ee->db->select('field_id_'.$field_id)->where('entry_id', $entry->entry_id)->get('channel_data')->row('field_id_'.$field_id);
+						
+						// Split the data into IDs and remove the tag
+						$current_data = $this->_get_ids_and_names($data);
+						unset($current_data[$tag->id]);
+						$this->ee->db->where('tag_id', $tag->id)->where('entry_id', $entry->entry_id)->delete('taggable_tags_entries');
+						
+						// Rewrite the data
+						$new_data = "";
+						
+						foreach ($current_data as $id => $name) {
+							if ($id !== $master_tag->id) {
+								$new_data .= "[".$id."] ".$name." ".str_replace(' ', $field_settings['taggable_url_separator'], $name)."\n";
+							}
+						}
+						
+						// Add the master tag in
+						$new_data .= "[".$master_tag->id."] ".$master_tag->name." ".str_replace(' ', $field_settings['taggable_url_separator'], $master_tag->name)."\n";
+						
+						// Link the entry
+						if ($this->ee->db->where(array('entry_id' => $entry->entry_id, 'tag_id' => $master_tag->id, 'template' => $entry->template))->get('taggable_tags_entries')->num_rows == 0) {
+							$this->ee->db->insert('taggable_tags_entries', array('entry_id' => $entry->entry_id, 'tag_id' => $master_tag->id, 'template' => $entry->template));
+						}
+						
+						// Store it back
+						$this->ee->db->where('entry_id', $entry->entry_id)->set('field_id_'.$field_id, $new_data)->update('channel_data');
+					}
+				}
+			}
+			
+			// Delete the tag!
+			$this->ee->db->where('id', $tag->id)->delete('taggable_tags');
+		}
+	}
+	
+	/**
 	 * Tag indexing tool
 	 *
 	 * @return void
@@ -492,6 +573,29 @@ class Taggable_mcp {
 		}
 		
 		return $tags;
+	}
+	
+	/**
+	 * Get an assoc array of IDs and names
+	 *
+	 * @param string $data 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _get_ids_and_names($data) {
+		$lines = explode("\n", $data);
+		$names = array();
+		
+		foreach ($lines as $line) {
+			if ($line) {
+				$id = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$1", $line);
+				$name = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$2", $line);
+				
+				$names[$id] = $name;
+			}
+		}
+		
+		return $names;
 	}
 		
 	/**
@@ -653,5 +757,24 @@ class Taggable_mcp {
 		}
 		
 		return $this->ee->session->cache['taggable']['themes'];
+	}
+	
+	/**
+	 * Fetch the field ID via the name and entry
+	 *
+	 * @param string $id 
+	 * @param string $template 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	private function _fetch_field_id_and_field_settings($id, $template) {
+		return $this->ee->db->select('exp_channel_fields.field_id, exp_channel_fields.field_settings')
+						 	->where('exp_channels.channel_id = exp_channel_titles.channel_id')
+							->where('exp_channels.field_group = exp_field_groups.group_id')
+							->where('exp_field_groups.group_id = exp_channel_fields.group_id')
+							->where('exp_channel_titles.entry_id', $id)
+							->where('exp_channel_fields.field_name', $template)
+							->get('exp_channel_fields, exp_channel_titles, exp_field_groups, exp_channels')
+							->row();
 	}
 }

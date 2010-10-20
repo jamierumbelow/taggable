@@ -374,9 +374,9 @@ class Taggable_ft extends EE_Fieldtype {
 		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
 		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
-		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
+		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-tokens";
 		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $default_theme;
-		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '_';
+		$url_separator = (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : '-';
 				
 		// Build up the settings array?
 		$settings = array(

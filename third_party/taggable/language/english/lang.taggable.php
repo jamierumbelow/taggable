@@ -103,6 +103,11 @@ $lang = array(
 	'taggable_index_messages'		=> 'If you\'re having an issue with searching tags or things have become unsynchronised for some reason, you can use the Index Tags tool to go through your channel entries data and re-synchronise the tag data. <strong>Please note, this may take some time</strong>.',
 	'taggable_tags_indexed'			=> 'Tags successfully indexed!',
 	
+	// Merge tags
+	'taggable_merge_tags'			=> 'Merge Tags',
+	'taggable_merge_messages'		=> 'The Merge Tags tool allows you to select similarly named tags and merge their entries into one, which is very handy if your clients are entering slightly different tags.',
+	'taggable_master_tag'			=> 'Master Merge Tag',
+	
 	// Errors
 	'taggable_errors_tag_name' 		=> 'Please enter a tag name!',
 	'taggable_errors_database'		=> "Couldn't connect to the database, please ensure your details are correct",

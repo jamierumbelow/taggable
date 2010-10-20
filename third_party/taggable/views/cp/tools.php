@@ -27,6 +27,17 @@
 		</div>
 	</div>
 	
+	<div style="width: 49%; float: left; margin-left: 1%; margin-bottom: 1%">
+		<div class="heading"><h2><?=lang('taggable_merge_tags')?></h2></div>
+		<div class="pageContents">
+			<p><?=lang('taggable_merge_messages')?></p>
+			
+			<br />
+			
+			<p><a class="submit" href="<?=TAGGABLE_URL.AMP.'method=merge_tags'?>"><?=lang('taggable_merge_tags')?></a></p>
+		</div>
+	</div>
+	
 	<div style="width: 49%; float: left; margin-left: 1%">
 		<div class="heading"><h2><?=lang('taggable_index_tags')?></h2></div>
 		<div class="pageContents">
