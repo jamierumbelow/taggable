@@ -27,6 +27,7 @@ $lang = array(
 	'taggable_preference_theme'						=> 'UI Theme',
 	'taggable_preference_default_theme'				=> 'Default UI Theme',
 	'taggable_preference_license_key'				=> 'License Key',
+	'taggable_api_endpoint'							=> 'API Endpoint URL',
 	'taggable_preference_key'						=> 'Key',
 	'taggable_preference_value'						=> 'Value',
 	'taggable_preferences_save'						=> 'Save',

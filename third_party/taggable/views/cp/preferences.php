@@ -16,6 +16,11 @@
 					<td><strong><?=lang("taggable_preference_default_theme")?></strong></td>
 					<td><?=form_dropdown('taggable_default_theme', $themes, $default_theme)?></td>
 				</tr>
+				
+				<tr>
+					<td><strong><?=lang("taggable_api_endpoint")?></strong></td>
+					<td><pre><?=$api_endpoint?></pre></td>
+				</tr>
 	</tbody>
 </table>
 

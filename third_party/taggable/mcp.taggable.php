@@ -22,7 +22,7 @@ class Taggable_mcp {
 	private $ee;
 	
 	public $data 		= array();
-	public $docs_url	= "http://gettaggable.com/docs/";
+	public $docs_url	= "http://getsparkplugs.com/taggable/docs/";
 	
 	/**
 	 * Constructor
@@ -619,6 +619,7 @@ class Taggable_mcp {
 		
 		$this->data['themes'] = $this->_get_themes();
 		$this->data['default_theme'] = $this->ee->config->item('taggable_default_theme');
+		$this->data['api_endpoint'] = base_url() . "?ACT=" . $this->ee->cp->fetch_action_id('Taggable', 'api_entries');
 		
 		$this->_title("taggable_preferences_title");
 		return $this->_view('cp/preferences');
