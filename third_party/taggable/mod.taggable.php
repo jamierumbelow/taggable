@@ -64,7 +64,7 @@ class Taggable {
 			$this->params['sort']		 		 = strtolower($this->ee->TMPL->fetch_param('sort'));
 			$this->params['backspace'] 			 = $this->ee->TMPL->fetch_param('backspace');
 			$this->params['limit']				 = $this->ee->TMPL->fetch_param('limit');
-			$this->params['url_separator']		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '_' ;
+			$this->params['url_separator']		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '-' ;
 			$this->params['min_size'] 	   		 = $this->ee->TMPL->fetch_param('min_size');
 			$this->params['max_size'] 	   		 = $this->ee->TMPL->fetch_param('max_size');
 			$min_size 							 = ($this->params['min_size']) ? $this->params['min_size'] : 12;
@@ -73,7 +73,7 @@ class Taggable {
 		
 			// Run the lookup
 			$tags = $this->_search_tags();
-		
+			
 			// Get the min and max, then calculate the spread...
 			$min_qty = (empty($counts)) ? 0 : min($counts);
 			$max_qty = (empty($counts)) ? 0 : max($counts);
@@ -214,6 +214,9 @@ class Taggable {
 	 * @author Jamie Rumbelow
 	 */
 	protected function _search_tags() {
+		// Keep track whether it's an 'entry' query
+		$entry_query = FALSE;
+		
 		// Limit
 		if ($this->params['limit']) {
 			$this->ee->db->limit($this->params['limit']);
@@ -242,25 +245,33 @@ class Taggable {
 
 		// Entry ID
 		if ($this->params['entry_id']) {
+			$entry_query = TRUE;
 			$this->parse_multiple_params('exp_taggable_tags_entries.entry_id', $this->params['entry_id']);
 		}
 
 		// Entry Title
 		if ($this->params['entry_url_title']) {
+			$entry_query = TRUE;
 			$this->parse_multiple_params("exp_channel_titles.url_title", $this->params['entry_url_title']);
 			$this->ee->db->where("exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id")->from('exp_channel_titles');
 		}
 
-		// Select star distinct
-		$this->ee->db->distinct();
+		// Distinct?
+		if ($entry_query) {
+			$this->ee->db->distinct();
+		}
+
+		// Select star
 		$this->ee->db->select('exp_taggable_tags.id, exp_taggable_tags.name, exp_taggable_tags.description');
 
 		// MSM
 		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 
 		// Find the tags
-		$this->ee->db->where('exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
-		$this->ee->db->from('exp_taggable_tags_entries');
+		if ($entry_query) {
+			$this->ee->db->where('exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
+			$this->ee->db->from('exp_taggable_tags_entries');
+		}
 
 		// taggable_tags_find_query
 		$this->ee->extensions->call('taggable_tags_find_query');
@@ -268,20 +279,21 @@ class Taggable {
 		// Find the tags
 		$this->ee->db->save_queries = TRUE;
 		$tags = $this->ee->tags->get_all();
-
+		
 		// Entry count
 		if ($tags) {
 			foreach ($tags as $tag) {
-				$ids[] = $tag->id;
+				$ids[] = (int)$tag->id;
 				$tgs[$tag->id] = $tag;
+				$tgs[$tag->id]->entry_count = 0;
 			}
-
+			
 			$counts = $this->ee->tags->tag_entries_counts($ids);
-
+			
 			foreach ($counts as $id => $count) {
 				$tgs[$id]->entry_count = $count;
 			}
-
+			
 			foreach ($tags as $tag) {
 				$tag->entry_count = $tgs[$tag->id]->entry_count;
 			}

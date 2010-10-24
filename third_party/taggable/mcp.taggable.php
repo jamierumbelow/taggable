@@ -103,7 +103,7 @@ class Taggable_mcp {
 		
 		// Text searching
 		if ($term = $this->ee->input->get('text_search')) {
-			$this->ee->tags->where_tag_name_based_on_text_search_term($this->ee->input->get('text_search'), $term);
+			$this->ee->tags->where_tag_name_based_on_text_search_term($this->ee->input->get('text_search_order'), $term);
 		}
 		
 		// Entry count

@@ -70,11 +70,11 @@ class Taggable_tag_model extends Model {
 	 */
 	public function where_tag_name_based_on_text_search_term($pos, $term) {
 		if ($pos == 'sw') {
-			$this->ee->db->where("exp_taggable_tags.name LIKE ", $term."%");
+			$this->db->where("exp_taggable_tags.name LIKE ", $term."%");
 		} elseif ($pos == 'co') {
-			$this->ee->db->where("exp_taggable_tags.name LIKE ", "%".$term."%");
+			$this->db->where("exp_taggable_tags.name LIKE ", "%".$term."%");
 		} elseif ($pos == 'ew') {
-			$this->ee->db->where("exp_taggable_tags.name LIKE ", "%".$term);
+			$this->db->where("exp_taggable_tags.name LIKE ", "%".$term);
 		}
 		
 		$this->filters['text_search_order']  = $pos;
