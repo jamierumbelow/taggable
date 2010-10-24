@@ -53,7 +53,7 @@ class Taggable_ft extends EE_Fieldtype {
 			$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 			// What theme are we using?
-			$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-classic";
+			$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-tokens";
 			$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : $default_theme;
 		
 			// Setup the JavaScript

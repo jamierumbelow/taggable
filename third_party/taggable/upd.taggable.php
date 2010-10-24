@@ -80,6 +80,10 @@ class Taggable_upd {
 		if (!$this->ee->config->item('taggable_license_key')) {
 			$this->ee->config->_update_config(array('taggable_license_key' => 'ENTER YOUR LICENSE KEY HERE'));
 		}
+		
+		if (!$this->ee->config->item('taggable_default_theme')) {
+			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
+		}
 				
 		// We're done!
 		return TRUE;
@@ -163,7 +167,7 @@ class Taggable_upd {
 		// Update from 1.3 to 1.4
 		// 	  - Add a config option for default theme
 		if ($version < 1.4) {
-			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-classic'));
+			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
 		}
 
 		return TRUE;
