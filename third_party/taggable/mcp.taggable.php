@@ -45,8 +45,8 @@ class Taggable_mcp {
 		$this->ee->cp->set_right_nav(array(
 			'taggable_module_name' 			=> TAGGABLE_URL,
 			'taggable_tags_title' 			=> TAGGABLE_URL.AMP.'method=tags',
-			'taggable_preferences_title' 	=> TAGGABLE_URL.AMP.'method=preferences',
 			'taggable_tools_title' 			=> TAGGABLE_URL.AMP.'method=tools',
+			'taggable_preferences_title' 	=> TAGGABLE_URL.AMP.'method=preferences',
 			'taggable_doc_title' 			=> $this->docs_url
 		));
 		

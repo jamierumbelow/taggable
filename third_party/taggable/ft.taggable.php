@@ -401,6 +401,18 @@ class Taggable_ft extends EE_Fieldtype {
 			// Output the autocomplete JavaScript
 			$this->EE->javascript->output("$('#field_name').change(function(){ $('.taggable_saef_field_name').val($(this).val()); })");
 			
+			// Output the searchable JavaScript
+			$this->EE->javascript->output('
+				var oldShow = $.fn.show; 
+				$.fn.show = function(s,c){
+					if($(this).attr("id")=="ft_taggable") {
+						$("#field_search_y").attr("checked","checked");
+					}
+					
+					return oldShow.apply($(this),[s, c]);
+				};
+			');
+			
 			foreach ($settings as $setting) {
 				$this->EE->table->add_row($setting[0], $setting[1]);
 			}
