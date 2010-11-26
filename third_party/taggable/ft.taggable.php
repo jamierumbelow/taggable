@@ -995,4 +995,61 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		}
 	}
+	
+	/**
+	 * Install the fieldtype
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function install() {
+		$this->EE->load->dbforge();
+		
+		// exp_taggable_tags
+		$tags = array(
+			'id' 			=> array('type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE),
+			'name'			=> array('type' => 'VARCHAR', 'constraint' => 100),
+			'description'	=> array('type' => 'TEXT'),
+			'site_id'		=> array('type' => 'INT', 'default' => $this->EE->config->item('site_id'))
+		);
+		
+		$this->EE->dbforge->add_field($tags);
+		$this->EE->dbforge->add_key('id', TRUE);
+		$this->EE->dbforge->create_table('taggable_tags');
+		
+		// exp_taggable_tags_entries
+		$tags_entries = array(
+			'tag_id' 	=> array('type' => 'INT'),
+			'entry_id'	=> array('type' => 'INT'),
+			'template'  => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'tags')
+		);
+		
+		$this->EE->dbforge->add_field($tags_entries);
+		$this->EE->dbforge->add_key('tag_id');
+		$this->EE->dbforge->add_key('entry_id');
+		$this->EE->dbforge->create_table('taggable_tags_entries');
+		
+		// Add license key to config file
+		if (!$this->EE->config->item('taggable_license_key')) {
+			$this->EE->config->_update_config(array('taggable_license_key' => 'ENTER YOUR LICENSE KEY HERE'));
+		}
+		
+		if (!$this->EE->config->item('taggable_default_theme')) {
+			$this->EE->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
+		}
+	}
+	
+	/**
+	 * Uninstall the fieldtype
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function uninstall() {
+		$this->EE->load->dbforge();
+		
+		$this->EE->dbforge->drop_table('taggable_tags');
+		$this->EE->dbforge->drop_table('taggable_tags_entries');
+		$this->EE->config->_update_config(array(), array('taggable_license_key'));
+	}
 }

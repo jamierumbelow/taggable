@@ -44,30 +44,6 @@ class Taggable_upd {
 		
 		$this->ee->db->insert('modules', $module);
 		
-		// exp_taggable_tags
-		$tags = array(
-			'id' 			=> array('type' => 'INT', 'unsigned' => TRUE, 'auto_increment' => TRUE),
-			'name'			=> array('type' => 'VARCHAR', 'constraint' => 100),
-			'description'	=> array('type' => 'TEXT'),
-			'site_id'		=> array('type' => 'INT', 'default' => $this->ee->config->item('site_id'))
-		);
-		
-		$this->ee->dbforge->add_field($tags);
-		$this->ee->dbforge->add_key('id', TRUE);
-		$this->ee->dbforge->create_table('taggable_tags');
-		
-		// exp_taggable_tags_entries
-		$tags_entries = array(
-			'tag_id' 	=> array('type' => 'INT'),
-			'entry_id'	=> array('type' => 'INT'),
-			'template'  => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'tags')
-		);
-		
-		$this->ee->dbforge->add_field($tags_entries);
-		$this->ee->dbforge->add_key('tag_id');
-		$this->ee->dbforge->add_key('entry_id');
-		$this->ee->dbforge->create_table('taggable_tags_entries');
-		
 		// exp_actions
 		$action = array(
 			'class' => 'Taggable',
@@ -75,16 +51,7 @@ class Taggable_upd {
 		);
 		
 		$this->ee->db->insert('actions', $action);
-		
-		// Add license key to config file
-		if (!$this->ee->config->item('taggable_license_key')) {
-			$this->ee->config->_update_config(array('taggable_license_key' => 'ENTER YOUR LICENSE KEY HERE'));
-		}
-		
-		if (!$this->ee->config->item('taggable_default_theme')) {
-			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
-		}
-				
+						
 		// We're done!
 		return TRUE;
 	}
@@ -97,10 +64,7 @@ class Taggable_upd {
 	 */
 	public function uninstall() {
 		// Goodbye!
-		$this->ee->dbforge->drop_table('taggable_tags');
-		$this->ee->dbforge->drop_table('taggable_tags_entries');
 		$this->ee->db->where('module_name', 'Taggable')->delete('modules');
-		$this->ee->config->_update_config(array(), array('taggable_license_key'));
 		
 		// We're done
 		return TRUE;
