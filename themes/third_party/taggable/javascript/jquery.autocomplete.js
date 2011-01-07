@@ -424,7 +424,7 @@ $.TokenList = function (input, settings) {
     		    var search_results = new Array();
     		    
     		    for (var i in EE.taggable.tags) {    		        
-    		        if (EE.taggable.tags[i].name.search(query) > -1) {
+    		        if (EE.taggable.tags[i].name.search(new RegExp(query, "i")) > -1) {
     		            search_results.push(EE.taggable.tags[i]);
     		        }
     		    }
