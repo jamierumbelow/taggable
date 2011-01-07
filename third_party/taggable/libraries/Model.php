@@ -67,7 +67,7 @@ class Model extends CI_Model {
 	 * @author Jamie Rumbelow
 	 */
 	public function __construct() {
-		parent::CI_Model();
+		parent::__construct();
 		$this->load->helper('inflector');
 		$this->_fetch_table();
 	}
