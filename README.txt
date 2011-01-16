@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.3.3
+	Taggable Version 1.4.0
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -22,6 +22,17 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.4.0
+		- Added Pixel and Tonic Matrix support
+		- Added Low Variables support
+		- Added a range of themes and themeable inputs
+		- Added SafeCracker support
+		- Performance boosts
+		- Separation of module and fieldtype
+		- Added :ol and :ul tags to fieldtype
+		- Added the Taggable API
+		- Bug and compatibility fixes
 
 	Version 1.3.3
 		- Fixed an error with tag clouds
