@@ -23,7 +23,7 @@ class Taggable {
 	public $site_id;
 	
 	/**
-	 * {exp:taggable tag_id="1" tag_name="some tag" tag_url_name="some-tag" entry_id="1" entry_url_title="entry" 
+	 * {exp:taggable tag_id="1" tag_name="some tag" tag_url_name="some-tag" entry_id="1" entry_url_title="entry" field="tags"
 	 * 				 orderby="name" sort="asc" limit="10" url_separator="-" min_size="10" max_size="25" backspace="2"}
 	 * 		{name}
 	 *		{id}
@@ -67,10 +67,11 @@ class Taggable {
 			$this->params['url_separator']		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '-' ;
 			$this->params['min_size'] 	   		 = $this->ee->TMPL->fetch_param('min_size');
 			$this->params['max_size'] 	   		 = $this->ee->TMPL->fetch_param('max_size');
+			$this->params['field']				 = $this->ee->TMPL->fetch_param('field');
 			$min_size 							 = ($this->params['min_size']) ? $this->params['min_size'] : 12;
 			$max_size 							 = ($this->params['max_size']) ? $this->params['max_size'] : 12;
 			$vars				 				 = array();
-		
+			
 			// Run the lookup
 			$tags = $this->_search_tags();
 			
@@ -241,6 +242,12 @@ class Taggable {
 		if ($this->params['tag_url_name']) {
 			$this->params['tag_url_name'] = str_replace($this->params['url_separator'], ' ', $this->params['tag_url_name']);
 			$this->parse_multiple_params('exp_taggable_tags.name', $this->params['tag_url_name']);
+		}
+		
+		// Template/Field Name
+		if ($this->params['field']) {
+			$entry_query = TRUE;
+			$this->ee->db->where('exp_taggable_tags_entries.template', $this->params['field']);
 		}
 
 		// Entry ID
