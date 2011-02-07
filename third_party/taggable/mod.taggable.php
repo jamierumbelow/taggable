@@ -124,13 +124,6 @@ class Taggable {
 			// Parse it!
 			$parsed = $this->ee->TMPL->parse_variables($this->tagdata, $vars);
 			
-			// Backspace?
-			if ($this->params['backspace']) {
-				if (is_numeric($this->params['backspace'])) {
-					$parsed = substr($parsed, 0, - (int)$this->params['backspace']);
-				}
-			}
-		
 			// taggable_tags_end
 			if ($this->ee->extensions->active_hook('taggable_tags_end')) {
 				$parsed = $this->ee->extensions->call('taggable_tags_end', $parsed);
