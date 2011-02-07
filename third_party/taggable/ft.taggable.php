@@ -329,7 +329,7 @@ class Taggable_ft extends EE_Fieldtype {
 		
 		// Delete any that shouldn't be saved
 		if ($delete) {
-			$this->EE->db->where_in('tag_id', $delete)->delete('taggable_tags_entries');
+			$this->EE->db->where('entry_id', $this->settings['entry_id'])->where_in('tag_id', $delete)->delete('taggable_tags_entries');
 		}
 		
 		// Loop through and insert new ones
