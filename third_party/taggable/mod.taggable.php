@@ -260,7 +260,16 @@ class Taggable {
 		// Template/Field Name
 		if ($this->params['field']) {
 			$entry_query = TRUE;
-			$this->ee->db->where('exp_taggable_tags_entries.template', $this->params['field']);
+			
+			if (strpos($this->params['field'], "|")) {
+				$fields = explode("|", $this->params['field']);
+				
+				foreach ($fields as $field) {
+					$this->ee->db->or_where('exp_taggable_tags_entries.template', $this->params['field']);
+				}
+			} else {
+				$this->ee->db->where('exp_taggable_tags_entries.template', $this->params['field']);
+			}
 		}
 		
 		// Entry ID
