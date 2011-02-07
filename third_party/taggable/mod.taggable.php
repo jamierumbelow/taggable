@@ -54,23 +54,23 @@ class Taggable {
 			}
 	
 			// Parameters
-			$this->params['tag_id'] 			 = $this->ee->TMPL->fetch_param('tag_id');
-			$this->params['tag_name'] 			 = $this->ee->TMPL->fetch_param('tag_name');
-			$this->params['tag_url_name'] 		 = $this->ee->TMPL->fetch_param('tag_url_name');
-			$this->params['entry_id'] 			 = $this->ee->TMPL->fetch_param('entry_id');
-			$this->params['entry_url_title'] 	 = $this->ee->TMPL->fetch_param('entry_url_title');
-			$this->params['orderby']	 		 = ($this->ee->TMPL->fetch_param('orderby') && in_array($this->ee->TMPL->fetch_param('orderby'), array('id', 'name', ''))) ? 
-									strtolower($this->ee->TMPL->fetch_param('orderby')) : 'name';
-			$this->params['sort']		 		 = strtolower($this->ee->TMPL->fetch_param('sort'));
-			$this->params['backspace'] 			 = $this->ee->TMPL->fetch_param('backspace');
-			$this->params['limit']				 = $this->ee->TMPL->fetch_param('limit');
-			$this->params['url_separator']		 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '-' ;
-			$this->params['min_size'] 	   		 = $this->ee->TMPL->fetch_param('min_size');
-			$this->params['max_size'] 	   		 = $this->ee->TMPL->fetch_param('max_size');
-			$this->params['field']				 = $this->ee->TMPL->fetch_param('field');
-			$min_size 							 = ($this->params['min_size']) ? $this->params['min_size'] : 12;
-			$max_size 							 = ($this->params['max_size']) ? $this->params['max_size'] : 12;
-			$vars				 				 = array();
+			$this->params['tag_id'] 		 = $this->ee->TMPL->fetch_param('tag_id');
+			$this->params['tag_name'] 		 = $this->ee->TMPL->fetch_param('tag_name');
+			$this->params['tag_url_name'] 	 = $this->ee->TMPL->fetch_param('tag_url_name');
+			$this->params['entry_id'] 		 = $this->ee->TMPL->fetch_param('entry_id');
+			$this->params['entry_url_title'] = $this->ee->TMPL->fetch_param('entry_url_title');
+			$this->params['orderby']	 	 = ($this->ee->TMPL->fetch_param('orderby') && in_array($this->ee->TMPL->fetch_param('orderby'), array('id', 'name', 'entry_count', ''))) ? 
+											    strtolower($this->ee->TMPL->fetch_param('orderby')) : 'name';
+			$this->params['sort']		 	 = strtolower($this->ee->TMPL->fetch_param('sort'));
+			$this->params['backspace'] 		 = $this->ee->TMPL->fetch_param('backspace');
+			$this->params['limit']			 = $this->ee->TMPL->fetch_param('limit');
+			$this->params['url_separator']	 = ($u = $this->ee->TMPL->fetch_param('url_separator')) ? $u : '-' ;
+			$this->params['min_size'] 	   	 = $this->ee->TMPL->fetch_param('min_size');
+			$this->params['max_size'] 	   	 = $this->ee->TMPL->fetch_param('max_size');
+			$this->params['field']			 = $this->ee->TMPL->fetch_param('field');
+			$min_size 						 = ($this->params['min_size']) ? $this->params['min_size'] : 12;
+			$max_size 						 = ($this->params['max_size']) ? $this->params['max_size'] : 12;
+			$vars				 			 = array();
 			
 			// Run the lookup
 			$tags = $this->_search_tags();
@@ -217,13 +217,19 @@ class Taggable {
 	protected function _search_tags() {
 		// Keep track whether it's an 'entry' query
 		$entry_query = FALSE;
+		$orderby_ent = FALSE;
 		
 		// Limit
 		if ($this->params['limit']) {
 			$this->ee->db->limit($this->params['limit']);
 		}
-
-		// Sort
+		
+		// Orderby and Sort
+		if ($this->params['orderby']) {
+			$orderby_ent = TRUE;
+			$this->params['orderby'] = 'name';
+		}
+		
 		if ($this->params['sort']) {
 			$this->ee->db->order_by($this->params['orderby'] . " " . strtoupper($this->params['sort']));
 		}
@@ -304,10 +310,25 @@ class Taggable {
 			foreach ($tags as $tag) {
 				$tag->entry_count = $tgs[$tag->id]->entry_count;
 			}
+			
+			// Order by entry count?
+			if ($orderby_ent) {
+				usort($tags, array($this, '_order_by_count'));
+			}
 		}
-
+		
 		// Done!
 		return $tags;
+	}
+	
+	/**
+	 * Used in usort() to order the
+	 * entry count
+	 *
+	 * @author Jamie Rumbelow
+	 */
+	private function _order_by_count($a, $b) {
+		return ($a->entry_count < $b->entry_count) ? 1 : -1 ;
 	}
 	
 	/**
