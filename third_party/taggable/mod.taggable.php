@@ -57,6 +57,7 @@ class Taggable {
 			$this->params['tag_id'] 		 = $this->ee->TMPL->fetch_param('tag_id');
 			$this->params['tag_name'] 		 = $this->ee->TMPL->fetch_param('tag_name');
 			$this->params['tag_url_name'] 	 = $this->ee->TMPL->fetch_param('tag_url_name');
+			$this->params['channel']		 = $this->ee->TMPL->fetch_param('channel');
 			$this->params['entry_id'] 		 = $this->ee->TMPL->fetch_param('entry_id');
 			$this->params['entry_url_title'] = $this->ee->TMPL->fetch_param('entry_url_title');
 			$this->params['orderby']	 	 = ($this->ee->TMPL->fetch_param('orderby') && in_array($this->ee->TMPL->fetch_param('orderby'), array('id', 'name', 'entry_count', ''))) ? 
@@ -122,7 +123,7 @@ class Taggable {
 		
 			// Parse it!
 			$parsed = $this->ee->TMPL->parse_variables($this->tagdata, $vars);
-		
+			
 			// Backspace?
 			if ($this->params['backspace']) {
 				if (is_numeric($this->params['backspace'])) {
@@ -219,6 +220,19 @@ class Taggable {
 		$entry_query = FALSE;
 		$orderby_ent = FALSE;
 		
+		// Channel
+		if ($this->params['channel']) {
+			// Get the IDs of the entries
+			$this->parse_multiple_params('channel_id', $this->params['channel'], 'exp_channels', 'channel_name', 'channel_id');
+			
+			$query = $this->ee->db->select('entry_id')->get('channel_titles')->result();
+			foreach ($query as $row) { $ids[] = $row->entry_id; }
+			
+			// Limit this query to the tags in this channel
+			$entry_query = TRUE;
+			$this->ee->db->where_in('exp_taggable_tags_entries.entry_id', $ids);
+		}
+		
 		// Limit
 		if ($this->params['limit']) {
 			$this->ee->db->limit($this->params['limit']);
@@ -255,7 +269,7 @@ class Taggable {
 			$entry_query = TRUE;
 			$this->ee->db->where('exp_taggable_tags_entries.template', $this->params['field']);
 		}
-
+		
 		// Entry ID
 		if ($this->params['entry_id']) {
 			$entry_query = TRUE;
