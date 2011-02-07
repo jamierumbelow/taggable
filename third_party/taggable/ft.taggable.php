@@ -128,7 +128,11 @@ class Taggable_ft extends EE_Fieldtype {
 						'url_name'			=> str_replace(' ', $this->settings['taggable_url_separator'], $tag->name)
 					);
 				}
-			
+				
+				// Obey the limit="" parameter
+				$limit = (isset($params['limit'])) ? $params['limit'] : count($tag_rows);
+				$tag_rows = array_slice($tag_rows, 0, $limit);
+				
 				$vars = $tag_rows;			
 				$return = $this->_no_parse_if_no_tags($tagdata);
 			}
