@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.4.0
+	Taggable Version 1.4.1
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -9,12 +9,12 @@ Thanks for purchasing Taggable! Installation instructions can be found in the do
 Requirements
 ============
 
-Taggable only requires an installed copy of ExpressionEngine 2.0.2 and what’s required by ExpressionEngine 2.0.2.
+Taggable only requires an installed copy of ExpressionEngine 2.1.3 and what’s required by ExpressionEngine 2.1.3.
 
 Install Instructions
 ====================
 
-Install Taggable like any other ExpressionEngine 2 add-on. Simply drag the taggable/ folder found in your download into the system/expressionengine/third_party/ folder. Then go into the EE control panel, navigate to the Modules page and find Taggable in the list.
+Install Taggable like any other ExpressionEngine 2 add-on. Simply drag the third_party/taggable/ folder found in your download into the system/expressionengine/third_party/ folder. Then copy the themes/third_party/taggable/ folder into themes/third_party. Finally, go into the EE control panel, navigate to the Modules page and find Taggable in the list.
 
 Click the install link and you should see a set of form fields allowing you to enable or disable the various parts of the addon. Make sure you enable every part of the extension - the module and fieldtype.
 
@@ -22,6 +22,16 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.4.1
+		- Added the field parameter
+		- Added the limit="" parameter to the fieldtype
+		- Fixed a quick bug with deleting tags entry counts
+		- You can now order by the entry count
+		- Added the channel="" parameter finally
+		- Fixed a bug with the backspace="" parameter
+		- Added multiple fields to field="" parameter
+		- Fixed an issue with the {size} variable
 
 	Version 1.4.0
 		- Added Pixel and Tonic Matrix support
