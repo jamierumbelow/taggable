@@ -69,24 +69,24 @@ class Taggable {
 			$this->params['min_size'] 	   	 = $this->ee->TMPL->fetch_param('min_size');
 			$this->params['max_size'] 	   	 = $this->ee->TMPL->fetch_param('max_size');
 			$this->params['field']			 = $this->ee->TMPL->fetch_param('field');
-			$min_size 						 = ($this->params['min_size']) ? $this->params['min_size'] : 12;
-			$max_size 						 = ($this->params['max_size']) ? $this->params['max_size'] : 12;
+			$min_size 						 = ($this->params['min_size']) ? $this->params['min_size'] : 5;
+			$max_size 						 = ($this->params['max_size']) ? $this->params['max_size'] : 10;
 			$vars				 			 = array();
 			
 			// Run the lookup
 			$tags = $this->_search_tags();
 			
 			// Get the min and max, then calculate the spread...
-			$min_qty = (empty($counts)) ? 0 : min($counts);
-			$max_qty = (empty($counts)) ? 0 : max($counts);
+			$min_qty = (empty($this->counts)) ? 0 : min($this->counts);
+			$max_qty = (empty($this->counts)) ? 0 : max($this->counts);
 			$spread = $max_qty - $min_qty;
-		
+			
 			if ($spread == 0) {
-	                $spread = 1;
-	        }
-		
+				$spread = 1;
+			}
+			
 			// Figure out each step
-	        $step = ($max_qty - $min_qty) / ($spread);
+			$step = ($max_qty - $min_qty) / ($spread);
 		
 			// taggable_tags_pre_loop
 			if ($this->ee->extensions->active_hook('taggable_tags_pre_loop')) {
@@ -166,8 +166,8 @@ class Taggable {
 		$tags = $this->_search_tags();
 	
 		// Get the min and max, then calculate the spread...
-		$min_qty = (empty($counts)) ? 0 : min($counts);
-		$max_qty = (empty($counts)) ? 0 : max($counts);
+		$min_qty = (empty($this->counts)) ? 0 : min($this->counts);
+		$max_qty = (empty($this->counts)) ? 0 : max($this->counts);
 		$spread = $max_qty - $min_qty;
 	
 		if ($spread == 0) {
@@ -317,9 +317,9 @@ class Taggable {
 				$tgs[$tag->id]->entry_count = 0;
 			}
 			
-			$counts = $this->ee->tags->tag_entries_counts($ids);
-			
-			foreach ($counts as $id => $count) {
+			$this->counts = $this->ee->tags->tag_entries_counts($ids);
+			$this->counts[4] += 2;
+			foreach ($this->counts as $id => $count) {
 				$tgs[$id]->entry_count = $count;
 			}
 			
