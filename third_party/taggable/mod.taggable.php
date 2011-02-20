@@ -318,7 +318,7 @@ class Taggable {
 			}
 			
 			$this->counts = $this->ee->tags->tag_entries_counts($ids);
-			$this->counts[4] += 2;
+			
 			foreach ($this->counts as $id => $count) {
 				$tgs[$id]->entry_count = $count;
 			}
