@@ -75,7 +75,7 @@
 
 <pre>
 &lt;ul&gt;
-	&#x7B;exp:taggable entry_url_title=&quot;&#x7B;segment_3&gt;&quot; limit=&quot;10&quot;&gt;
+	&#x7B;exp:taggable entry_url_title=&quot;&#x7B;segment_3&gt;&quot; limit=&quot;10&quot;&#x7D;
 		&lt;li&gt;
 			&lt;h3&gt;&lt;a href=&quot;&#x7B;path=tags&#x7D;/&#x7B;url_name&#x7D;&quot;&gt;&#x7B;name&#x7D;&lt;/a&gt;&lt;/h3&gt;
 			&lt;p&gt;&#x7B;description&#x7D;&lt;/p&gt;
@@ -88,10 +88,10 @@
 &lt;/ul&gt;
 </pre>
 
-<h3 id="ul">&#x7B;exp:taggable:ul&#x7D;</h3>
+<h3 id="ul">&#x7B;exp:taggable:url_name&#x7D;</h3>
 
-<p>Output an unordered list of tag names. The <em>&lt;li&gt;</em> elements will have a HTML5 <var>data-id=''</var> parameter that will contain the tag ID for use in the <a href="http://getsparkplugs.com/taggable/docs/developers">Taggable API</a>.</p>
+<p>Output the tag's name with all spaces replaced by a URL separator. This is for use outside of the main Taggable tags, such as in the query tag. This method takes two parameters, <var>name=""</var> and <var>url_separator=""</var>, and defaults to using a dash for the separator if none is provided.</p>
 
-<h3 id="ol">&#x7B;exp:taggable:ol&#x7D;</h3>
-
-<p>Output an ordered list of tag names. The <em>&lt;li&gt;</em> elements will have a HTML5 <var>data-id=''</var> parameter that will contain the tag ID for use in the <a href="http://getsparkplugs.com/taggable/docs/developers">Taggable API</a>.</p>
+<pre>
+	&#x7B;exp:taggable:url_name name=&quot;tag name&quot; url_separator=&quot;-&quot;&#x7D;
+</pre>
