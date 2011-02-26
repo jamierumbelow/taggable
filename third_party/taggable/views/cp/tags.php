@@ -56,7 +56,7 @@
 		<div class="pageContents">
 			<?php if($tags_alphabetically): ?>
 				<?php foreach($tags_alphabetically as $letter => $count): ?>
-					<a href="<?=TAGGABLE_URL.AMP."method=tags".AMP."order=tag_name".AMP."text_search_order=sw".AMP."text_search=".$letter?>" style="padding: 0 5px;"><?=ucwords($letter)?> (<?=$count?>)</a>
+					<a href="<?=TAGGABLE_URL.AMP."method=tags".AMP."order=name".AMP."text_search_order=sw".AMP."text_search=".$letter?>" style="padding: 0 5px;"><?=ucwords($letter)?> (<?=$count?>)</a>
 				<?php endforeach; ?>
 			<?php else: ?>
 				<p><?=lang('taggable_no_tags')?></p>
