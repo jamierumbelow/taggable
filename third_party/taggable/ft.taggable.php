@@ -47,9 +47,16 @@ class Taggable_ft extends EE_Fieldtype {
 		if (is_string($data) || $data === FALSE) {
 			$this->EE->load->model('taggable_tag_model', 'tags');
 			
-			// Get the names
-			$tags = $this->_get_ids_and_names($data);
-			$tags = $this->_format_for_field($tags);
+			// Are we in versioning?
+			if ($this->EE->input->get('version_id')) {
+				$tags = $this->_format_for_field_from_versioning($data);
+			} else {
+				// Get the names
+				$tags = $this->_get_ids_and_names($data);
+				$tags = $this->_format_for_field($tags);
+			}
+			
+			// Hash it up, baby
 			$hash = sha1(microtime(TRUE).rand(0,1000));
 		
 			// What theme are we using?
@@ -690,6 +697,25 @@ class Taggable_ft extends EE_Fieldtype {
 		}
 		
 		return $html;
+	}
+	
+	/**
+	 * Format the tags for tag fields from versioning data
+	 *
+	 * @param string $tags 
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	protected function _format_for_field_from_versioning($tags) {
+		$ids = array_filter(explode(',', $tags));
+		$result = $this->EE->db->select('id, name')->where_in('id', $ids)->get('taggable_tags')->result();
+		$tags = array();
+		
+		foreach ($result as $row) {
+			$tags[$row->id] = $row->name;
+		}
+		
+		return $this->_format_for_field($tags);
 	}
 	
 	/**
