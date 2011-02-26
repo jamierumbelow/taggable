@@ -60,8 +60,6 @@
 		<th>Setting</th>
 		<th>Description</th>
 	</tr>
-	<tr><td style="width: 30%"><strong>SAEF Field Name</strong></td><td>What field name to use for this field in the standalone entry form</td></tr>
-	<tr><td><strong>SAEF Separator</strong></td><td>The separator used to separate tags in a SAEF submission</td></tr>
 	<tr><td><strong>UI Theme</strong></td><td>The theme used for the UI</td></tr>
 	<tr><td><strong>Maximum tags per channel entry</strong></td><td>Allows you to limit the number of tags assigned to each entry. Set to 0 for unlimited.</td></tr>
 	<tr><td><strong>URL Separator</strong></td><td>What to separate tags by in the URL. Used for lookups and tag output</td></tr>
@@ -125,22 +123,4 @@
 &#x7B;/exp:safecracker}
 </pre>
 
-<p>If you're using ExpressionEngine's built in SAEF, you'll need to create the field yourself, and name it the SAEF name you entered when you created the fieldtype. By default this is the same name as the field.</p>
-
-<pre>
-&#x7B;exp:channel:entry_form channel=&quot;blog&quot; return=&quot;site/index&quot;}
-	&lt;link href=&quot;&#x7B;path=css/_ee_saef_css}&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; media=&quot;screen&quot; /&gt;
-	&#x7B;exp:jquery:script_tag}
-
-	&lt;h3&gt;Title&lt;/h3&gt;
-	&lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;title&quot; id=&quot;title&quot; value=&quot;&#x7B;title}&quot; size=&quot;50&quot; maxlength=&quot;100&quot; onkeyup=&quot;liveUrlTitle();&quot;  /&gt;&lt;/p&gt;
-
-	&lt;h3&gt;URL Title&lt;/h3&gt;
-	&lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;url_title&quot;  id=&#x27;url_title&#x27; value=&quot;&#x7B;url_title}&quot; maxlength=&quot;75&quot; size=&quot;50&quot; /&gt;&lt;/p&gt;
-
-	&lt;h3&gt;Tags &lt;small&gt;(separate with a comma)&lt;/small&gt;&lt;/h3&gt;
-	&lt;input type=&quot;text&quot; name=&quot;<strong>post_tags</strong>&quot; value=&quot;&quot; /&gt;
-
-	&lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;Create Post&quot; /&gt;&lt;/p&gt;
-&#x7B;/exp:channel:entry_form}
-</pre>
+<p><strong>As of Taggable 1.4.5, I have officially removed support for the ExpressionEngine SAEF. This is because SafeCracker is now available as a first-party addon for free from EllisLab. It is now the recommended, and only way to create standalone entry forms.</strong></p>

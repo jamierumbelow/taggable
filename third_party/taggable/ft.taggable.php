@@ -219,7 +219,7 @@ class Taggable_ft extends EE_Fieldtype {
 					if ($this->EE->extensions->end_script === TRUE) return $data;
 				}
 				
-				$tags = explode(',', $data);
+				$tags = array_filter(explode(',', $data));
 				$newt = array();
 				$data = '';
 				
@@ -254,7 +254,7 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		} elseif ($this->safecracker) {
 			if ($data) {
-				$tags = explode(',', $data);
+				$tags = array_filter(explode(',', $data));
 				$newt = array();
 				$data = '';
 				
@@ -281,30 +281,6 @@ class Taggable_ft extends EE_Fieldtype {
 				}
 				
 				foreach ($newt as $id => $name) {
-					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
-				}
-				
-				return $data;
-			}
-		} else {
-			// Check for the SAEF
-			if (isset($_POST[$this->settings['taggable_saef_field_name']])) {
-				$input = $_POST[$this->settings['taggable_saef_field_name']];
-				$tags = explode($this->settings['taggable_saef_separator'], $input);
-				$taggers = array();
-				$data = '';
-				
-				foreach ($tags as $tag) {
-					$tag = trim($tag);
-					
-					if (!$row = $this->EE->tags->get_by('name', $tag)) {
-						$taggers[$tag] = $this->EE->tags->insert(array('name' => $tag));
-					} else {
-						$taggers[$tag] = (int)$row->id;
-					}
-				}
-				
-				foreach ($taggers as $name => $id) {
 					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
 				
@@ -382,8 +358,6 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	public function display_settings($data, $ret = FALSE) {
 		// Sensible defaults
-		$saef_field_name = (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : 'tags';
-		$saef_separator = (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : ',';
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
 		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-tokens";
 		$theme = (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $default_theme;
@@ -391,10 +365,6 @@ class Taggable_ft extends EE_Fieldtype {
 				
 		// Build up the settings array?
 		$settings = array(
-			array(lang('taggable_preference_saef_field_name'), form_input('taggable_saef_field_name', $saef_field_name, 'class="taggable-field taggable_saef_field_name"')),
-			array(lang('taggable_preference_saef_separator'), form_dropdown('taggable_saef_separator', array(
-				',' => 'Comma', ' ' => 'Space', 'newline' => 'New line', '|' => 'Bar' 
-			), $saef_separator)),
 			array(lang('taggable_preference_maximum_tags_per_entry'), form_input('taggable_tag_limit', $tag_limit, 'class="taggable-field"')),
 			array(lang('taggable_preference_theme'), form_dropdown('taggable_theme', $this->_get_themes(), $theme)),
 			array(lang('taggable_preference_url_separator'), form_input('taggable_url_separator', $url_separator, 'class="taggable-field"'))
@@ -409,9 +379,6 @@ class Taggable_ft extends EE_Fieldtype {
 		if ($ret) {
 			return $settings;
 		} else {
-			// Output the autocomplete JavaScript
-			$this->EE->javascript->output("$('#field_name').change(function(){ $('.taggable_saef_field_name').val($(this).val()); })");
-			
 			// Output the searchable JavaScript
 			$this->EE->javascript->output('
 				var oldShow = $.fn.show; 
@@ -438,8 +405,6 @@ class Taggable_ft extends EE_Fieldtype {
 	 */
 	public function save_settings($data) {
 		$settings = array(
-			'taggable_saef_field_name' => (isset($data['taggable_saef_field_name'])) ? $data['taggable_saef_field_name'] : $_POST['taggable_saef_field_name'],
-			'taggable_saef_separator' => (isset($data['taggable_saef_separator'])) ? $data['taggable_saef_separator'] : $_POST['taggable_saef_separator'],
 			'taggable_tag_limit' => (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : $_POST['taggable_tag_limit'],
 			'taggable_theme' => (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $_POST['taggable_theme'],
 			'taggable_url_separator' => (isset($data['taggable_url_separator'])) ? $data['taggable_url_separator'] : $_POST['taggable_url_separator']
@@ -504,7 +469,6 @@ class Taggable_ft extends EE_Fieldtype {
 	public function display_cell_settings($data) {
 		// Output the autocomplete JavaScript
 		$this->_insert_theme_js('jquery.taggable.js');
-		$this->EE->javascript->output("$('.matrix.matrix-text input.matrix-textarea[name*=\"[name]\"]').change(function() { $(this).matrixNameAutocomplete() });");
 		$this->EE->cp->add_to_foot("<style type='text/css'>.matrix .taggable-field { border:0; }</style>");
 		
 		return $this->display_settings($data, TRUE); 
@@ -598,9 +562,6 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @author Jamie Rumbelow
 	 */
 	public function display_var_settings($data) {
-		// Output the autocomplete JavaScript
-		$this->EE->javascript->output("$('#low_variable_name').change(function(){ $('.taggable_saef_field_name').val($(this).val()); })");
-		
 		return $this->display_settings($data, TRUE);
 	}
 	

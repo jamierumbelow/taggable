@@ -20,6 +20,7 @@ function SHA1(c){function l(m,g){return m<<g|m>>>32-g}function p(m){var g="",n,h
 s=s+e&4294967295;t=t+f&4294967295;u=u+j&4294967295}k=p(q)+p(r)+p(s)+p(t)+p(u);return k.toLowerCase()};
  
 (function($){
+	
     /**
      * Standardised Taggable Autocomplete function
      * in case I ever need to add in extra options
@@ -27,17 +28,6 @@ s=s+e&4294967295;t=t+f&4294967295;u=u+j&4294967295}k=p(q)+p(r)+p(s)+p(t)+p(u);re
      */
     jQuery.prototype.taggableAutocomplete = function() {
         $(this).tokenInput();
-    };
-    
-    /**
-     * Matrix SAEF name autoguess
-     */
-    jQuery.prototype.matrixNameAutocomplete = function() {
-        var name = $(this).attr('name');
-        var col = name.match(/matrix\[cols\]\[([a-z0-9_]+)\]\[name\]/);
-        var col = col[1];
-        
-        $("input.taggable_saef_field_name[name*=" + col + "]").val($("#field_name").val() + "_" + $(this).val());
     };
     
     jQuery(function(){
