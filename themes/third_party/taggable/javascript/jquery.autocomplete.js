@@ -381,6 +381,7 @@ $.TokenList = function (input, settings) {
 		// than settings.minChars
 		function do_search(immediate) {
 			var query = input_box.val().toLowerCase();
+			hide_dropdown();
 
 			if (query && query.length) {
 				if(selected_token) {
