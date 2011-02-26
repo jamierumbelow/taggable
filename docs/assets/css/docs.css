@@ -1,0 +1,758 @@
+/*
+    Sparkplugs
+    style.css - CSS stylesheet
+
+	Hello, and welcome to the source code for the
+	Sparkplugs website. There is plenty of
+	HTML5 goodness and CSS3 magic here, so feel free
+	to poke around and let me know what you think.
+
+	Thanks!
+
+	Jamie Rumbelow
+	http://jamierumbelow.net
+
+	(c)2010 Sparkplugs
+*/
+
+#unsupported-browser {
+    padding: 50px;
+    width: 500px;
+    margin: 50px auto;
+    background: #FFF;
+    border: 1px solid #999;
+}
+
+#unsupported-browser h2 {
+    font-size: 26px;
+    padding: 10px 0;
+}
+
+#unsupported-browser p {
+    line-height: 1.5;
+}
+
+.clear { clear: both; }
+.act a:hover { opacity: 0.7; }
+
+.act a {
+    text-align: center;
+}
+
+input.save {
+    width: 100px;
+	border: 0;
+    background: #ff9c00;
+    padding: 5px;
+    font-family: "Helvetica Nueu", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	float: right;
+}
+
+input.save.blue {
+	background: #0072E6;
+	color: #FFFFFF;
+	float: left;
+}
+
+a.save {
+    width: 150px;
+	border: 0;
+    background: #ff9c00;
+    padding: 5px;
+    font-family: "Helvetica Nueu", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	float: right;
+}
+
+a.save:hover {
+	opacity: 0.6;
+}
+
+a.save.blue {
+	width: 100px;
+	background: #0072E6;
+	color: #FFFFFF;
+	float: left;
+}
+
+input.save:hover {
+	cursor: pointer;
+	opacity: 0.6;
+}
+
+strong { font-weight: bold; }
+
+.act .support {
+    width: 70px;
+    background: #FF003C;
+    padding: 10px;
+}
+
+.act .docs {
+    width: 50px;
+    background: #ff9c00;
+    padding: 10px;
+}
+
+table {
+    margin: 40px;
+    float: right;
+}
+
+table th {
+    font-style: italic;
+    font-size: 18px;
+    text-align: center;
+}
+
+table td {
+    font-size: 30px;
+    padding: 10px;
+}
+
+body {
+    background: #FFFFFF;
+    font-family: "Helvetica Nueu", Helvetica, Arial, sans-serif;
+    margin: 0;
+}
+
+a {
+    color: #000000;
+    text-decoration: none;
+}
+
+header {
+    width: 900px;
+    margin: 50px auto 50px auto;
+    display: block;
+}
+
+header h1 {
+    float: left;
+}
+
+header nav {
+    margin: 0 10px;
+}
+
+header nav.left { float: left; margin-left: 20px; }
+header nav.right { float: right; }
+
+header nav ul li {
+    display: inline;
+}
+
+header nav ul li a {
+    float: left;
+    padding: 10px;
+    margin: 0 5px;
+}
+
+header nav ul li a:hover {
+    background: #F0B73B;
+}
+
+header nav ul li a.signin {
+    background: #F0B73B;
+/*    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px; */
+}
+
+header nav ul li a.signin:hover {
+    opacity: 0.7;
+}
+
+#outer-header {
+    background: #2E2E2E;
+}
+
+header#bar {
+    margin: 0 auto;
+    padding: 15px;
+}
+
+header#bar h1 {
+    padding: 10px;
+    background: #FFFFFF;
+}
+
+header#bar ul li a, header#bar ul li a.signin, header#bar ul li a.cart {
+    color: #DDD;
+    background: none;
+}
+
+header#bar ul li a:hover {
+    background: none;
+    opacity: 0.7;
+}
+
+.homepagemessage {
+    width: 900px;
+    color: #2E2E2E;
+    margin: 10px auto;
+    text-align: center;
+    line-height: 35px;
+}
+
+h2.homepagemessage {
+    font-size: 32px;
+    font-weight: bold;
+    margin-top: 50px;
+}
+
+h3.homepagemessage {
+    font-size: 22px;
+    color: #F0B73B;
+}
+
+#content.docs pre:hover { width: 860px; z-index: 10; }
+
+article a { text-decoration: underline; }
+article a:hover { text-decoration: none; }
+
+article a.nounderline, #right a { text-decoration: none; }
+
+article {
+    width: 900px;
+    height: 224px;
+    margin: 70px auto 25px auto;
+    display: block;
+}
+
+article#taggable { background: url(/assets/images/taggable.png) no-repeat right; }
+article#mojoblog { background: url(/assets/images/mojoblog-faded.png) no-repeat right; }
+
+article h2 {
+    margin-top: -15px;
+}
+
+article h2 a {
+    font-size: 40px;
+    color: #445;
+    float: left;
+    margin: 40px auto;
+    width: 450px;
+    line-height: 1.3;
+}
+
+article h2 a:hover {
+    opacity: 0.6;
+}
+
+article h3 {
+    font-size: 24px;
+    font-style: italic;
+    color: #999;
+    line-height: 1.2;
+    width: 350px;
+}
+
+body a.buy.Blue, nav#smaller-links a.buy.Blue { background: #0072E6; color: #FFF; }
+
+article .act .buy {
+    width: 100px;
+    background: #6ED91F;
+    padding: 10px;
+    margin-top: 10px;
+    display: block;
+    
+/*    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px; */
+}
+
+article .act .Yellow {
+    background: #F0B73B;
+}
+
+aside#extras {
+    display: block;
+    width: 900px;
+    margin: 10px auto;
+    padding: 10px 0;
+    border-top: 1px solid #CCC;
+}
+
+aside#extras ul li {
+    width: 270px;
+    padding: 15px 30px 0 0;
+    float: left;
+    display: block;
+    margin-top: 10px;
+}
+
+aside#extras ul li h3 {
+    font-size: 28px;
+    color: #333;
+}
+
+aside#extras ul li p {
+    color: #666;
+    font-style: italic;
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+aside#extras .act .download {
+    width: 75px;
+    background: #0072E6;
+    padding: 10px;
+    color: #FFFFFF;
+    margin-top: 10px;
+    display: block;
+    font-style: normal;
+}
+
+article#main {
+    margin: 0 auto;
+    text-align: center;
+    background: none;
+    height: 200px;
+}
+
+article#main h2 a {
+    margin: 75px auto;
+    text-align: center;
+    width: 900px;
+}
+
+article#main h3 {
+    margin: 0 auto;
+    text-align: center;
+}
+
+#main .act {
+    width: 300px;
+    margin: 0 auto;
+}
+
+#main .act .buy {
+    float: left;
+}
+
+#main .act .docs {
+    display: block;
+    float: left;
+    margin: 10px;
+}
+
+#main .act .support {
+    display: block;
+    float: left;
+    margin: 10px 0 0 0;
+}
+
+nav#smaller-links {
+    width: 900px;
+    margin: 0 auto;
+    display: block;
+}
+
+nav#smaller-links .buy {
+    background: #6ED91F;
+    padding: 10px;
+    display: block;
+}
+
+nav#smaller-links .buy:hover, nav#smaller-links .support:hover {
+    opacity: 0.6;
+    color: #000000;
+}
+
+nav#smaller-links .left {
+    float: left;
+}
+
+nav#smaller-links .right {
+    float: right;
+}
+
+nav#smaller-links ul li {
+    display: inline;
+}
+
+nav#smaller-links ul li a {
+    float: left;
+    padding: 10px;
+}
+
+nav#smaller-links ul li a:hover {
+    color: #666;
+}
+
+article.taggable { background: url(/assets/images/taggable-banner.png) no-repeat; }
+article.mojoblog { background: url(/assets/images/mojoblog-banner.png) no-repeat; }
+
+article#content {
+    margin-top: 0;
+    height: 100%;
+}
+
+article#content aside#leftmain {
+    width: 450px;
+    display: block;
+    float: left;
+}
+
+article#content aside#rightmain {
+    display: block;
+    float: left;
+    width: 450px;
+}
+
+article#content aside#left {
+    width: 600px;
+    display: block;
+    float: left;
+    margin-bottom: 25px;
+}
+
+article#content.login {
+	padding-top: 150px;
+	width: 400px;
+}
+
+article#content.login label {
+	width: 120px;
+	display: block;
+	font-weight: bold;
+	float: left;
+	clear: left;
+	margin-bottom: 40px;
+}
+
+article#content.login input {
+	float: left;
+	padding: 10px;
+	margin-top: -7px;
+}
+
+article#content.login #submit {
+	clear: left;
+	margin: 0 auto;
+	width: 100px;
+}
+
+article#content.login #submit input {
+	width: 100px;
+    background: #ff9c00;
+    padding: 10px;
+    margin: 10px auto 5px auto;
+    display: block;
+	border: 0;
+	font-size: 16px;
+}
+
+article#content.login #submit input:hover {
+	opacity: 0.6;
+	cursor: pointer;
+}
+
+#content dfn {
+ font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+ color: #00620C;
+ font-weight: bold;
+ font-style: normal;
+}
+#content var {
+ font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+ color: #8F5B00;
+ font-weight: bold;
+ font-style: normal;
+}
+#content samp {
+ font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+ color: #480091;
+ font-weight: bold;
+ font-style: normal;
+}
+#content kbd {
+ font-family: Lucida Grande, Verdana, Geneva, Sans-serif;
+ color: #A70000;
+ font-weight: bold;
+ font-style: normal;
+}
+
+#content .important {
+ background: #FBE6F2;
+ border: 1px solid #D893A1;
+ color: #333;
+ margin: 10px 0 5px 0;
+ padding: 10px;
+}
+
+.success {
+background-color: #CFC;
+  border: solid 1px #6C6;
+padding: 5px 8px;
+}
+
+article#content aside#right {
+    display: block;
+    float: left;
+    width: 250px;
+}
+
+article#content ul {
+    list-style-type: square;
+    margin-left: 35px;
+}
+
+article#content ul ul {
+    list-style-type: circle;
+    margin: 5px 20px;
+}
+
+article#content ul li {
+    margin-top: 5px;
+}
+
+article#content h4 {
+    margin: 25px 10px 10px 10px;
+}
+
+article#content .
+
+article#content table {
+    background: #EEE;
+    border: 1px solid #999;
+}
+
+article#content table th {
+    text-align: left;
+    padding: 10px;
+    background: #DDD;
+    font-style: normal;
+    font-weight: bold;
+}
+
+article#content table td {
+    font-size: 16px;
+    line-height: 1.5;
+    border-top: 1px solid #999;
+}
+
+article#content aside#right ul li a:hover {
+    opacity: 0.6;
+}
+
+article#content p {
+    line-height: 1.5;
+    color: #444;
+    padding: 0 10px;
+}
+
+article#content pre {
+    background: #DDD;
+    padding: 20px;
+    width: 550px;
+    margin: 15px 0;
+    font-family: monospace;
+    white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+    white-space: -pre-wrap; /* Opera 4 - 6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+    word-wrap: break-word; /* IE 5.5+ */
+}
+
+article#content p.first {
+    padding: 5px 10px 0 10px;
+}
+
+article#content .box {
+	clear: both;
+    padding: 10px 0;
+}
+ 
+article#content .box img.imageleft {
+	float: left;
+	margin-right: 10px;
+}
+ 
+article#content .box img.imageright {
+	float: right;
+	margin-left: 10px;
+}
+ 
+article#content h3 {
+	font-style: normal;
+	color: #666;
+	width: 100%;
+	font-weight: normal;
+	margin-top: 15px;
+	padding: 10px;
+}
+ 
+article#content .box p {
+	margin-bottom: 0;
+	line-height: 1.5;
+}
+
+article#content dl {
+	margin: 25px 25px;
+}
+
+article#content dt {
+	font-weight: bold;
+	font-family: Menlo, Monaco, monospace;
+	color: #333;
+	margin: 2em 0 1em 0;
+}
+
+article#content #middlemain {
+    clear: both;
+    width: 900px;
+    display: block;
+    margin: 10px auto;
+    text-align: center;
+    float: left;
+}
+
+article#content #middlemain ul {
+    width: 840px;
+    margin: 20px auto;
+}
+
+article#content #middlemain li {
+    display: block;
+    float: left;
+    padding: 5px 20px;
+}
+
+article#content #middlemain img {
+    padding: 0 10px;
+}
+
+article#content #middlemain .buy {
+    margin: 20px auto;
+}
+
+article.releasenotes table {
+    margin: 0;
+    background: none;
+    border: 0;
+    float: left;
+    width: 100%;
+}
+
+article.releasenotes p, article.releasenotes ul li {
+    font-size: 16px;
+}
+
+article#content.gallery ul {
+    list-style: none;
+}
+
+article#content.gallery ul li {
+	margin-left: -25px;
+}
+
+article#content.releasenotes ul {
+    margin-bottom: 10px;
+}
+
+article.releasenotes ul li {
+    list-style-type: square;
+}
+
+article.releasenotes tr {
+    border-top: 1px dashed #CCC;
+}
+
+article.releasenotes tr.current, article#content.releasenotes tr.current td {
+    border-top: none;
+}
+
+article#content.releasenotes table tr td h3 {
+    margin: 0;
+}
+
+article#content.releasenotes table tr td p {
+    padding-bottom: 10px;
+}
+
+aside#licenses {
+	width: 900px;
+	margin: 0 auto;
+}
+
+aside#licenses h3 {
+	width: 900px;
+	text-align: left;
+	margin: 25px 0;
+	padding: 0;
+}
+
+aside#licenses table {
+	width: 900px;
+	margin: 0 auto;
+	float: none;
+}
+
+aside#licenses table td {
+	vertical-align: middle;
+}
+
+aside#licenses table th {
+	background: rgb(46,46,46);
+	color: #FFFFFF;
+	font-weight: normal;
+}
+
+aside#settings {
+	clear: both;
+    width: 900px;
+    display: block;
+    margin: 10px auto;
+    text-align: center;
+    float: left;
+}
+
+aside#settings h3 {
+	width: 900px;
+	text-align: left;
+	margin: 25px 0;
+	padding: 0;
+}
+
+aside#settings form {
+	margin: 0;
+	padding: 0;
+	width: 600px;
+}
+
+aside#settings label {
+	font-weight: bold;
+	float: left;
+	display: block;
+	width: 200px;
+	padding: 0;
+	clear: left;
+	text-align: left;
+}
+
+aside#settings input {
+	width: 200px;
+	padding: 5px;
+}
+
+
+aside#settings p {
+	margin: 10px 0;
+	padding: 0;
+	clear: left;
+}
+
+footer {
+    width: 900px;
+    height: 100px;
+    margin: 25px auto 0 auto;
+    padding: 20px 0;
+    display: block;
+    border-top: 1px solid #CCC;
+    color: #666;
+    clear: both;
+	line-height: 1.5;
+}

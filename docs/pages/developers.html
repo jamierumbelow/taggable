@@ -1,0 +1,166 @@
+<h3>Developers</h3>
+
+<p>Taggable is very extensible, and through the custom themes, the Taggable API and the extension hooks, you can customise or build upon Taggable.</p>
+
+<h3>Taggable API</h3>
+
+<p>The Taggable API allows you to search the Taggable database through an AJAX request. Using ExpressionEngine's action IDs, you can essentially replicate the <var>&#x7B;exp:taggable}</var> tag, and get a JSON response. You pass through the same parameters to the action endpoint as you do to the tag. You can find your action endpoint in the MCP preferences page.</p>
+
+<pre>
+http://example.com/index.php?ACT=<em>x</em>&amp;<strong>orderby=name</strong>&amp;<strong>sort=asc</strong>&amp;<strong>limit=20</strong>
+</pre>
+
+<p>That will give you a JSON response:</p>
+
+<pre>
+[{"name":"a new tag","id":"7","description":null,"entry_count":1,"size":12,"url_name":"a_new_tag","pretty_name":"A New Tag"},{"name":"codeigniter","id":"12","description":null,"entry_count":1,"size":12,"url_name":"codeigniter","pretty_name":"Codeigniter"},{"name":"in","id":"10","description":null,"entry_count":1,"size":12,"url_name":"in","pretty_name":"In"},{"name":"matrix!","id":"11","description":null,"entry_count":1,"size":12,"url_name":"matrix!","pretty_name":"Matrix!"},{"name":"screencasts","id":"1","description":null,"entry_count":3,"size":12,"url_name":"screencasts","pretty_name":"Screencasts"},{"name":"support","id":"9","description":null,"entry_count":1,"size":12,"url_name":"support","pretty_name":"Support"},{"name":"taggable","id":"8","description":null,"entry_count":2,"size":12,"url_name":"taggable","pretty_name":"Taggable"},{"name":"tutorials","id":"2","description":"","entry_count":3,"size":12,"url_name":"tutorials","pretty_name":"Tutorials"}]
+</pre>
+
+<h3>Custom Themes</h3>
+<p>Taggable allows you to customise the display of the autocomplete field. It's very easy to create new themes, and Taggable comes with 3 in-built. To create a new theme, create a new folder in the <samp>themes/third_party/taggable/css/</samp> folder with the name of your theme. Inside your folder, create an identically named CSS file. To prevent theming conflicts, the styles are namespaced into a class of the name of the theme. So, to style our <kbd>custom-theme</kbd> theme:</p>
+
+<pre>
+.custom-theme ul.token-input-list {
+	background: #FF66AA;
+}
+</pre>
+
+<h3>taggable_ft_display_field</h3>
+<p>Allows you to change the HTML of the field on the publish page or in the SafeCracker SAEF. This will also apply to Low Variables and Matrix fields.</p>
+
+<pre>
+// taggable_ft_display_field
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_display_field&#x27;)) {
+	$html = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_display_field&#x27;, $html);
+}
+</pre>
+
+<h3>taggable_ft_tag_ids</h3>
+<p>Allows you to change the tag IDs to be displayed.</p>
+
+<pre>
+// taggable_ft_tag_ids
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_tag_ids&#x27;)) {
+	$ids = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_tag_ids&#x27;, $ids);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $tagdata;
+}
+</pre>
+
+<h3>taggable_ft_tag_vars</h3>
+<p>Called just before tagdata is parsed.</p>
+
+<pre>
+// taggable_ft_tag_vars
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_tag_vars&#x27;)) {
+	$vars = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_tag_vars&#x27;, $vars, $return);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $return;
+}
+</pre>
+
+<h3>taggable_ft_save_cp</h3>
+<p>Called in the Fieldtype's save() method if the request is in the CP</p>
+
+<pre>
+// taggable_ft_save_cp
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_save_cp&#x27;)) {
+	$data = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_save_cp&#x27;, $data);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $data;
+}
+</pre>
+
+<h3>taggable_ft_post_save</h3>
+<p>Called in the Fieldtype's post_save() method</p>
+
+<pre>
+// taggable_ft_post_save
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_post_save&#x27;)) {
+	$this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_post_save&#x27;, $ids, $this);
+}
+</pre>
+
+<h3>taggable_ft_delete</h3>
+<p>Allows you to do something before entries and tags are deleted in the fieldtype</p>
+
+<pre>
+// taggable_ft_delete
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_delete&#x27;)) {
+	$ids = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_delete&#x27;, $ids);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $data;
+}
+</pre>
+
+<h3>taggable_ft_settings</h3>
+<p>Allows you to add to Taggable's fieldtype settings array</p>
+
+<pre>
+// taggable_ft_settings
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_settings&#x27;)) {
+	$settings = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_settings&#x27;, $settings);
+}
+</pre>
+
+<h3>taggable_ft_save_settings</h3>
+<p>Called when the fieldtype settings are saved</p>
+
+<pre>
+// taggable_ft_save_settings
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_ft_save_settings&#x27;)) {
+	$settings = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_ft_save_settings&#x27;, $settings);
+}
+</pre>
+
+<h3>taggable_vanilla_tagdata</h3>
+
+<p>Called in the class constructor and passed the vanilla, untouched tag data. Useful for parsing custom, module-global template tags.</p>
+
+<pre>
+// taggable_vanilla_tagdata
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_vanilla_tagdata&#x27;)) {
+	$this-&gt;tagdata = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_vanilla_tagdata&#x27;, $this-&gt;tagdata);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $this-&gt;tagdata;
+}
+</pre>
+
+<h3>taggable_tags_find_query</h3>
+
+<p>Called just before the database find query is executed in the module. Allows you to add custom conditions to the SQL with CodeIgniter's ActiveRecord.</p>
+
+<pre>
+// taggable_tags_find_query
+$this->ee->extensions->call('taggable_tags_find_query');
+</pre>
+
+<h3>taggable_tags_pre_loop</h3>
+
+<p>Called just before the main template loop in the module. Passed the tags and the tagdata, returns the tag array.</p>
+
+<pre>
+// taggable_tags_pre_loop
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_tags_pre_loop&#x27;)) {
+	$tags = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_tags_pre_loop&#x27;, $tags, $this-&gt;tagdata);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $this-&gt;tagdata;
+}
+</pre>
+
+<h3>taggable_tags_post_loop</h3>
+
+<p>Called straight after the main template loop in the module. Passed the template variables to parse and the tagdata, and returns the template variables.</p>
+
+<pre>
+// taggable_tags_post_loop
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_tags_post_loop&#x27;)) {
+	$vars = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_tags_post_loop&#x27;, $vars, $this-&gt;tagdata);
+	if ($this-&gt;ee-&gt;extensions-&gt;end_script === TRUE) return $this-&gt;tagdata;
+}
+</pre>
+
+<h3>taggable_tags_end</h3>
+
+<p>Called after all finding and parsing has taken place inside the module, and is passed the final tagdata. Returns the tagdata to be outputted.</p>
+
+<pre>
+// taggable_tags_end
+if ($this-&gt;ee-&gt;extensions-&gt;active_hook(&#x27;taggable_tags_end&#x27;)) {
+	$parsed = $this-&gt;ee-&gt;extensions-&gt;call(&#x27;taggable_tags_end&#x27;, $parsed);
+}
+</pre>

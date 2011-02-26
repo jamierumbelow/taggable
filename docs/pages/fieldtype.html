@@ -1,0 +1,146 @@
+<h3>Fieldtype</h3>
+
+<p>This section is all about the fieldtype itself - the heart and soul of Taggable.</p>
+
+<h3 id="adding_fields">Adding the Fieldtype</h3>
+
+<p>You can add the Taggable fieldtype to a custom field group like normal - in the <samp>Custom Field Administration</samp> section of the ExpressionEngine Admin Panel, add a new fieldtype and select "Taggable" from the drop-down menu. Make sure you <strong>make the field searchable</strong> to enable tag lookups. You can then use the custom field settings to customise how your fieldtype works.</p>
+
+<p>Let's start off our mini-tutorial by creating a <samp>blog</samp> channel and a new Taggable custom field called <var>post_tags</var>. We can call our custom field whatever we like, it doesn't matter. We can also add multiple Taggable fields per channel if we so wish. Just remember that like all ExpressionEngine custom fields, the field name (so, in our case, <var>post_tags</var>) maps to the template variable.</p>
+
+<h3>Displaying Tags</h3>
+
+<p>Displaying tags associated with each entry is a piece of cake. Let's start by creating a few entries, and assigning some tags to them. Let's then display our entries using ExpressionEngine's standard <samp>&#x7B;exp:channel:entries}</samp> tag. We can use our custom field to display our tags, just like any other custom fields. Remember, we called our custom field <var>post_tags</var>, so we'll use the <kbd>{post_tags}</kbd> tag to display our tags. Be careful about terminology here - if we called our custom field <em>taggable</em>, this tag would be <var>{taggable}</var>. If we called it <em>take_me_down_to_paradise_city</em> the tag would be <var>{take_me_down_to_paradise_city}</var>. This is a tag pair, and it gives us a few variables which we can use to display our tags.</p>
+
+<pre>
+&#x7B;exp:channel:entries channel=&quot;blog&quot; orderby=&quot;date&quot; sort=&quot;desc&quot;}
+    &lt;h1&gt;&#x7B;title}&lt;/h1&gt;
+    &lt;p&gt;Tags: &#x7B;post_tags backspace=&quot;2&quot;}&#x7B;name}, &#x7B;/post_tags}&lt;/p&gt;
+
+    &#x7B;content}
+&#x7B;/exp:channel:entries}
+</pre>
+
+<p>Using this tag pair we can output our tags in however way we like, using a range of variables. If we wish to link to a tag page, we can use ExpressionEngine's path variable and combine it with the tag's URL name, like so:</p>
+
+<pre>
+&lt;p&gt;Tags: &#x7B;post_tags backspace=&quot;2&quot;}&lt;a href="&#x7B;path='blog/tag'}/&#x7B;url_name}">&#x7B;name}&lt;/a>, &#x7B;/post_tags}&lt;/p&gt;
+</pre>
+
+<h3 id="entries">Displaying Entries</h3> 
+ 
+<p>Displaying entries using Taggable doesn't require any additional tags - you use the <var>&#123;exp:channel:entries&#125;</var> tag with the <samp>search:</samp> parameters. If you'd like to lookup entries tagged with a tag from the URL, it's as simple as passing through the value into <var>&#123;exp:channel:entries&#125;</var>. So, to follow on from our example above, our <strong>blog/tag</strong> template should look something like this:</p> 
+ 
+<pre>
+&lt;h1&gt;Posts tagged with `&#x7B;segment_3}`&lt;/h1&gt;
+
+&#x7B;exp:channel:entries channel=&quot;blog&quot; search:post_tags=&quot;&#x7B;segment_3}&quot;}
+    &lt;h1&gt;&#x7B;title}&lt;/h1&gt;
+&#x7B;/exp:channel:entries}
+</pre>
+
+<p>Just as a quick aside, we can also use the Taggable module tag (<strong>&#x7B;exp:taggable}</strong>) to display a friendly, non URL version of the tag in the header:</p> 
+ 
+<pre>
+&lt;h1&gt;Posts tagged with `&#x7B;exp:taggable tag_url_name="&#x7B;segment_3}" url_separator="-"}&#x7B;name}&#x7B;/exp:taggable}`&lt;/h1&gt;
+ 
+&#x7B;exp:channel:entries channel="blog" search:post_tags="&#x7B;segment_3}"}
+    &lt;h1&gt;&#x7B;title}&lt;/h1&gt;
+&#x7B;/exp:channel:entries}
+</pre>
+
+<p>That's the basics behind the Taggable fieldtype. The rest of this page is a reference guide for the fieldtype settings and tag variables.</p>
+
+<h3 id="settings">Settings</h3>
+
+<p>The custom fieldtype settings panel allows you to customise the behaviour of your Taggable fieldtype. The following table explains each setting and what it does:</p>
+
+<table cellpadding="5" cellspacing="1" border="0" style="width:100%" class="tableborder">
+	<tr>
+		<th>Setting</th>
+		<th>Description</th>
+	</tr>
+	<tr><td style="width: 30%"><strong>SAEF Field Name</strong></td><td>What field name to use for this field in the standalone entry form</td></tr>
+	<tr><td><strong>SAEF Separator</strong></td><td>The separator used to separate tags in a SAEF submission</td></tr>
+	<tr><td><strong>UI Theme</strong></td><td>The theme used for the UI</td></tr>
+	<tr><td><strong>Maximum tags per channel entry</strong></td><td>Allows you to limit the number of tags assigned to each entry. Set to 0 for unlimited.</td></tr>
+	<tr><td><strong>URL Separator</strong></td><td>What to separate tags by in the URL. Used for lookups and tag output</td></tr>
+</table>
+
+<h3 id="tag">The Template Tag</h3>
+
+<p>You can display the tags stored in the fieldtype in an easy way with a simple, but powerful template tag. This tag contains a range of variables that you can use to output your tags:</p>
+
+<dl>
+	<dt>name</dt>
+	<dd>A tag name</dd>
+	
+	<dt>id</dt>
+	<dd>A tag's numerical ID</dd>
+	
+	<dt>description</dt>
+	<dd>A tag description</dd>
+		
+	<dt>entry_count</dt>
+	<dd>The count of entries associated with a tag</dd>
+	
+	<dt>url_name</dt>
+	<dd>A tag URL name</dd>
+	
+	<dt>pretty_name</dt>
+	<dd>A tag name, formatted</dd>
+</dl>
+
+<p>The tag also supports an <samp>&#x7B;if no_tags&#x7D;&#x7B;/if&#x7D;</samp> conditional to optionally display content if no tags exist for this field. Additionally, there are a number of parameters you can use to control the output of the tag.</p>
+
+<dl>
+	<dt>limit</dt>
+	<dd>Limit the tags output by a certain number</dd>
+	
+	<dt>backspace</dt>
+	<dd>Strip the last X characters from the tag output</dd>
+</dl>
+
+<h3 id="saef">SAEF</h3>
+
+<p>From 1.4, the recommended method of using Taggable in a Standalone Entry Form is through the <a href="http://devot-ee.com/add-ons/safecracker/">SafeCracker module</a>, where you can very very easily add the autocomplete dropdown field. However, if you're using ExpressionEngine's built-in SAEF, when you create your new custom field you can specify the SAEF Field Name. To add SAEF functionality to your fieldtype, simply create a new HTML input or textarea element with the name of your specified SAEF Field Name. Taggable will then use your SAEF Separator to split the input into tags.</p>
+
+<p>A quick code example to demonstrate what I mean. If you're using SafeCracker, for example, you just use the <var>{field:post_tags}</var> to output Taggable's Autocomplete field.</p>
+
+<pre>
+&#x7B;exp:safecracker channel=&quot;blog&quot; return=&quot;site/index&quot;}
+	&lt;link href=&quot;&#x7B;path=css/_ee_saef_css}&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; media=&quot;screen&quot; /&gt;
+	&#x7B;exp:jquery:script_tag}
+
+	&lt;h3&gt;Title&lt;/h3&gt;
+	&lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;title&quot; id=&quot;title&quot; value=&quot;&#x7B;title}&quot; size=&quot;50&quot; maxlength=&quot;100&quot; onkeyup=&quot;liveUrlTitle();&quot;  /&gt;&lt;/p&gt;
+
+	&lt;h3&gt;URL Title&lt;/h3&gt;
+	&lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;url_title&quot;  id=&#x27;url_title&#x27; value=&quot;&#x7B;url_title}&quot; maxlength=&quot;75&quot; size=&quot;50&quot; /&gt;&lt;/p&gt;
+
+	&lt;h3&gt;Tags&lt;/h3&gt;
+	&#x7B;field:tags}
+
+	&lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;Create Post&quot; /&gt;&lt;/p&gt;
+&#x7B;/exp:safecracker}
+</pre>
+
+<p>If you're using ExpressionEngine's built in SAEF, you'll need to create the field yourself, and name it the SAEF name you entered when you created the fieldtype. By default this is the same name as the field.</p>
+
+<pre>
+&#x7B;exp:channel:entry_form channel=&quot;blog&quot; return=&quot;site/index&quot;}
+	&lt;link href=&quot;&#x7B;path=css/_ee_saef_css}&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; media=&quot;screen&quot; /&gt;
+	&#x7B;exp:jquery:script_tag}
+
+	&lt;h3&gt;Title&lt;/h3&gt;
+	&lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;title&quot; id=&quot;title&quot; value=&quot;&#x7B;title}&quot; size=&quot;50&quot; maxlength=&quot;100&quot; onkeyup=&quot;liveUrlTitle();&quot;  /&gt;&lt;/p&gt;
+
+	&lt;h3&gt;URL Title&lt;/h3&gt;
+	&lt;p&gt;&lt;input type=&quot;text&quot; name=&quot;url_title&quot;  id=&#x27;url_title&#x27; value=&quot;&#x7B;url_title}&quot; maxlength=&quot;75&quot; size=&quot;50&quot; /&gt;&lt;/p&gt;
+
+	&lt;h3&gt;Tags &lt;small&gt;(separate with a comma)&lt;/small&gt;&lt;/h3&gt;
+	&lt;input type=&quot;text&quot; name=&quot;<strong>post_tags</strong>&quot; value=&quot;&quot; /&gt;
+
+	&lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;Create Post&quot; /&gt;&lt;/p&gt;
+&#x7B;/exp:channel:entry_form}
+</pre>

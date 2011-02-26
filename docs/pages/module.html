@@ -1,0 +1,97 @@
+<h3>Module</h3>
+
+<p>The Taggable Module provides a template tag which makes displaying your tags and associated data in your templates a breeze. There are a vast array of parameters you can use to filter, limit and alter your results, and lots of variables so you can get at the data you want. This tag functions as a system-wide outputter, as well as a tag cloud.</p>
+<br />
+<p><strong>NOTE: This is not to be used inside the <var>&#x7B;exp:channel:entries}</var> tag. To output tags inside that loop, use the <a href="http://getsparkplugs.com/taggable/docs/fieldtype">custom field instead</a>.</strong></p>
+
+<h3 id="taggable">&#x7B;exp:taggable&#x7D;</h3>
+
+<h4>Parameters</h4>
+
+<dl>
+	<dt>tag_id</dt>
+	<dd>Tag ID or IDs to lookup</dd>
+	
+	<dt>tag_name</dt>
+	<dd>Tag name or names to lookup</dd>
+	
+	<dt>tag_url_name</dt>
+	<dd>Tag URL name to lookup</dd>
+	
+	<dt>url_separator</dt>
+	<dd>The URL separator to use when looking up by tag name and displaying a tag's URL name</dd>
+	
+	<dt>entry_id</dt>
+	<dd>Finds all tags associated with a specific entry ID</dd>
+	
+	<dt>entry_url_title</dt>
+	<dd>Finds all tags associated with a specific entry URL title</dd>
+	
+	<dt>channel</dt>
+	<dd>Limit result set to specific channel or channels</dd>
+	
+	<dt>sort</dt>
+	<dd>Sort results in ascending order or descending order</dd>
+		
+	<dt>limit</dt>
+	<dd>Finds all tags associated with a specific entry ID</dd>
+	
+	<dt>min_size</dt>
+	<dd>The minimum size in pixels</dd>
+	
+	<dt>max_size</dt>
+	<dd>The maximum size in pixels</dd>
+	
+	<dt>backspace</dt>
+	<dd>Strip the last X characters from the tag output</dd>
+</dl>
+
+<p>And you can use the following variables within that tag:</p>
+
+<dl>
+	<dt>name</dt>
+	<dd>A tag name</dd>
+	
+	<dt>id</dt>
+	<dd>A tag's numerical ID</dd>
+	
+	<dt>description</dt>
+	<dd>A tag description</dd>
+		
+	<dt>entry_count</dt>
+	<dd>The count of entries associated with a tag</dd>
+	
+	<dt>url_name</dt>
+	<dd>A tag URL name</dd>
+	
+	<dt>pretty_name</dt>
+	<dd>A tag name, formatted</dd>
+	
+	<dt>size</dt>
+	<dd>The size of the tag in the cloud, in pixels</dd>
+</dl>
+
+<p>You can optionally specify some text, a redirect or something else to be outputted/executed when there are no tags. All you need to do is create a no_results conditional in your template, inside the <var>&#x7B;exp:taggable:tags&#x7D;</var> loop.</p>
+
+<pre>
+&lt;ul&gt;
+	&#x7B;exp:taggable entry_url_title=&quot;&#x7B;segment_3&gt;&quot; limit=&quot;10&quot;&gt;
+		&lt;li&gt;
+			&lt;h3&gt;&lt;a href=&quot;&#x7B;path=tags&#x7D;/&#x7B;url_name&#x7D;&quot;&gt;&#x7B;name&#x7D;&lt;/a&gt;&lt;/h3&gt;
+			&lt;p&gt;&#x7B;description&#x7D;&lt;/p&gt;
+		&lt;/li&gt;
+		
+		&#x7B;if no_results&#x7D;
+			&lt;p&gt;No tags!&lt;/p&gt;
+		&#x7B;/if&#x7D;
+	&#x7B;/exp:taggable:tags&#x7D;
+&lt;/ul&gt;
+</pre>
+
+<h3 id="ul">&#x7B;exp:taggable:ul&#x7D;</h3>
+
+<p>Output an unordered list of tag names. The <em>&lt;li&gt;</em> elements will have a HTML5 <var>data-id=''</var> parameter that will contain the tag ID for use in the <a href="http://getsparkplugs.com/taggable/docs/developers">Taggable API</a>.</p>
+
+<h3 id="ol">&#x7B;exp:taggable:ol&#x7D;</h3>
+
+<p>Output an ordered list of tag names. The <em>&lt;li&gt;</em> elements will have a HTML5 <var>data-id=''</var> parameter that will contain the tag ID for use in the <a href="http://getsparkplugs.com/taggable/docs/developers">Taggable API</a>.</p>
