@@ -13,7 +13,7 @@
 /**
  * Load the documentation page
  */
-function docs_load_page(page) {
+function docs_load_page(page, title) {
     // Slide down the content and set the window hash
     $("#documentation-current-page").slideUp('slow', function(){
         window.location.hash = page;
@@ -26,6 +26,9 @@ function docs_load_page(page) {
         $('#documentation-current-page').load(url, function(){
             $("#documentation-current-page").slideDown('slow');
         });
+		
+		// Set title
+		document.title = 'Taggable Documentation | ' + title;
     });
 }
 
@@ -43,15 +46,15 @@ $(document).ready(function(){
     // Is there a hash on load?
     if (window.location.hash) {
         var page = window.location.hash.substr(1);
-        docs_load_page(page);
+        docs_load_page(page, $('a[data-page="'+page+'"]').text());
     } else {
         // Load the introduction
-        docs_load_page('introduction');
+        docs_load_page('introduction', 'Introduction');
     }
     
     // Link click
     $('.doc-links li a').click(function(){
-        docs_load_page($(this).attr('data-page'));
+        docs_load_page($(this).attr('data-page'), $(this).text());
         
         return false;
     });
