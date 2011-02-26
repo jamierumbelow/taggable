@@ -232,7 +232,7 @@ class Taggable {
 		}
 		
 		// Orderby and Sort
-		if ($this->params['orderby']) {
+		if ($this->params['orderby'] == 'entry_count') {
 			$orderby_ent = TRUE;
 			$this->params['orderby'] = 'name';
 		}
