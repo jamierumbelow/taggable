@@ -43,7 +43,8 @@ class Taggable {
 		$this->ee->load->library('model');	
 		$this->ee->load->model('taggable_tag_model', 'tags');
 		
-		if (REQ !== 'ACTION') {
+		// Is it an {exp:taggable}?
+		if ($this->ee->TMPL->tag_data[0]['method'] == 'taggable') {
 			$this->tagdata = $this->ee->TMPL->tagdata;
 			$this->site_id = $this->ee->config->item('site_id');
 		
@@ -132,6 +133,21 @@ class Taggable {
 			// We're done!
 			$this->return_data = $parsed;
 		}
+	}
+	
+	/**
+	 * Return a tag's URL name based on a name and URL separator
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function url_name() {
+		// Get our parameters
+		$name = $this->ee->TMPL->fetch_param('name');
+		$url_separator = ($this->ee->TMPL->fetch_param('url_separator')) ? $this->ee->TMPL->fetch_param('url_separator') : '-';
+		
+		// Replace and return
+		return str_replace(' ', $url_separator, $name);
 	}
 	
 	/**
