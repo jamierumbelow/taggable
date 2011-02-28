@@ -16,7 +16,6 @@ require_once PATH_THIRD."taggable/config.php";
 
 class Taggable_ft extends EE_Fieldtype {
 	public $has_array_data = TRUE;
-	public $safecracker = FALSE;
 	public $info = array(
 		'name' 		=> 'Taggable',
 		'version'	=> TAGGABLE_VERSION
@@ -206,7 +205,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$name = (isset($this->cell_name)) ? $this->cell_name : $this->field_name;
 		
 		// SafeCracker Settings
-		if ($this->safecracker) {
+		if (isset($this->EE->safecracker)) {
 			$this->settings = array_merge($this->settings, unserialize(base64_decode($this->settings['field_settings'])));
 		}
 		
@@ -252,7 +251,7 @@ class Taggable_ft extends EE_Fieldtype {
 				
 				return $data;
 			}
-		} elseif ($this->safecracker) {
+		} elseif (isset($this->EE->safecracker)) {
 			if ($data) {
 				$tags = array_filter(explode(',', $data));
 				$newt = array();
