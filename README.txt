@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.4.1
+	Taggable Version 1.4.2
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -22,6 +22,14 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.4.2
+		- Fixed a CP error
+		- Added the {exp:taggable:url_name} template tag
+		- Fixed entry versioning compatibility
+		- Removed support for the old SAEF
+		- Removed the Spanish language pack
+		- Fixed an error with SafeCracker
 
 	Version 1.4.1
 		- Added the field parameter
