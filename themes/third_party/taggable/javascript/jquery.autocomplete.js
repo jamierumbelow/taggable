@@ -341,9 +341,9 @@ $.TokenList = function (input, settings) {
 							this_li.addClass(settings.classes.dropdownItem2);
 						}
 
-						if(i == 0) {
-							select_dropdown_item(this_li);
-						}
+						// if(i == 0) {
+						// 							select_dropdown_item(this_li);
+						// 						}
 
 						$.data(this_li.get(0), "tokeninput", {"id": results[i].id, "name": results[i].name});
 					}
@@ -518,11 +518,15 @@ $.TokenList = function (input, settings) {
 							}
 						} else {
 							var dropdown_item = null;
-
-							if(event.keyCode == KEY.DOWN || event.keyCode == KEY.RIGHT) {
-								dropdown_item = $(selected_dropdown_item).next();
+							
+							if (selected_dropdown_item) {
+								if(event.keyCode == KEY.DOWN || event.keyCode == KEY.RIGHT) {
+									dropdown_item = $(selected_dropdown_item).next();
+								} else {
+									dropdown_item = $(selected_dropdown_item).prev();
+								}
 							} else {
-								dropdown_item = $(selected_dropdown_item).prev();
+								dropdown_item = $(dropdown).find('ul li:first');
 							}
 
 							if(dropdown_item.length) {
