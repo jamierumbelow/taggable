@@ -471,6 +471,9 @@ $.TokenList = function (input, settings) {
 
 		// Keep track of the timeout
 		var timeout;
+		
+		// Show the dropdown?
+		var dont_show_dropdown = false;
 
 		// Create a new text input an attach keyup events
 		var input_box = $("<input type=\"text\">")
@@ -544,7 +547,7 @@ $.TokenList = function (input, settings) {
 							hide_dropdown();
 						} else {
 							// set a timeout just long enough to let this function finish.
-							setTimeout(function(){do_search(false);}, 5);
+							setTimeout(function(){ do_search(true); }, 5);
 						}
 						break;
 
@@ -571,7 +574,7 @@ $.TokenList = function (input, settings) {
 					default:
 						if(is_printable_character(event.keyCode)) {
 						  // set a timeout just long enough to let this function finish.
-						  setTimeout(function(){do_search(false);}, 5);
+						  setTimeout(function(){ do_search(true); }, 5);
 						}
 						break;
 				}
