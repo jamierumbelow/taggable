@@ -300,16 +300,13 @@ class Taggable_tag_model extends Model {
 	}
 	
 	/**
-	 * Redundant function!!
-	 *
-	 * @param string $entry 
-	 * @todo remove
-	 * @return void
-	 * @author Jamie Rumbelow
+	 * Return tags for an entry ID
 	 */
 	public function tags_entry($entry) {
-		return $this->db->get('exp_taggable_tags')
-						 ->result();
+		return $this->db->where('exp_taggable_tags_entries.entry_id', $entry)
+						->where('exp_taggable_tags.id = exp_taggable_tags_entries.tag_id')
+						->get('exp_taggable_tags, exp_taggable_tags_entries')
+						->result();
 	}
 	
 	/**
