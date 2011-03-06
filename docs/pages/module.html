@@ -2,7 +2,7 @@
 
 <p>The Taggable Module provides a template tag which makes displaying your tags and associated data in your templates a breeze. There are a vast array of parameters you can use to filter, limit and alter your results, and lots of variables so you can get at the data you want. This tag functions as a system-wide outputter, as well as a tag cloud.</p>
 <br />
-<p><strong>NOTE: This is not to be used inside the <var>&#x7B;exp:channel:entries}</var> tag. To output tags inside that loop, use the <a href="http://getsparkplugs.com/taggable/docs/fieldtype">custom field instead</a>.</strong></p>
+<p><strong>NOTE: This is not to be used inside the <var>&#x7B;exp:channel:entries&#x7D;</var> tag. To output tags inside that loop, use the <a href="http://getsparkplugs.com/taggable/docs/fieldtype">custom field instead</a>.</strong></p>
 
 <h3 id="taggable">&#x7B;exp:taggable&#x7D;</h3>
 
@@ -91,7 +91,45 @@
 &lt;/ul&gt;
 </pre>
 
-<h3 id="ul">&#x7B;exp:taggable:url_name&#x7D;</h3>
+<h3 id="entries">&#x7B;exp:taggable:entries&#x7D;</h3>
+
+<p>A simple tag to retrieve a tag's (or multiple tags) entry IDs. <strong>Using this tag is not recommended, this tag is only for when you need to search through multiple channels. Instead, please use ExpressionEngine's native <var>search:</var> parameters.</strong></p>
+
+<h4>Parameters</h4>
+
+<dl>
+	<dt>tag_id="not 1|5"</dt>
+	<dd>A tag ID, or multiple tag IDs separated by a bar. Optionally 'not'</dd>
+	
+	<dt>tag_url_name="not expressionengine|taggable"</dt>
+	<dd>A tag URL name, or multiple tag URL names separated by a bar. Optionally 'not'</dd>
+	
+	<dt>url_separator="-"</dt>
+	<dd>A string to use as a URL separator</dd>
+</dl>
+
+<br />
+
+<h4>Variables</h4>
+
+<dl>
+	<dt>&#123;entries&#x7D;</dt>
+	<dd>A bar-separated list of entry IDs, for use in <samp>&#123;exp:channel:entries entry_id=""&#x7D;</samp></dd>
+</dl>
+
+<br />
+
+<h4>Example</h4>
+
+<pre>
+&#123;exp:taggable:entries tag_id=&quot;not 1|2&quot; tag_url_name=&quot;not php|expressionengine&quot; url_separator=&quot;-&quot;&#x7D;
+		&#123;exp:channel:entries entry_id=&quot;&#123;entries&#x7D;&quot;&#x7D;
+ 			&lt;h1&gt;&#123;title&#x7D;&lt;/h1&gt;
+ 		&#123;/exp:channel:entries&#x7D;
+&#123;/exp:taggable:entries&#x7D;
+</pre>
+
+<h3 id="url_name">&#x7B;exp:taggable:url_name&#x7D;</h3>
 
 <p>Output the tag's name with all spaces replaced by a URL separator. This is for use outside of the main Taggable tags, such as in the query tag. This method takes two parameters, <var>name=""</var> and <var>url_separator=""</var>, and defaults to using a dash for the separator if none is provided.</p>
 
