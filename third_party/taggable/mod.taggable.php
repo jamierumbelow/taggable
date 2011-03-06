@@ -151,6 +151,88 @@ class Taggable {
 	}
 	
 	/**
+	 * Template tag for getting tag entries. Not recommended; only for
+	 * when you need to get from multiple channels. Use search: params instead.
+	 *
+	 * {exp:taggable:entries tag_id="not 1|2" tag_url_name="not php|expressionengine" url_separator="-"}
+	 * 		<h1>Posts tagged with {tag_name}</h1>
+	 * 		{exp:channel:entries entry_id="{entries}"}
+	 *			<h1>{title}</h1>
+	 *		{/exp:channel:entries}
+	 * {/exp:taggable:entries}
+	 */
+	public function entries() {
+		$tag_id 		= $this->ee->TMPL->fetch_param('tag_id');
+		$tag_url_name 	= $this->ee->TMPL->fetch_param('tag_url_name');
+		$url_separator 	= ($this->ee->TMPL->fetch_param('url_separator')) ? $this->ee->TMPL->fetch_param('url_separator') : '-';
+		
+		// Tag URL name?
+		if ($tag_url_name) {
+			// Handle not
+			if (substr($tag_url_name, 0, 4) == 'not ') {
+				$tag_url_name = substr($tag_url_name, 4);
+				$not = TRUE;
+			} else {
+				$not = FALSE;
+			}
+			
+			// Break up the url names
+			$tag_url_name = array_filter(explode('|', $tag_url_name));
+			$names = array();
+			
+			// URL separator
+			foreach ($tag_url_name as $name) {
+				$names[] = str_replace($url_separator, ' ', $name);
+			}
+			
+			// Get the tag IDs
+			$result = $this->ee->db ->select('id')
+									->where_in('name', $names)
+									->get('taggable_tags')
+									->result();
+			$ids = array();
+			
+			// Get them!
+			foreach ($result as $row) { $ids[] = $row->id; }
+			
+			// Apply the WHERE IN
+			if ($not) {
+				$this->ee->db->where('entry_id NOT IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
+			} else {
+				$this->ee->db->where('entry_id IN (SELECT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
+			}
+		}
+		
+		// Tag ID?
+		elseif ($tag_id) {
+			if (substr($tag_id, 0, 4) == 'not ') {
+				$tag_id = substr($tag_id, 4);
+				$not = TRUE;
+			} else {
+				$not = FALSE;
+			}
+			
+			$ids = explode('|', $tag_id);
+			
+			if ($not) {
+				$this->ee->db->where('entry_id NOT IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
+			} else {
+				$this->ee->db->where('entry_id IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
+			}
+		}
+		
+		// Get the entry IDs and return
+		$this->ee->db->save_queries = TRUE;
+		$result = $this->ee->db->select('DISTINCT entry_id', FALSE)->get('taggable_tags_entries')->result();
+		$ids = array();
+		
+		foreach ($result as $row) { $ids[] = $row->entry_id; }
+		
+		// Parse the tagdata
+		return str_replace(LD.'entries'.RD, implode('|', $ids), $this->ee->TMPL->tagdata);
+	}
+	
+	/**
 	 * A duplicate of {exp:taggable}, exposed through
 	 * an action for front-end AJAX requests.
 	 *
@@ -234,12 +316,16 @@ class Taggable {
 			// Get the IDs of the entries
 			$this->parse_multiple_params('channel_id', $this->params['channel'], 'exp_channels', 'channel_name', 'channel_id');
 			
+			$ids = array();
 			$query = $this->ee->db->select('entry_id')->get('channel_titles')->result();
 			foreach ($query as $row) { $ids[] = $row->entry_id; }
 			
 			// Limit this query to the tags in this channel
 			$entry_query = TRUE;
-			$this->ee->db->where_in('exp_taggable_tags_entries.entry_id', $ids);
+			
+			if ($ids) {
+				$this->ee->db->where_in('exp_taggable_tags_entries.entry_id', $ids);
+			}
 		}
 		
 		// Limit
