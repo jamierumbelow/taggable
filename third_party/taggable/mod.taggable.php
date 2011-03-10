@@ -309,7 +309,6 @@ class Taggable {
 	protected function _search_tags() {
 		// Keep track whether it's an 'entry' query
 		$entry_query = FALSE;
-		$orderby_ent = FALSE;
 		
 		// Channel
 		if ($this->params['channel']) {
@@ -334,11 +333,6 @@ class Taggable {
 		}
 		
 		// Orderby and Sort
-		if ($this->params['orderby'] == 'entry_count') {
-			$orderby_ent = TRUE;
-			$this->params['orderby'] = 'name';
-		}
-		
 		if ($this->params['sort']) {
 			$this->ee->db->order_by($this->params['orderby'] . " " . strtoupper($this->params['sort']));
 		}
@@ -367,7 +361,7 @@ class Taggable {
 				$fields = explode("|", $this->params['field']);
 				
 				foreach ($fields as $field) {
-					$this->ee->db->or_where('exp_taggable_tags_entries.template', $this->params['field']);
+					$this->ee->db->or_where('exp_taggable_tags_entries.template', $field);
 				}
 			} else {
 				$this->ee->db->where('exp_taggable_tags_entries.template', $this->params['field']);
@@ -407,46 +401,14 @@ class Taggable {
 		// taggable_tags_find_query
 		$this->ee->extensions->call('taggable_tags_find_query');
 
+		// Entry counts
+		$this->ee->db->select('(SELECT COUNT(*) FROM exp_taggable_tags_entries WHERE exp_taggable_tags_entries.tag_id = exp_taggable_tags.id) AS entry_count', FALSE);
+
 		// Find the tags
-		$this->ee->db->save_queries = TRUE;
 		$tags = $this->ee->tags->get_all();
-		
-		// Entry count
-		if ($tags) {
-			foreach ($tags as $tag) {
-				$ids[] = (int)$tag->id;
-				$tgs[$tag->id] = $tag;
-				$tgs[$tag->id]->entry_count = 0;
-			}
-			
-			$this->counts = $this->ee->tags->tag_entries_counts($ids);
-			
-			foreach ($this->counts as $id => $count) {
-				$tgs[$id]->entry_count = $count;
-			}
-			
-			foreach ($tags as $tag) {
-				$tag->entry_count = $tgs[$tag->id]->entry_count;
-			}
-			
-			// Order by entry count?
-			if ($orderby_ent) {
-				usort($tags, array($this, '_order_by_count'));
-			}
-		}
 		
 		// Done!
 		return $tags;
-	}
-	
-	/**
-	 * Used in usort() to order the
-	 * entry count
-	 *
-	 * @author Jamie Rumbelow
-	 */
-	private function _order_by_count($a, $b) {
-		return ($a->entry_count < $b->entry_count) ? 1 : -1 ;
 	}
 	
 	/**
