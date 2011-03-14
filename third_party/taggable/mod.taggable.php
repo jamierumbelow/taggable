@@ -20,6 +20,7 @@ class Taggable {
 	private $ee;
 	
 	public $tagdata;
+	public $counts = array();
 	public $site_id;
 	
 	/**
@@ -87,8 +88,8 @@ class Taggable {
 			}
 			
 			// Figure out each step
-			$step = ($max_qty - $min_qty) / ($spread);
-		
+			$step = $max_qty / $spread;
+			
 			// taggable_tags_pre_loop
 			if ($this->ee->extensions->active_hook('taggable_tags_pre_loop')) {
 				$tags = $this->ee->extensions->call('taggable_tags_pre_loop', $tags, $this->tagdata);
@@ -406,6 +407,9 @@ class Taggable {
 
 		// Find the tags
 		$tags = $this->ee->tags->get_all();
+		
+		// Get the counts
+		foreach ($tags as $tag) { $this->counts[] = (int)$tag->entry_count; }
 		
 		// Done!
 		return $tags;
