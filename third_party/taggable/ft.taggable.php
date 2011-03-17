@@ -55,15 +55,12 @@ class Taggable_ft extends EE_Fieldtype {
 				$tags = $this->_format_for_field($tags);
 			}
 			
-			// Hash it up, baby
-			$hash = sha1(microtime(TRUE).rand(0,1000));
-		
 			// What theme are we using?
 			$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-tokens";
 			$theme = (isset($this->settings['taggable_theme'])) ? $this->settings['taggable_theme'] : $default_theme;
 		
 			// Setup the JavaScript
-			$this->_setup_javascript($hash);
+			$this->_setup_javascript();
 		
 			// Include the theme JS and CSS
 			$this->_insert_theme_js('jquery.autocomplete.js');
@@ -76,8 +73,7 @@ class Taggable_ft extends EE_Fieldtype {
 				'name' 				=> (isset($this->cell_name)) ? $this->cell_name : $this->field_name,
 				'class' 			=> (isset($this->cell_name)) ? 'taggable_replace_token_input taggable_matrix' : 'taggable_replace_token_input',
 				'value'				=> $tags,
-				'data-tag-limit'	=> $limit,
-				'data-id-hash'		=> $hash
+				'data-tag-limit'	=> $limit
 			);
 		
 			// Wrap in theme container
@@ -706,7 +702,7 @@ class Taggable_ft extends EE_Fieldtype {
 	 * @return void
 	 * @author Jamie Rumbelow
 	 */
-	private function _setup_javascript($hash) {		
+	private function _setup_javascript() {		
 		// Set lang globals
 		if (!isset($this->EE->session->cache['taggable']['js_globals'])) {
 			$js = array(
