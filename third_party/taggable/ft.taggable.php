@@ -448,7 +448,24 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
 		
 		$return = $this->save($data);
-		$this->post_save($return);
+		
+		$this->EE->load->_ci_view_path = $old;
+		
+		return $return;
+	}
+	
+	/**
+	 * Post save Matrix field
+	 *
+	 * @return void
+	 * @author Jamie Rumbelow
+	 */
+	public function post_save_cell($data) {
+		$old = $this->EE->load->_ci_view_path;
+		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
+		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
+		
+		$return = $this->post_save($data);
 		
 		$this->EE->load->_ci_view_path = $old;
 		
