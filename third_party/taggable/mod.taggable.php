@@ -155,7 +155,7 @@ class Taggable {
 	 * Template tag for getting tag entries. Not recommended; only for
 	 * when you need to get from multiple channels. Use search: params instead.
 	 *
-	 * {exp:taggable:entries tag_id="not 1|2" tag_url_name="not php|expressionengine" url_separator="-"}
+	 * {exp:taggable:entries site="not site_a|site_b" tag_id="not 1|2" tag_url_name="not php|expressionengine" url_separator="-"}
 	 * 		<h1>Posts tagged with {tag_name}</h1>
 	 * 		{exp:channel:entries entry_id="{entries}"}
 	 *			<h1>{title}</h1>
@@ -163,9 +163,39 @@ class Taggable {
 	 * {/exp:taggable:entries}
 	 */
 	public function entries() {
+		$site			= $this->ee->TMPL->fetch_param('site');
 		$tag_id 		= $this->ee->TMPL->fetch_param('tag_id');
 		$tag_url_name 	= $this->ee->TMPL->fetch_param('tag_url_name');
 		$url_separator 	= ($this->ee->TMPL->fetch_param('url_separator')) ? $this->ee->TMPL->fetch_param('url_separator') : '-';
+		$site_where		= FALSE;
+		
+		// Get the site ID(s)
+		if ($site) {
+			// Handle not
+			if (substr($site, 0, 4) == 'not ') {
+				$site = substr($site, 4);
+				$site_not = TRUE;
+			} else {
+				$site_not = FALSE;
+			}
+			
+			// Break up the site names
+			$sites = array_filter(explode('|', $site));
+			
+			// Get the IDs
+			$result = $this->ee->db ->select('site_id')
+									->where_in('site_name', $sites)
+									->get('sites')
+									->result();
+			$ids = array();
+			
+			foreach ($result as $row) {
+				$ids[] = $row->site_id;
+			}
+			
+			// Add a filer to the final result set
+			$site_where = $ids;
+		}
 		
 		// Tag URL name?
 		if ($tag_url_name) {
@@ -219,6 +249,15 @@ class Taggable {
 				$this->ee->db->where('entry_id NOT IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
 			} else {
 				$this->ee->db->where('entry_id IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
+			}
+		}
+		
+		// Site where!
+		if ($site_where) {
+			if ($site_not) {
+				$this->ee->db->where_not_in('site_id', $site_where);
+			} else {
+				$this->ee->db->where_in('site_id', $site_where);
 			}
 		}
 		

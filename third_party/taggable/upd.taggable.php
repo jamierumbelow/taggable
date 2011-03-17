@@ -51,7 +51,7 @@ class Taggable_upd {
 		);
 		
 		$this->ee->db->insert('actions', $action);
-						
+		
 		// We're done!
 		return TRUE;
 	}
@@ -132,6 +132,12 @@ class Taggable_upd {
 		// 	  - Add a config option for default theme
 		if ($version < 1.4) {
 			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
+		}
+		
+		// Update from 1.4 to 1.5
+		//    - Add site_id column to taggable_tags_entries
+		if ($version < 1.5) {
+			$this->ee->dbforge->add_column('taggable_tags_entries', array('site_id' => array('type' => 'INT', 'default' => '1')));
 		}
 
 		return TRUE;

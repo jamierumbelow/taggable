@@ -1022,6 +1022,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$tags_entries = array(
 			'tag_id' 	=> array('type' => 'INT'),
 			'entry_id'	=> array('type' => 'INT'),
+			'site_id'	=> array('type' => 'INT'),
 			'template'  => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'tags')
 		);
 		
