@@ -434,8 +434,6 @@ $.TokenList = function (input, settings) {
 			}
 		}
 	
-	if ($("#taggable_" + $(input).attr('data-id-hash')).length == 0) {
-		var hash = $(input).attr('data-id-hash');
 		//
 		// Variables
 		//
@@ -480,7 +478,6 @@ $.TokenList = function (input, settings) {
 			.css({
 				outline: "none"
 			})
-			.attr('id', "taggable_" + $(input).attr('data-id-hash'))
 			.focus(function () {
 				if (settings.tokenLimit == null || settings.tokenLimit != token_count) {
 					show_dropdown_hint();
@@ -649,36 +646,6 @@ $.TokenList = function (input, settings) {
 			.append(input_box);
 
 		init_list();
-		
-		// Autotagging
-		$("#autotagging").live('click', function(e){
-			var field = $("#taggable_autotag").val();
-			var text = $("#"+field).val();
-		
-			if (text=="") {
-				$.ee_notice(settings.lang.pleaseEnterText, { type: 'error' })
-			} else {
-				text = text.replace(/<\/?[^>]+(>|$)/g,"")
-
-				$.ajax({
-				   type: "GET",
-				   url: settings.autotagUrl,
-				   data: { 'text': escape(text) },
-				   dataType: 'json',
-				   success: function(data){
-						if (data.success) {
-							init_list(data.tags);
-							$.ee_notice(settings.lang.autotaggingComplete);
-						} else {
-							$.ee_notice(data.error, { type: 'error' });
-						}
-				   }
-				});
-			}
-		
-			return false;
-		});
-	}
 };
 
 // Really basic cache for the results

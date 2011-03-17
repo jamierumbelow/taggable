@@ -74,7 +74,7 @@ class Taggable_ft extends EE_Fieldtype {
 			$limit = $this->settings['taggable_tag_limit'];
 			$attrs = array(
 				'name' 				=> (isset($this->cell_name)) ? $this->cell_name : $this->field_name,
-				'class' 			=> 'taggable_replace_token_input',
+				'class' 			=> (isset($this->cell_name)) ? 'taggable_replace_token_input taggable_matrix' : 'taggable_replace_token_input',
 				'value'				=> $tags,
 				'data-tag-limit'	=> $limit,
 				'data-id-hash'		=> $hash
@@ -434,6 +434,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
 		
 		$html = $this->display_field($data);
+		
 		$this->EE->load->_ci_view_path = $old;
 		
 		return $html;
@@ -450,7 +451,7 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
 		
-		$return = $this->save($data); 
+		$return = $this->save($data);
 		$this->post_save($return);
 		
 		$this->EE->load->_ci_view_path = $old;
@@ -729,9 +730,6 @@ class Taggable_ft extends EE_Fieldtype {
 			// Make sure we only bother once
 			$this->EE->session->cache['taggable']['js_globals'] = TRUE;
 		}
-		
-		// Output field-specific JS
-		$this->EE->cp->add_to_foot('<script type="text/javascript">$(document).ready(function(){ $("input[data-id-hash=\''.$hash.'\']").taggableAutocomplete(); });</script>');
 	}
 	
 	/**
