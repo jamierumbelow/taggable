@@ -136,8 +136,10 @@ class Taggable_upd {
 		
 		// Update from 1.4 to 1.5
 		//    - Add site_id column to taggable_tags_entries
+		//    - Loop through and update the site IDs
 		if ($version < 1.5) {
 			$this->ee->dbforge->add_column('taggable_tags_entries', array('site_id' => array('type' => 'INT', 'default' => '1')));
+			$this->ee->db->query('UPDATE `exp_taggable_tags_entries`, `exp_taggable_tags` SET `exp_taggable_tags_entries`.`site_id` = `exp_taggable_tags`.`site_id` WHERE `exp_taggable_tags_entries`.`tag_id` = `exp_taggable_tags`.`id`');
 		}
 
 		return TRUE;
