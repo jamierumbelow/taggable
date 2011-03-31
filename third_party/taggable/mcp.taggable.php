@@ -282,7 +282,7 @@ class Taggable_mcp {
 		$db->dbprefix = $con['prefix'];
 		
 		// Are we connected?
-		if (!$db->conn_id) {
+		if (!$db->conn_id || !$db->db_select()) {
 			$this->ee->session->set_flashdata('error', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=wordpress');
 		}
@@ -327,7 +327,7 @@ class Taggable_mcp {
 		$db->dbprefix = $con['prefix'];
 		
 		// Are we connected?
-		if (!$db->conn_id) {
+		if (!$db->conn_id || !$db->db_select()) {
 			$this->ee->session->set_flashdata('error', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=solspace');
 		}
@@ -363,7 +363,7 @@ class Taggable_mcp {
 		$db->dbprefix = $con['prefix'];
 		
 		// Are we connected?
-		if (!$db->conn_id) {
+		if (!$db->conn_id || !$db->db_select()) {
 			$this->ee->session->set_flashdata('error', 'yes');
 			$this->ee->functions->redirect(TAGGABLE_URL.AMP.'method=import'.AMP.'from=tagger');
 		}
