@@ -313,7 +313,7 @@ class Taggable {
         }
 	
 		// Figure out each step
-        $step = ($max_qty - $min_qty) / ($spread);
+        $step = ($max_size - $min_size) / ($spread);
 		
 		// Set up the tag variables
 		if ($tags) {
