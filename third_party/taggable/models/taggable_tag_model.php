@@ -239,10 +239,13 @@ class Taggable_tag_model extends Model {
 	 * @author Jamie Rumbelow
 	 */
 	public function tag_entries($tag) {
-		return $this->db->select('DISTINCT exp_taggable_tags_entries.entry_id, exp_channel_titles.title, exp_channel_titles.url_title, exp_channel_titles.channel_id')
-				 	 	->where('exp_taggable_tags_entries.tag_id', $tag)
-  	  			 		->where('exp_channel_titles.entry_id = exp_taggable_tags_entries.entry_id')
-		   		 		->get('exp_taggable_tags_entries, exp_channel_titles')
+		return $this->db->query('SELECT DISTINCT `'.$this->_('taggable_tags_entries').'`.`entry_id`, 
+												 `'.$this->_('channel_titles').'`.`title`, 
+												 `'.$this->_('channel_titles').'`.`url_title`, 
+												 `'.$this->_('channel_titles').'`.`channel_id`
+								 FROM `'.$this->_('taggable_tags_entries').'`, `'.$this->_('channel_titles').'`
+								 WHERE `'.$this->_('taggable_tags_entries').'`.`tag_id` 
+									AND `'.$this->_('channel_titles').'`.`entry_id` = `'.$this->_('taggable_tags_entries').'`.`entry_id`')
 				 		->result();
 	}
 	
@@ -413,5 +416,12 @@ class Taggable_tag_model extends Model {
 		}
 		
 		return $ids;
+	}
+	
+	/**
+	 * Add prefix to table name
+	 */
+	private function _($table) {
+		return $this->db->dbprefix . $table;
 	}
 }
