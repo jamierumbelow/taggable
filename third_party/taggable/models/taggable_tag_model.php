@@ -173,7 +173,7 @@ class Taggable_tag_model extends Model {
 			}
 			
 			// Update field
-			$this->db->where('entry_id', $entry->entry_id)->set('field_id_'.$id, $field)->update('channel_data');
+			$this->db->where('entry_id', $entry->entry_id)->set('field_id_'.$id->field_id, $field)->update('channel_data');
 		}
 	}
 	
