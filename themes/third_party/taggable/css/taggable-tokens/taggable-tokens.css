@@ -93,7 +93,7 @@
     cursor: default;
     font-size: 11px;
     font-family: Verdana;
-    z-index: 1;
+    z-index: 2;
 }
 
 .taggable-tokens div.token-input-dropdown p {
