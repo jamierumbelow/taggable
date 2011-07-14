@@ -45,7 +45,7 @@ class Taggable {
 		$this->ee->load->model('taggable_tag_model', 'tags');
 		
 		// Is it an {exp:taggable}?
-		if ($this->ee->TMPL->tagparts[1] == 'taggable') {
+		if ($this->ee->TMPL->tag_data[0]['method'] === FALSE) {
 			$this->tagdata = $this->ee->TMPL->tagdata;
 			$this->site_id = $this->ee->config->item('site_id');
 		
