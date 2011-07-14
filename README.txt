@@ -1,5 +1,5 @@
 ==============================
-	Taggable Version 1.4.2
+	Taggable Version 1.4.5
 	http://getsparkplugs.com/taggable/
 ==============================
 
@@ -22,6 +22,16 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.4.5
+		- Adding an :entries tag
+		- Improving backend UI behaviour
+		- Fixed an error with size calculation 
+		- Cleared up code and output
+		- Fixed an error with using multiple taggable module tags on a page
+		- Adding DB selection check to import 
+		- Made a slight change to the tag cloud functionality, dramatically improving the spread across tag sizes
+		- Fixed some errors in the CP and module tags
 
 	Version 1.4.2
 		- Fixed a CP error
