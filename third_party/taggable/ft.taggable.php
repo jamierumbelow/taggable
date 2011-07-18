@@ -229,10 +229,10 @@ class Taggable_ft extends EE_Fieldtype {
 							}
 						} else {
 							// Just do a dupe check
-							$dupe = $this->EE->tags->get_by('name', $tag);
+							$dupe = $this->EE->tags->get_by('name', trim($tag));
 							
 							if ($dupe == array()) {
-								$new_tag = $this->EE->tags->insert(array('name' => $tag));
+								$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
 								$newt[$new_tag] = $tag;
 							} else {
 								$newt[$dupe->id] = $dupe->name;
@@ -263,10 +263,10 @@ class Taggable_ft extends EE_Fieldtype {
 								$newt[$tag] = $query->name;
 							}
 						} else {
-							$dupe = $this->EE->tags->get_by('name', $tag);
+							$dupe = $this->EE->tags->get_by('name', trim($tag));
 							
 							if ($dupe == array()) {
-								$new_tag = $this->EE->tags->insert(array('name' => $tag));
+								$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
 								$newt[$new_tag] = $tag;
 							} else {
 								$newt[$dupe->id] = $dupe->name;
