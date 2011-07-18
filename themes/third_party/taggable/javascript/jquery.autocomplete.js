@@ -380,7 +380,7 @@ $.TokenList = function (input, settings) {
 		// Do a search and show the "searching" dropdown if the input is longer
 		// than settings.minChars
 		function do_search(immediate) {
-			var query = input_box.val().toLowerCase();
+			var query = $.trim(input_box.val().toLowerCase());
 			hide_dropdown();
 
 			if (query && query.length) {
