@@ -214,29 +214,20 @@ class Taggable_ft extends EE_Fieldtype {
 					if ($this->EE->extensions->end_script === TRUE) return $data;
 				}
 				
-				$tags = array_filter(explode(',', $data));
+				$tags = array_filter(explode('|', $data));
 				$newt = array();
 				$data = '';
 				
 				foreach ($tags as $tag) {
 					if ($tag) {
-						if (is_numeric($tag)) {
-							// Is it in the DB? What's the name?
-							$query = $this->EE->tags->get($tag);
+						// Just do a dupe check
+						$dupe = $this->EE->tags->get_by('name', trim($tag));
 						
-							if ($query) {
-								$newt[$tag] = $query->name;
-							}
+						if ($dupe == array()) {
+							$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
+							$newt[$new_tag] = $tag;
 						} else {
-							// Just do a dupe check
-							$dupe = $this->EE->tags->get_by('name', trim($tag));
-							
-							if ($dupe == array()) {
-								$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
-								$newt[$new_tag] = $tag;
-							} else {
-								$newt[$dupe->id] = $dupe->name;
-							}
+							$newt[$dupe->id] = $dupe->name;
 						}
 					}
 				}
@@ -249,28 +240,19 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		} elseif (isset($this->EE->safecracker)) {
 			if ($data) {
-				$tags = array_filter(explode(',', $data));
+				$tags = array_filter(explode('|', $data));
 				$newt = array();
 				$data = '';
 				
 				foreach ($tags as $tag) {
 					if ($tag) {
-						if (is_numeric($tag)) {
-							// Is it in the DB? What's the name?
-							$query = $this->EE->tags->get($tag);
+						$dupe = $this->EE->tags->get_by('name', trim($tag));
 						
-							if ($query) {
-								$newt[$tag] = $query->name;
-							}
+						if ($dupe == array()) {
+							$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
+							$newt[$new_tag] = $tag;
 						} else {
-							$dupe = $this->EE->tags->get_by('name', trim($tag));
-							
-							if ($dupe == array()) {
-								$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
-								$newt[$new_tag] = $tag;
-							} else {
-								$newt[$dupe->id] = $dupe->name;
-							}
+							$newt[$dupe->id] = $dupe->name;
 						}
 					}
 				}
@@ -702,7 +684,7 @@ class Taggable_ft extends EE_Fieldtype {
 	protected function _format_for_field($tags) {
 		if ($tags) { 
 			foreach($tags as $id => $tag) { 
-				$new_tags[] = "$id,$tag"; 
+				$new_tags[] = $tag; 
 			} 
 			
 			$tags = implode("|", $new_tags);
