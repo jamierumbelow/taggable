@@ -1,15 +1,14 @@
 ==============================
-	Taggable Version 1.4.5
+	Taggable Version 1.4.6
 	http://getsparkplugs.com/taggable/
 ==============================
 
 Thanks for purchasing Taggable! Installation instructions can be found in the documentation on the website, or below. If you've got any questions, queries or problems, just head to the support forums and open a request. The license can be found with your download. Enjoy!
 
-
 Requirements
 ============
 
-Taggable only requires an installed copy of ExpressionEngine 2.1.3 and what’s required by ExpressionEngine 2.1.3.
+Taggable only requires an installed copy of ExpressionEngine 2.2.2 and what’s required by ExpressionEngine 2.2.2.
 
 Install Instructions
 ====================
@@ -22,6 +21,12 @@ And you’ve installed Taggable!
 
 Changelog
 =========
+
+	Version 1.4.6
+		- Fixing a styling conflict with Playa 
+		- Ensuring that tags are trimmed appropriately
+		- ExpressionEngine 2.2.2 compatibility
+		- Changed the structure of the UI to enable number-only tags
 
 	Version 1.4.5
 		- Adding an :entries tag
