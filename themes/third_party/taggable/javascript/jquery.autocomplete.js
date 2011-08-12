@@ -7,7 +7,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.4.5
+ * @version 1.4.6
  *
  *
  * jQuery Plugin: Tokenizing Autocomplete Text Entry
@@ -75,12 +75,7 @@ $.TokenList = function (input, settings) {
 					sections = sections.split('|')
 					
 					for (section in sections) {
-						s = sections[section].split(',');
-						
-						li_data.push({
-							"id": s[0],
-							"name": s[1]
-						});
+						li_data.push(sections[section]);
 					}
 					
 					$(input).val('')
@@ -91,7 +86,7 @@ $.TokenList = function (input, settings) {
 			
 			if(li_data && li_data.length) {
 				for(var i in li_data) {
-					var this_token = $("<li><p>"+li_data[i].name+"</p> </li>")
+					var this_token = $("<li><p>"+li_data[i]+"</p> </li>")
 						.addClass(settings.classes.token)
 						.insertBefore(input_token);
 
@@ -102,19 +97,13 @@ $.TokenList = function (input, settings) {
 							delete_token($(this).parent());
 							return false;
 						});
-
-					$.data(this_token.get(0), "tokeninput", {"id": li_data[i].id, "name": li_data[i].name});
-
+            
 					// Clear input box and make sure it keeps focus
 					input_box
 						.val("");
 
 					// Don't show the help dropdown, they've got the idea
 					hide_dropdown();
-
-					// Save this token id
-					var id_string = li_data[i].id + ","
-					hidden_input.val(hidden_input.val() + id_string);
 				}
 			}
 		}
@@ -146,7 +135,7 @@ $.TokenList = function (input, settings) {
 		}
 
 		// Inner function to a token to the list
-		function insert_token(id, value) {
+		function insert_token(value) {
 		  var this_token = $("<li><p>"+ value +"</p> </li>")
 		  .addClass(settings.classes.token)
 		  .insertBefore(input_token);
@@ -160,15 +149,12 @@ $.TokenList = function (input, settings) {
 				  return false;
 			  });
 
-		  $.data(this_token.get(0), "tokeninput", {"id": id, "name": value});
-
 		  return this_token;
 		}
 
 		// Add a token to the token list based on user input
 		function add_token (item) {
-			var li_data = $.data(item.get(0), "tokeninput");
-			var this_token = insert_token(li_data.id, li_data.name);
+			var this_token = insert_token($(item).text());
 		
 			// Clear input box and make sure it keeps focus
 			input_box
@@ -177,10 +163,6 @@ $.TokenList = function (input, settings) {
 
 			// Don't show the help dropdown, they've got the idea
 			hide_dropdown();
-
-			// Save this token id
-			var id_string = li_data.id + ","
-			hidden_input.val(hidden_input.val() + id_string);
 		
 			token_count++;
 
@@ -201,11 +183,7 @@ $.TokenList = function (input, settings) {
 			// Don't show the help dropdown, they've got the idea
 			hide_dropdown();
 		
-			// Save this token id
-			var id_string = toke + ","
-			hidden_input.val(hidden_input.val() + id_string);
-
-			insert_token(toke, toke)
+			insert_token(toke)
 
 			token_count++;
 		
@@ -259,7 +237,7 @@ $.TokenList = function (input, settings) {
 		// Delete a token from the token list
 		function delete_token (token) {
 			// Remove the id from the saved list
-			var token_data = $.data(token.get(0), "tokeninput");
+			var token_data = $(token).text();
 		
 			// Delete the token
 			token.remove();
@@ -267,22 +245,8 @@ $.TokenList = function (input, settings) {
 
 			// Show the input box and give it focus again
 			input_box.focus();
-
-			// Delete this token's id from hidden input
-			var str = hidden_input.val()
-			var start = str.indexOf(token_data.id+",");
-			var end = str.indexOf(",", start) + 1;
-
-			if(end >= str.length) {
-				hidden_input.val(str.slice(0, start));
-			} else {
-				hidden_input.val(str.slice(0, start) + str.slice(end, str.length));
-			}
 		
 			token_count--;
-
-			// Add the token to the "delete" hidden input field
-			$("#taggable_tags_delete").val($("#taggable_tags_delete").val()+token_data.id+',');
 		
 			if (settings.tokenLimit != null) {
 				input_box
@@ -345,7 +309,6 @@ $.TokenList = function (input, settings) {
 						// 							select_dropdown_item(this_li);
 						// 						}
 
-						$.data(this_li.get(0), "tokeninput", {"id": results[i].id, "name": results[i].name});
 					}
 				}
 
@@ -380,7 +343,7 @@ $.TokenList = function (input, settings) {
 		// Do a search and show the "searching" dropdown if the input is longer
 		// than settings.minChars
 		function do_search(immediate) {
-			var query = input_box.val().toLowerCase();
+			var query = $.trim(input_box.val().toLowerCase());
 			hide_dropdown();
 
 			if (query && query.length) {
@@ -590,7 +553,7 @@ $.TokenList = function (input, settings) {
 							   .blur(function () {
 								   input_box.blur();
 							   });
-
+		
 		// Keep a reference to the selected token and dropdown item
 		var selected_token = null;
 		var selected_dropdown_item = null;
@@ -632,6 +595,16 @@ $.TokenList = function (input, settings) {
 				}
 			});
 
+  		// When the input's form is submitted, set its value correctly
+  		$(hidden_input).parents('form').submit(function(){
+  		  var tags = [];
+  		  
+        $(token_list).find('li.token-input-token p').each(function(){
+          tags.push($(this).text());
+        });
+        
+        $(hidden_input).val(tags.join('|'));
+  		});
 
 		// The list to store the dropdown items in
 		var dropdown = $("<div>")

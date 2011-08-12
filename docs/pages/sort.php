@@ -8,7 +8,7 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.4.5
+ * @version 1.4.6
  **/
 
 function sparkplugs_doc_sort($a, $b) {
