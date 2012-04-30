@@ -13,27 +13,37 @@
 
 require_once PATH_THIRD."taggable/config.php";
 
-class Taggable_upd {
+class Taggable_upd
+{
+	/* --------------------------------------------------------------
+     * VARIABLES
+     * ------------------------------------------------------------ */
+
 	public $version = TAGGABLE_VERSION;
 	private $ee;
+
+	/* --------------------------------------------------------------
+     * GENERIC METHODS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Constructor
-	 *
-	 * @author Jamie Rumbelow
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		$this->ee =& get_instance();
 		$this->ee->load->dbforge();
 	}
+
+	/* --------------------------------------------------------------
+     * INSTALLATION METHODS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Install
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function install() {
+	public function install()
+	{
 		// exp_modules
 		$module = array(
 			'module_name' 			=> 'Taggable',
@@ -58,11 +68,9 @@ class Taggable_upd {
 	
 	/**
 	 * Uninstall
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function uninstall() {
+	public function uninstall()
+	{
 		// Goodbye!
 		$this->ee->db->where('module_name', 'Taggable')->delete('modules');
 		
@@ -72,16 +80,14 @@ class Taggable_upd {
 	
 	/**
 	 * Update
-	 *
-	 * @param string $version 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function update($version = '') {
+	public function update($version = '')
+	{
 		// Update from 1.0 to 1.1:
 		//   - Add the site ID to the tags table, set the current ID as the default
 		//   - Get rid of the 'search_tags' extension hook
-		if ($version < 1.1) {			
+		if ($version < 1.1)
+		{			
 			$this->ee->dbforge->add_column('tags', array('site_id' => array('type' => 'INT')));
 			$this->ee->db->set('site_id', $this->ee->config->item('site_id'))->update('tags');
 			$this->ee->db->where('class', 'Taggable_ext')->where('method', 'search_tags')->delete('extensions');
@@ -92,7 +98,8 @@ class Taggable_upd {
 		//   - Get rid of the publish tab
 		//   - Get rid of the 'parse_tags_tag' hook
 		//   - Add the site ID to the preferences table
-		if ($version < 1.2) {
+		if ($version < 1.2)
+		{
 			$this->ee->dbforge->add_column('tags_entries', array('template' => array('type' => 'VARCHAR', 'constraint' => 250, 'default' => 'UPGRADE')));
 			$this->ee->db->set('has_publish_fields', 'n')->where('module_name', 'Taggable')->update('modules');
 			$this->ee->db->where('preference_key', 'enable_autotagging')->where('preference_key', 'alchemy_api_key')->delete('taggable_preferences');
@@ -104,7 +111,8 @@ class Taggable_upd {
 		// 		TAGGABLE 1.3 IS INCOMPATIBLE WITH 1.2
 		// -------------------------
 		
-		if ($version < 1.3) {
+		if ($version < 1.3)
+		{
 			show_error("Taggable 1.3 is incompatible with Taggable 1.2. Please re-install 1.2, export your tags, un-install 1.2 and install 1.3 from scratch before importing your tags.");
 		}
 		
@@ -130,14 +138,16 @@ class Taggable_upd {
 		
 		// Update from 1.3 to 1.4
 		// 	  - Add a config option for default theme
-		if ($version < 1.4) {
+		if ($version < 1.4)
+		{
 			$this->ee->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
 		}
 		
 		// Update from 1.4 to 1.4.5
 		//    - Add site_id column to taggable_tags_entries
 		//    - Loop through and update the site IDs
-		if ($version < "1.4.5") {
+		if ($version < "1.4.5")
+		{
 			$this->ee->dbforge->add_column('taggable_tags_entries', array('site_id' => array('type' => 'INT', 'default' => '1')));
 			$this->ee->db->query('UPDATE `exp_taggable_tags_entries`, `exp_taggable_tags` SET `exp_taggable_tags_entries`.`site_id` = `exp_taggable_tags`.`site_id` WHERE `exp_taggable_tags_entries`.`tag_id` = `exp_taggable_tags`.`id`');
 		}

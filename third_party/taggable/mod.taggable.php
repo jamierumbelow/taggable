@@ -16,12 +16,21 @@ require_once PATH_THIRD."taggable/libraries/Model.php";
 require_once PATH_THIRD."taggable/libraries/eh_compat.php";
 require_once PATH_THIRD."taggable/config.php";
 
-class Taggable {
+class Taggable
+{
+	/* --------------------------------------------------------------
+     * VARIABLES
+     * ------------------------------------------------------------ */
+
 	private $ee;
 	
 	public $tagdata;
 	public $counts = array();
 	public $site_id;
+
+	/* --------------------------------------------------------------
+     * TEMPLATE TAGS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * {exp:taggable tag_id="1" tag_name="some tag" tag_url_name="some-tag" entry_id="1" entry_url_title="entry" field="tags"
@@ -34,23 +43,23 @@ class Taggable {
 	 *		{url_name}
 	 *		{pretty_name}
 	 * {/exp:taggable}
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function Taggable() {
+	public function Taggable()
+	{
 		$this->ee =& get_instance();
 		
 		$this->ee->load->library('model');	
 		$this->ee->load->model('taggable_tag_model', 'tags');
 		
 		// Is it an {exp:taggable}?
-		if ($this->ee->TMPL->tagparts[0] == 'taggable' && !isset($this->ee->TMPL->tagparts[1])) {
+		if ($this->ee->TMPL->tagparts[0] == 'taggable' && !isset($this->ee->TMPL->tagparts[1]))
+		{
 			$this->tagdata = $this->ee->TMPL->tagdata;
 			$this->site_id = $this->ee->config->item('site_id');
 		
 			// taggable_vanilla_tagdata
-			if ($this->ee->extensions->active_hook('taggable_vanilla_tagdata')) {
+			if ($this->ee->extensions->active_hook('taggable_vanilla_tagdata'))
+			{
 				$this->tagdata = $this->ee->extensions->call('taggable_vanilla_tagdata', $this->tagdata);
 				if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
 			}
@@ -83,7 +92,8 @@ class Taggable {
 			$max_qty = (empty($this->counts)) ? 0 : max($this->counts);
 			$spread = $max_qty - $min_qty;
 			
-			if ($spread == 0) {
+			if ($spread == 0)
+			{
 				$spread = 1;
 			}
 			
@@ -91,14 +101,17 @@ class Taggable {
 			$step = $max_qty / $spread;
 			
 			// taggable_tags_pre_loop
-			if ($this->ee->extensions->active_hook('taggable_tags_pre_loop')) {
+			if ($this->ee->extensions->active_hook('taggable_tags_pre_loop'))
+			{
 				$tags = $this->ee->extensions->call('taggable_tags_pre_loop', $tags, $this->tagdata);
 				if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
 			}
 		
 			// Set up the tag variables
-			if ($tags) {
-				foreach ($tags as $tag) {
+			if ($tags)
+			{
+				foreach ($tags as $tag)
+				{
 					$size = round($min_size + (($tag->entry_count - $min_qty) * $step));
 					if ($size < $min_size) { $size = $min_size; }
 					if ($size > $max_size) { $size = $max_size; }
@@ -113,12 +126,15 @@ class Taggable {
 						'pretty_name'	=> $this->_pretty_tag($tag->name)
 					);
 				}
-			} else {
+			}
+			else
+			{
 				$this->return_data = $this->ee->TMPL->no_results();
 			}
 		
 			// taggable_tags_post_loop
-			if ($this->ee->extensions->active_hook('taggable_tags_post_loop')) {
+			if ($this->ee->extensions->active_hook('taggable_tags_post_loop'))
+			{
 				$vars = $this->ee->extensions->call('taggable_tags_post_loop', $vars, $this->tagdata);
 				if ($this->ee->extensions->end_script === TRUE) return $this->tagdata;
 			}
@@ -127,7 +143,8 @@ class Taggable {
 			$parsed = $this->ee->TMPL->parse_variables($this->tagdata, $vars);
 			
 			// taggable_tags_end
-			if ($this->ee->extensions->active_hook('taggable_tags_end')) {
+			if ($this->ee->extensions->active_hook('taggable_tags_end'))
+			{
 				$parsed = $this->ee->extensions->call('taggable_tags_end', $parsed);
 			}
 		
@@ -138,11 +155,9 @@ class Taggable {
 	
 	/**
 	 * Return a tag's URL name based on a name and URL separator
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function url_name() {
+	public function url_name()
+	{
 		// Get our parameters
 		$name = $this->ee->TMPL->fetch_param('name');
 		$url_separator = ($this->ee->TMPL->fetch_param('url_separator')) ? $this->ee->TMPL->fetch_param('url_separator') : '-';
@@ -162,7 +177,8 @@ class Taggable {
 	 *		{/exp:channel:entries}
 	 * {/exp:taggable:entries}
 	 */
-	public function entries() {
+	public function entries()
+	{
 		$site			= $this->ee->TMPL->fetch_param('site');
 		$tag_id 		= $this->ee->TMPL->fetch_param('tag_id');
 		$tag_url_name 	= $this->ee->TMPL->fetch_param('tag_url_name');
@@ -170,12 +186,16 @@ class Taggable {
 		$site_where		= FALSE;
 		
 		// Get the site ID(s)
-		if ($site) {
+		if ($site)
+		{
 			// Handle not
-			if (substr($site, 0, 4) == 'not ') {
+			if (substr($site, 0, 4) == 'not ')
+			{
 				$site = substr($site, 4);
 				$site_not = TRUE;
-			} else {
+			}
+			else
+			{
 				$site_not = FALSE;
 			}
 			
@@ -189,7 +209,8 @@ class Taggable {
 									->result();
 			$ids = array();
 			
-			foreach ($result as $row) {
+			foreach ($result as $row)
+			{
 				$ids[] = $row->site_id;
 			}
 			
@@ -198,12 +219,16 @@ class Taggable {
 		}
 		
 		// Tag URL name?
-		if ($tag_url_name) {
+		if ($tag_url_name)
+		{
 			// Handle not
-			if (substr($tag_url_name, 0, 4) == 'not ') {
+			if (substr($tag_url_name, 0, 4) == 'not ')
+			{
 				$tag_url_name = substr($tag_url_name, 4);
 				$not = TRUE;
-			} else {
+			}
+			else
+			{
 				$not = FALSE;
 			}
 			
@@ -212,7 +237,8 @@ class Taggable {
 			$names = array();
 			
 			// URL separator
-			foreach ($tag_url_name as $name) {
+			foreach ($tag_url_name as $name)
+			{
 				$names[] = str_replace($url_separator, ' ', $name);
 			}
 			
@@ -227,36 +253,50 @@ class Taggable {
 			foreach ($result as $row) { $ids[] = $row->id; }
 			
 			// Apply the WHERE IN
-			if ($not) {
+			if ($not)
+			{
 				$this->ee->db->where('entry_id NOT IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
-			} else {
+			}
+			else
+			{
 				$this->ee->db->where('entry_id IN (SELECT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
 			}
 		}
 		
 		// Tag ID?
-		elseif ($tag_id) {
-			if (substr($tag_id, 0, 4) == 'not ') {
+		elseif ($tag_id)
+		{
+			if (substr($tag_id, 0, 4) == 'not ')
+			{
 				$tag_id = substr($tag_id, 4);
 				$not = TRUE;
-			} else {
+			}
+			else
+			{
 				$not = FALSE;
 			}
 			
 			$ids = explode('|', $tag_id);
 			
-			if ($not) {
+			if ($not)
+			{
 				$this->ee->db->where('entry_id NOT IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
-			} else {
+			}
+			else
+			{
 				$this->ee->db->where('entry_id IN (SELECT DISTINCT entry_id FROM exp_taggable_tags_entries WHERE tag_id IN ('.implode(', ', $ids).'))', '', FALSE);
 			}
 		}
 		
 		// Site where!
-		if ($site_where) {
-			if ($site_not) {
+		if ($site_where)
+		{
+			if ($site_not)
+			{
 				$this->ee->db->where_not_in('site_id', $site_where);
-			} else {
+			}
+			else
+			{
 				$this->ee->db->where_in('site_id', $site_where);
 			}
 		}
@@ -271,15 +311,17 @@ class Taggable {
 		// Parse the tagdata
 		return str_replace(LD.'entries'.RD, implode('|', $ids), $this->ee->TMPL->tagdata);
 	}
+
+	/* --------------------------------------------------------------
+     * ACTIONS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * A duplicate of {exp:taggable}, exposed through
 	 * an action for front-end AJAX requests.
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function api_entries() {
+	public function api_entries()
+	{
 		// Setup
 		$this->site_id = $this->ee->config->item('site_id');
 		$data = array();
@@ -308,7 +350,8 @@ class Taggable {
 		$max_qty = (empty($this->counts)) ? 0 : max($this->counts);
 		$spread = $max_qty - $min_qty;
 	
-		if ($spread == 0) {
+		if ($spread == 0)
+		{
                 $spread = 1;
         }
 	
@@ -316,8 +359,10 @@ class Taggable {
         $step = ($max_size - $min_size) / ($spread);
 		
 		// Set up the tag variables
-		if ($tags) {
-			foreach ($tags as $tag) {
+		if ($tags)
+		{
+			foreach ($tags as $tag)
+			{
 				$size = round($min_size + (($tag->entry_count - $min_qty) * $step));
 				if ($size < $min_size) { $size = $min_size; }
 				if ($size > $max_size) { $size = $max_size; }
@@ -342,16 +387,15 @@ class Taggable {
 	/**
 	 * Search the tags based on $this->params,
 	 * and return them.
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _search_tags() {
+	protected function _search_tags()
+	{
 		// Keep track whether it's an 'entry' query
 		$entry_query = FALSE;
 		
 		// Channel
-		if ($this->params['channel']) {
+		if ($this->params['channel'])
+		{
 			// Get the IDs of the entries
 			$this->parse_multiple_params('channel_id', $this->params['channel'], 'exp_channels', 'channel_name', 'channel_id');
 			
@@ -362,67 +406,81 @@ class Taggable {
 			// Limit this query to the tags in this channel
 			$entry_query = TRUE;
 			
-			if ($ids) {
+			if ($ids)
+			{
 				$this->ee->db->where_in('exp_taggable_tags_entries.entry_id', $ids);
 			}
 		}
 		
 		// Limit
-		if ($this->params['limit']) {
+		if ($this->params['limit'])
+		{
 			$this->ee->db->limit($this->params['limit']);
 		}
 		
 		// Orderby and Sort
-		if ($this->params['sort']) {
+		if ($this->params['sort'])
+		{
 			$this->ee->db->order_by($this->params['orderby'] . " " . strtoupper($this->params['sort']));
 		}
 
 		// Tag ID
-		if ($this->params['tag_id']) {
+		if ($this->params['tag_id'])
+		{
 			$this->parse_multiple_params('exp_taggable_tags.id', $this->params['tag_id']);
 		}
 
 		// Tag Name
-		if ($this->params['tag_name']) {
+		if ($this->params['tag_name'])
+		{
 			$this->parse_multiple_params('exp_taggable_tags.name', $this->params['tag_name']);
 		}
 
 		// Tag URL Name
-		if ($this->params['tag_url_name']) {
+		if ($this->params['tag_url_name'])
+		{
 			$this->params['tag_url_name'] = str_replace($this->params['url_separator'], ' ', $this->params['tag_url_name']);
 			$this->parse_multiple_params('exp_taggable_tags.name', $this->params['tag_url_name']);
 		}
 		
 		// Template/Field Name
-		if ($this->params['field']) {
+		if ($this->params['field'])
+		{
 			$entry_query = TRUE;
 			
-			if (strpos($this->params['field'], "|")) {
+			if (strpos($this->params['field'], "|"))
+			{
 				$fields = explode("|", $this->params['field']);
 				
-				foreach ($fields as $field) {
+				foreach ($fields as $field)
+				{
 					$this->ee->db->or_where('exp_taggable_tags_entries.template', $field);
 				}
-			} else {
+			}
+			else
+			{
 				$this->ee->db->where('exp_taggable_tags_entries.template', $this->params['field']);
 			}
 		}
 		
 		// Entry ID
-		if ($this->params['entry_id']) {
+		if ($this->params['entry_id'])
+		{
 			$entry_query = TRUE;
 			$this->parse_multiple_params('exp_taggable_tags_entries.entry_id', $this->params['entry_id']);
 		}
 
 		// Entry Title
-		if ($this->params['entry_url_title']) {
+		if ($this->params['entry_url_title'])
+		{
 			$entry_query = TRUE;
 			$this->parse_multiple_params("exp_channel_titles.url_title", $this->params['entry_url_title']);
 			$this->ee->db->where("exp_taggable_tags_entries.entry_id = exp_channel_titles.entry_id")->from('exp_channel_titles');
 		}
 
 		// Distinct?
-		if ($entry_query) {
+		if ($entry_query)
+		{
 			$this->ee->db->distinct();
 		}
 
@@ -433,7 +491,8 @@ class Taggable {
 		$this->ee->db->where('exp_taggable_tags.site_id', $this->site_id);
 
 		// Find the tags
-		if ($entry_query) {
+		if ($entry_query)
+		{
 			$this->ee->db->where('exp_taggable_tags.id = exp_taggable_tags_entries.tag_id');
 			$this->ee->db->from('exp_taggable_tags_entries');
 		}
@@ -453,27 +512,25 @@ class Taggable {
 		// Done!
 		return $tags;
 	}
+
+	/* --------------------------------------------------------------
+     * UTILITIES
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Return pretty tag name
-	 *
-	 * @param string $name 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _pretty_tag($name) {
+	private function _pretty_tag($name)
+	{
 		// @todo want to do more with this, not sure what yet :)
 		return ucwords($name);
 	}
 	
 	/**
 	 * Fetch the tag ID from the tag name
-	 *
-	 * @param string $name 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _fetch_tag_id($name) {
+	private function _fetch_tag_id($name)
+	{
 		return $this->ee->db->where('name', $name)->get('taggable_tags')->row('id');
 	}
 	
@@ -483,15 +540,14 @@ class Taggable {
 	 * and then call the correct database methods on it.
 	 *
 	 * Also supports passing through an additional lookup column/table
-	 *
-	 * @param string $string 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function parse_multiple_params($id_col, $string, $lookup_table = '', $lookup_col = '', $lookup_id = '') {
-		if (strpos($string, "not ") !== FALSE) {
+	private function parse_multiple_params($id_col, $string, $lookup_table = '', $lookup_col = '', $lookup_id = '')
+	{
+		if (strpos($string, "not ") !== FALSE)
+		{
 			// It's a "not" query
-			if (strpos($string, "|")) {
+			if (strpos($string, "|"))
+			{
 				// multiple nots
 				$string = str_replace("not ", "", $string);
 				$string = str_replace(" ", "", $string);
@@ -499,84 +555,117 @@ class Taggable {
 				$vals = explode('|', $string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_vals = array();
 					
-					foreach ($vals as $key => $val) {
+					foreach ($vals as $key => $val)
+					{
 						$v = $this->ee->db->where($lookup_col, $val)->get($lookup_table);
 						
-						if ($v->num_rows > 0) {
+						if ($v->num_rows > 0)
+						{
 							$new_vals[] = $v->row($lookup_id);
-						} else {
+						}
+						else
+						{
 							$new_vals[] = $val;
 						}
 					}
-				} else {
+				}
+				else
+				{
 					$new_vals = $vals;
 				}
 				
 				$this->ee->db->where_not_in($id_col, $new_vals);
-			} else {
+			}
+			else
+			{
 				// one not
 				$string = str_replace("not ", "", $string);
 				$string = trim($string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_val = array();
 					$v = $this->ee->db->where($lookup_col, $string)->get($lookup_table);
 						
-					if ($v->num_rows > 0) {
+					if ($v->num_rows > 0)
+					{
 						$new_val = $v->row($lookup_id);
-					} else {
+					}
+					else
+					{
 						$new_val = $string;
 					}
-				} else {
+				}
+				else
+				{
 					$new_val = $string;
 				}
 				
 				$this->ee->db->where($id_col.' !=', $new_val);
 			}
-		} else {
-			if (strpos($string, '|')) {
+		}
+		else
+		{
+			if (strpos($string, '|'))
+			{
 				// multiple vals
 				$string = str_replace(" ", "", $string);
 				$vals = explode('|', $string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_vals = array();
 					
-					foreach ($vals as $key => $val) {
+					foreach ($vals as $key => $val)
+					{
 						$v = $this->ee->db->where($lookup_col, $val)->get($lookup_table);
 						
-						if ($v->num_rows > 0) {
+						if ($v->num_rows > 0)
+						{
 							$new_vals[] = $v->row($lookup_id);
-						} else {
+						}
+						else
+						{
 							$new_vals[] = $val;
 						}
 					}
-				} else {
+				}
+				else
+				{
 					$new_vals = $vals;
 				}
 				
 				$this->ee->db->where_in($id_col, $new_vals);
-			} else {
+			}
+			else
+			{
 				// single value
 				$string = str_replace("not ", "", $string);
 				$string = trim($string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_val = array();
 					$v = $this->ee->db->where($lookup_col, $string)->get($lookup_table);
 						
-					if ($v->num_rows > 0) {
+					if ($v->num_rows > 0)
+					{
 						$new_val = $v->row($lookup_id);
-					} else {
+					}
+					else
+					{
 						$new_val = $string;
 					}
-				} else {
+				}
+				else
+				{
 					$new_val = $string;
 				}
 				

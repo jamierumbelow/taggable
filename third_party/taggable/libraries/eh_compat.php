@@ -15,7 +15,8 @@
  * EngineHost (PHP 5.1) compatibility
  */
 
-if (!function_exists('json_encode')) {
+if (!function_exists('json_encode'))
+{
 
 	/**
 	 * Input an object, returns a json-ized string of said object

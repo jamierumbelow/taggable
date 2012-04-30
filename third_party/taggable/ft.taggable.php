@@ -14,42 +14,57 @@
 require_once PATH_THIRD."taggable/libraries/Model.php";
 require_once PATH_THIRD."taggable/config.php";
 
-class Taggable_ft extends EE_Fieldtype {
+class Taggable_ft extends EE_Fieldtype
+{
+
+	/* --------------------------------------------------------------
+     * VARIABLES
+     * ------------------------------------------------------------ */
+
 	public $has_array_data = TRUE;
 	public $info = array(
 		'name' 		=> 'Taggable',
 		'version'	=> TAGGABLE_VERSION
 	);
+
+	/* --------------------------------------------------------------
+     * GENERIC METHODS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Constructor
-	 *
-	 * @author Jamie Rumbelow
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::EE_Fieldtype();
 		$this->EE->lang->loadfile('taggable');
 	}
+
+	/* --------------------------------------------------------------
+     * FIELDTYPE API
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * display_field()
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_field($data = "") {
-		if (isset($_POST[$this->field_name])) {
+	public function display_field($data = "")
+	{
+		if (isset($_POST[$this->field_name]))
+		{
 			$data = $_POST[$this->field_name];
 		}
 		
-		if (is_string($data) || $data === FALSE) {
+		if (is_string($data) || $data === FALSE)
+		{
 			$this->EE->load->model('taggable_tag_model', 'tags');
 			
 			// Are we in versioning?
-			if ($this->EE->input->get('version_id')) {
+			if ($this->EE->input->get('version_id'))
+			{
 				$tags = $this->_format_for_field_from_versioning($data);
-			} else {
+			}
+			else
+			{
 				// Get the names
 				$tags = $this->_get_ids_and_names($data);
 				$tags = $this->_format_for_field($tags);
@@ -86,7 +101,8 @@ class Taggable_ft extends EE_Fieldtype {
 			$html .= "</div>";
 			
 			// taggable_ft_display_field
-			if ($this->EE->extensions->active_hook('taggable_ft_display_field')) {
+			if ($this->EE->extensions->active_hook('taggable_ft_display_field'))
+			{
 				$html = $this->EE->extensions->call('taggable_ft_display_field', $html);
 			}
 		
@@ -97,18 +113,14 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * replace_tag()
-	 *
-	 * @param string $data 
-	 * @param string $params 
-	 * @param string $tagdata 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function replace_tag($data, $params = array(), $tagdata = FALSE) {
+	public function replace_tag($data, $params = array(), $tagdata = FALSE)
+	{
 		$ids = $this->_get_ids($data);
 		
 		// taggable_ft_tag_ids
-		if ($this->EE->extensions->active_hook('taggable_ft_tag_ids')) {
+		if ($this->EE->extensions->active_hook('taggable_ft_tag_ids'))
+		{
 			$ids = $this->EE->extensions->call('taggable_ft_tag_ids', $ids);
 			if ($this->EE->extensions->end_script === TRUE) return $tagdata;
 		}
@@ -116,12 +128,15 @@ class Taggable_ft extends EE_Fieldtype {
 		$return = '';
 	    $vars = '';
 		
-		if ($ids) {
+		if ($ids)
+		{
 			$tags = $this->EE->db->where_in('id', $ids)->get('taggable_tags')->result();
 		
-			if ($tags) {
+			if ($tags)
+			{
 				// Loop through and arrange everything
-				foreach ($tags as $tag) {
+				foreach ($tags as $tag)
+				{
 					$tag_rows[] = array(
 						'name'				=> $tag->name,
 						'id'				=> $tag->id,
@@ -140,7 +155,8 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 			
 			// taggable_ft_tag_vars
-			if ($this->EE->extensions->active_hook('taggable_ft_tag_vars')) {
+			if ($this->EE->extensions->active_hook('taggable_ft_tag_vars'))
+			{
 				$vars = $this->EE->extensions->call('taggable_ft_tag_vars', $vars, $return);
 				if ($this->EE->extensions->end_script === TRUE) return $return;
 			}
@@ -149,15 +165,19 @@ class Taggable_ft extends EE_Fieldtype {
 			$return = $this->EE->TMPL->parse_variables($return, $vars);
 			
 			// Backspace
-			if (isset($params['backspace'])) {
+			if (isset($params['backspace']))
+			{
 				$return = substr($return, 0, -$params['backspace']);
 			}
-		} else {
+		}
+		else
+		{
 			$return = "";
 		}
 		
 		// taggable_ft_tag_end
-		if ($this->EE->extensions->active_hook('taggable_ft_tag_end')) {
+		if ($this->EE->extensions->active_hook('taggable_ft_tag_end'))
+		{
 			$return = $this->EE->extensions->call('taggable_ft_tag_end', $return);
 			if ($this->EE->extensions->end_script === TRUE) return $return;
 		}
@@ -165,51 +185,30 @@ class Taggable_ft extends EE_Fieldtype {
 		// done!
 		return $return;
 	}
-	
-	/**
-	 * {tags:ul}
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function replace_ul($data, $params = array(), $tagdata = FALSE) {
-		$html = '<ul>'.$this->_generate_list($data).'</ul>';
-		return $html;
-	}
-	
-	/**
-	 * {tags:ol}
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
-	 */
-	public function replace_ol($data, $params = array(), $tagdata = FALSE) {
-		$html = '<ol>'.$this->_generate_list($data).'</ol>';
-		return $html;
-	}
-	
+
 	/**
 	 * save()
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function save($data) {
+	public function save($data)
+	{
 		// Load stuff again
 		$this->EE->load->model('taggable_tag_model', 'tags');
 		$name = (isset($this->cell_name)) ? $this->cell_name : $this->field_name;
 		
 		// SafeCracker Settings
-		if (isset($this->EE->safecracker)) {
+		if (isset($this->EE->safecracker))
+		{
 			$this->settings = array_merge($this->settings, unserialize(base64_decode($this->settings['field_settings'])));
 		}
 		
 		// Are we on a CP request?
-		if (REQ == 'CP') {
-			if ($data) {
+		if (REQ == 'CP')
+		{
+			if ($data)
+			{
 				// taggable_ft_save_cp
-				if ($this->EE->extensions->active_hook('taggable_ft_save_cp')) {
+				if ($this->EE->extensions->active_hook('taggable_ft_save_cp'))
+				{
 					$data = $this->EE->extensions->call('taggable_ft_save_cp', $data);
 					if ($this->EE->extensions->end_script === TRUE) return $data;
 				}
@@ -218,46 +217,61 @@ class Taggable_ft extends EE_Fieldtype {
 				$newt = array();
 				$data = '';
 				
-				foreach ($tags as $tag) {
-					if ($tag) {
+				foreach ($tags as $tag)
+				{
+					if ($tag)
+					{
 						// Just do a dupe check
 						$dupe = $this->EE->tags->get_by('name', trim($tag));
 						
-						if ($dupe == array()) {
+						if ($dupe == array())
+						{
 							$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
 							$newt[$new_tag] = $tag;
-						} else {
+						}
+						else
+						{
 							$newt[$dupe->id] = $dupe->name;
 						}
 					}
 				}
 				
-				foreach ($newt as $id => $name) {
+				foreach ($newt as $id => $name)
+				{
 					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
 				
 				return $data;
 			}
-		} elseif (isset($this->EE->safecracker)) {
-			if ($data) {
+		}
+		elseif (isset($this->EE->safecracker))
+		{
+			if ($data)
+			{
 				$tags = array_filter(explode('|', $data));
 				$newt = array();
 				$data = '';
 				
-				foreach ($tags as $tag) {
-					if ($tag) {
+				foreach ($tags as $tag)
+				{
+					if ($tag)
+					{
 						$dupe = $this->EE->tags->get_by('name', trim($tag));
 						
-						if ($dupe == array()) {
+						if ($dupe == array())
+						{
 							$new_tag = $this->EE->tags->insert(array('name' => trim($tag)));
 							$newt[$new_tag] = $tag;
-						} else {
+						}
+						else
+						{
 							$newt[$dupe->id] = $dupe->name;
 						}
 					}
 				}
 				
-				foreach ($newt as $id => $name) {
+				foreach ($newt as $id => $name)
+				{
 					$data .= "[".$id."] ".$name." ".str_replace(' ', $this->settings['taggable_url_separator'], $name)."\n";
 				}
 				
@@ -268,12 +282,9 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * post_save()
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function post_save($data) {
+	public function post_save($data)
+	{
 		// Get the tags
 		$ids = $this->_get_ids($data);
 		$template = $this->_get_template();
@@ -281,26 +292,32 @@ class Taggable_ft extends EE_Fieldtype {
 		$delete = array();
 		
 		// Check for deleted tags
-		foreach ($old as $row) {
-			if (!in_array($row->tag_id, $ids)) {
+		foreach ($old as $row)
+		{
+			if (!in_array($row->tag_id, $ids))
+			{
 				$delete[] = $row->tag_id;
 			}
 		}
 		
 		// Delete any that shouldn't be saved
-		if ($delete) {
+		if ($delete)
+		{
 			$this->EE->db->where('entry_id', $this->settings['entry_id'])->where_in('tag_id', $delete)->delete('taggable_tags_entries');
 		}
 		
 		// Loop through and insert new ones
-		foreach ($ids as $id) {
-			if ($this->EE->db->where(array('tag_id' => $id, 'entry_id' => $this->settings['entry_id'], 'template' => $template))->get('taggable_tags_entries')->num_rows == 0) {
+		foreach ($ids as $id)
+		{
+			if ($this->EE->db->where(array('tag_id' => $id, 'entry_id' => $this->settings['entry_id'], 'template' => $template))->get('taggable_tags_entries')->num_rows == 0)
+			{
 				$this->EE->db->insert('taggable_tags_entries', array('tag_id' => $id, 'entry_id' => $this->settings['entry_id'], 'template' => $template));
 			}
 		}
 		
 		// taggable_ft_post_save
-		if ($this->EE->extensions->active_hook('taggable_ft_post_save')) {
+		if ($this->EE->extensions->active_hook('taggable_ft_post_save'))
+		{
 			$this->EE->extensions->call('taggable_ft_post_save', $ids, $this);
 		}
 		
@@ -310,14 +327,12 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * delete()
-	 *
-	 * @param string $ids 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function delete($ids) {
+	public function delete($ids)
+	{
 		// taggable_ft_delete
-		if ($this->EE->extensions->active_hook('taggable_ft_delete')) {
+		if ($this->EE->extensions->active_hook('taggable_ft_delete'))
+		{
 			$ids = $this->EE->extensions->call('taggable_ft_delete', $ids);
 			if ($this->EE->extensions->end_script === TRUE) return $data;
 		}
@@ -325,15 +340,38 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->db->where_in('entry_id', $ids);
 		$this->EE->db->delete('exp_taggable_tags_entries');
 	}
+
+	/* --------------------------------------------------------------
+     * CUSTOM TAGS
+     * ------------------------------------------------------------ */
+	
+	/**
+	 * {tags:ul}
+	 */
+	public function replace_ul($data, $params = array(), $tagdata = FALSE)
+	{
+		$html = '<ul>'.$this->_generate_list($data).'</ul>';
+		return $html;
+	}
+	
+	/**
+	 * {tags:ol}
+	 */
+	public function replace_ol($data, $params = array(), $tagdata = FALSE)
+	{
+		$html = '<ol>'.$this->_generate_list($data).'</ol>';
+		return $html;
+	}
+
+	/* --------------------------------------------------------------
+     * FIELDTYPE SETTINGS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * display_settings()
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_settings($data, $ret = FALSE) {
+	public function display_settings($data, $ret = FALSE)
+	{
 		// Sensible defaults
 		$tag_limit = (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : 10;
 		$default_theme = $this->EE->config->item('taggable_default_theme') ? $this->EE->config->item('taggable_default_theme') : "taggable-tokens";
@@ -348,14 +386,18 @@ class Taggable_ft extends EE_Fieldtype {
 		);
 		
 		// taggable_ft_settings
-		if ($this->EE->extensions->active_hook('taggable_ft_settings')) {
+		if ($this->EE->extensions->active_hook('taggable_ft_settings'))
+		{
 			$settings = $this->EE->extensions->call('taggable_ft_settings', $settings);
 		}
 		
 		// Do we return it or output it as a table?
-		if ($ret) {
+		if ($ret)
+		{
 			return $settings;
-		} else {
+		}
+		else
+		{
 			// Output the searchable JavaScript
 			$this->EE->javascript->output('
 				var oldShow = $.fn.show; 
@@ -368,7 +410,8 @@ class Taggable_ft extends EE_Fieldtype {
 				};
 			');
 			
-			foreach ($settings as $setting) {
+			foreach ($settings as $setting)
+			{
 				$this->EE->table->add_row($setting[0], $setting[1]);
 			}
 		}
@@ -376,11 +419,9 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * save_settings()
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function save_settings($data) {
+	public function save_settings($data)
+	{
 		$settings = array(
 			'taggable_tag_limit' => (isset($data['taggable_tag_limit'])) ? $data['taggable_tag_limit'] : $_POST['taggable_tag_limit'],
 			'taggable_theme' => (isset($data['taggable_theme'])) ? $data['taggable_theme'] : $_POST['taggable_theme'],
@@ -388,7 +429,8 @@ class Taggable_ft extends EE_Fieldtype {
 		);
 		
 		// taggable_ft_save_settings
-		if ($this->EE->extensions->active_hook('taggable_ft_save_settings')) {
+		if ($this->EE->extensions->active_hook('taggable_ft_save_settings'))
+		{
 			$settings = $this->EE->extensions->call('taggable_ft_save_settings', $settings);
 		}
 		
@@ -396,17 +438,15 @@ class Taggable_ft extends EE_Fieldtype {
 		return $settings;
 	}
 	
-	// ------------------------
-	// P&T MATRIX SUPPORT
-	// ------------------------
+	/* --------------------------------------------------------------
+     * P&T MATRIX INTEGRATION
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Display Matrix field
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_cell($data) {
+	public function display_cell($data)
+	{
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
@@ -420,11 +460,9 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Save Matrix field
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function save_cell($data) {
+	public function save_cell($data)
+	{
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
@@ -438,11 +476,9 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Post save Matrix field
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function post_save_cell($data) {
+	public function post_save_cell($data)
+	{
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('matrix', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
@@ -456,12 +492,9 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Display Matrix settings
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_cell_settings($data) {
+	public function display_cell_settings($data)
+	{
 		// Output the autocomplete JavaScript
 		$this->_insert_theme_js('jquery.taggable.js');
 		$this->EE->cp->add_to_foot("<style type='text/css'>.matrix .taggable-field { border:0; }</style>");
@@ -471,26 +504,21 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Save Matrix settings
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function save_cell_settings($data) {
+	public function save_cell_settings($data)
+	{
 		return $this->save_settings($data);
 	}
 	
-	// ------------------------
-	// LOW VARIABLES SUPPORT
-	// ------------------------
+	/* --------------------------------------------------------------
+     * LOW VARIABLES INTEGRATION
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Display Low Variables field
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_var_field($data) {
+	public function display_var_field($data)
+	{
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
@@ -503,12 +531,9 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Save Low Variables field
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function save_var_field($data) {
+	public function save_var_field($data)
+	{
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
@@ -521,20 +546,16 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Display Low Variables tag
-	 *
-	 * @param string $data 
-	 * @param string $params 
-	 * @param string $tagdata 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_var_tag($data, $params, $tagdata) {
+	public function display_var_tag($data, $params, $tagdata)
+	{
 		$old = $this->EE->load->_ci_view_path;
 		$this->EE->load->_ci_view_path = str_replace('low_variables', 'taggable', $this->EE->load->_ci_view_path);
 		$this->EE->load->add_package_path(PATH_THIRD.'taggable/');
 		
 		// Reset LV settings
-		foreach ($params as $key => $value) {
+		foreach ($params as $key => $value)
+		{
 			$this->settings[$key] = $value;
 		}
 		
@@ -551,39 +572,36 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Display Low Variables Settings
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function display_var_settings($data) {
+	public function display_var_settings($data)
+	{
 		return $this->display_settings($data, TRUE);
 	}
 	
 	/**
 	 * Save Low Variables Settings
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function save_var_settings($data) {
+	public function save_var_settings($data)
+	{
 		return $this->save_settings($data);
 	}
+
+	/* --------------------------------------------------------------
+     * UTILITY FUNCTIONS
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Get the IDs from the exp_channel_data
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _get_ids($data) {
+	protected function _get_ids($data)
+	{
 		$lines = explode("\n", $data);
 		$ids = array();
 		
-		foreach ($lines as $line) {
-			if ($line) {
+		foreach ($lines as $line)
+		{
+			if ($line)
+			{
 				$ids[] = (int)preg_replace("/^\[([0-9]+)\]/", "$1", $line);
 			}
 		}
@@ -593,17 +611,16 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Get the names from the exp_channel_data
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _get_names($data) {
+	protected function _get_names($data)
+	{
 		$lines = explode("\n", $data);
 		$names = array();
 		
-		foreach ($lines as $line) {
-			if ($line) {
+		foreach ($lines as $line)
+		{
+			if ($line)
+			{
 				$names[] = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$2", $line);
 			}
 		}
@@ -613,17 +630,16 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Get an assoc array of IDs and names
-	 *
-	 * @param string $data 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _get_ids_and_names($data) {
+	protected function _get_ids_and_names($data)
+	{
 		$lines = explode("\n", $data);
 		$names = array();
 		
-		foreach ($lines as $line) {
-			if ($line) {
+		foreach ($lines as $line)
+		{
+			if ($line)
+			{
 				$id = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$1", $line);
 				$name = preg_replace('/^\[([0-9]+)\] (.+) ([^\s]+)/', "$2", $line);
 				
@@ -636,18 +652,18 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Generate a HTML list
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _generate_list($data) {
+	protected function _generate_list($data)
+	{
 		$ids = $this->_get_ids($data);
 		$html = "";
 		
-		if ($ids) {
+		if ($ids)
+		{
 			$tags = $this->EE->db->select('id, name')->where_in('id', $ids)->get('taggable_tags')->result();
 			
-			foreach ($tags as $tag) {
+			foreach ($tags as $tag)
+			{
 				$html .= '<li data-id="'.$tag->id.'">'.$tag->name.'</li>';
 			}
 		}
@@ -657,17 +673,15 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Format the tags for tag fields from versioning data
-	 *
-	 * @param string $tags 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _format_for_field_from_versioning($tags) {
+	protected function _format_for_field_from_versioning($tags)
+	{
 		$ids = array_filter(explode(',', $tags));
 		$result = $this->EE->db->select('id, name')->where_in('id', $ids)->get('taggable_tags')->result();
 		$tags = array();
 		
-		foreach ($result as $row) {
+		foreach ($result as $row)
+		{
 			$tags[$row->id] = $row->name;
 		}
 		
@@ -676,19 +690,20 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Format the tags for tag fields
-	 *
-	 * @param string $tags 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _format_for_field($tags) {
-		if ($tags) { 
-			foreach($tags as $id => $tag) { 
+	protected function _format_for_field($tags)
+	{
+		if ($tags)
+		{ 
+			foreach($tags as $id => $tag)
+			{ 
 				$new_tags[] = $tag; 
 			} 
 			
 			$tags = implode("|", $new_tags);
-		} else {
+		}
+		else
+		{
 			$tags = ''; 
 		}
 		
@@ -697,13 +712,12 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Sets up JavaScript globals
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _setup_javascript() {		
+	private function _setup_javascript()
+	{		
 		// Set lang globals
-		if (!isset($this->EE->session->cache['taggable']['js_globals'])) {
+		if (!isset($this->EE->session->cache['taggable']['js_globals']))
+		{
 			$js = array(
 				'hintText'		 	 	=> lang('taggable_javascript_hint'),
 				'noResultsText'	  		=> lang('taggable_javascript_no_results'),
@@ -730,34 +744,25 @@ class Taggable_ft extends EE_Fieldtype {
 	/**
 	 * There's no tags, so get the {if no_tags}{/if}
 	 * and display it.
-	 *
-	 * @param string $tagdata 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _parse_if_no_tags($tagdata) {
+	protected function _parse_if_no_tags($tagdata)
+	{
 		return preg_replace("/{if no_tags}(.*){\/if}/", '$1', $tagdata);
 	}
 		
 	/**
 	 * There are tags, so get rid of the {if no_tags}{/if}
-	 *
-	 * @param string $tagdata 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function _no_parse_if_no_tags($tagdata) {
+	protected function _no_parse_if_no_tags($tagdata)
+	{
 		return preg_replace("/{if no_tags}(.*){\/if}/", '', $tagdata);
 	}
 	
 	/**
 	 * Get the tag's entry count
-	 *
-	 * @param string $id 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	protected function tag_entries($id) {
+	protected function tag_entries($id)
+	{
 		return $this->EE->db->select("COUNT(DISTINCT entry_id) AS total")
 							->where("tag_id", $id)
 							->get('taggable_tags_entries')
@@ -766,29 +771,29 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Get the field_name of the custom field
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _get_template() {
-		if ($this->field_id) {
+	private function _get_template()
+	{
+		if ($this->field_id)
+		{
 	 		return $this->EE->db->select('field_name')
 							 	->where('field_id', $this->field_id)
 								->get('exp_channel_fields')
 								->row('field_name');
-		} else {
+		}
+		else
+		{
 			return "matrix_".$this->settings['field_name']."_".$this->settings['row_name']."_".$this->settings['col_name'];
 		}
 	}
 	
 	/**
 	 * Get the theme folder URL
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _theme_url() {
-		if (!isset($this->EE->session->cache['taggable']['theme_url'])) {
+	private function _theme_url()
+	{
+		if (!isset($this->EE->session->cache['taggable']['theme_url']))
+		{
 			$theme_folder_url = $this->EE->config->item('theme_folder_url');
 			if (substr($theme_folder_url, -1) != '/') $theme_folder_url .= '/';
 			$this->EE->session->cache['taggable']['theme_url'] = $theme_folder_url.'third_party/taggable/';
@@ -799,13 +804,11 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Insert JS into the CP
-	 *
-	 * @param string $file 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _insert_theme_js($file) {
-		if (!isset($this->EE->session->cache['taggable']['javascripts'][$file])) {
+	private function _insert_theme_js($file)
+	{
+		if (!isset($this->EE->session->cache['taggable']['javascripts'][$file]))
+		{
 			$this->EE->cp->add_to_foot('<script type="text/javascript" src="'.$this->_theme_url().'javascript/'.$file.'"></script>');
 			$this->EE->session->cache['taggable']['javascripts'][$file] = TRUE;
 		}
@@ -813,13 +816,11 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Insert CSS into the CP
-	 *
-	 * @param string $file 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _insert_theme_css($file) {
-		if (!isset($this->EE->session->cache['taggable']['stylesheets'][$file])) {
+	private function _insert_theme_css($file)
+	{
+		if (!isset($this->EE->session->cache['taggable']['stylesheets'][$file]))
+		{
 			$this->EE->cp->add_to_head('<link rel="stylesheet" type="text/css" href="'.$this->_theme_url().'css/'.$file.'" />');
 			$this->EE->session->cache['taggable']['stylesheets'][$file] = TRUE;
 		}
@@ -827,20 +828,21 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Get UI themes
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _get_themes() {
-		if (!isset($this->EE->session->cache['taggable']['themes'])) {
+	private function _get_themes()
+	{
+		if (!isset($this->EE->session->cache['taggable']['themes']))
+		{
 			$theme_folder_path = $this->EE->config->item('theme_folder_path');
 			if (substr($theme_folder_path, -1) != '/') $theme_folder_path .= '/';
 			
 			$themes = array();
 			$dir = @scandir($theme_folder_path . 'third_party/taggable/css/');
 			
-			foreach ($dir as $file) {
-				if ($file[0] !== '.') {
+			foreach ($dir as $file)
+			{
+				if ($file[0] !== '.')
+				{
 					$themes[$file] = ucwords(str_replace('-', ' ', $file));
 				}
 			}
@@ -853,15 +855,14 @@ class Taggable_ft extends EE_Fieldtype {
 	
 	/**
 	 * Return a JSONifiable object of tags
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function _get_all_tags_json() {
+	private function _get_all_tags_json()
+	{
 		$tags = $this->EE->db->where('site_id', $this->EE->config->item('site_id'))->get('taggable_tags')->result();
 		$json = array();
 		
-		foreach ($tags as $tag) {
+		foreach ($tags as $tag)
+		{
 			$json[] = array(
 				'id' => $tag->id,
 				'name' => $tag->name
@@ -877,15 +878,14 @@ class Taggable_ft extends EE_Fieldtype {
 	 * and then call the correct database methods on it.
 	 *
 	 * Also supports passing through an additional lookup column/table
-	 *
-	 * @param string $string 
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	private function parse_multiple_params($id_col, $string, $lookup_table = '', $lookup_col = '', $lookup_id = '') {
-		if (strpos($string, "not ") !== FALSE) {
+	private function parse_multiple_params($id_col, $string, $lookup_table = '', $lookup_col = '', $lookup_id = '')
+	{
+		if (strpos($string, "not ") !== FALSE)
+		{
 			// It's a "not" query
-			if (strpos($string, "|")) {
+			if (strpos($string, "|"))
+			{
 				// multiple nots
 				$string = str_replace("not ", "", $string);
 				$string = str_replace(" ", "", $string);
@@ -893,84 +893,117 @@ class Taggable_ft extends EE_Fieldtype {
 				$vals = explode('|', $string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_vals = array();
 					
-					foreach ($vals as $key => $val) {
+					foreach ($vals as $key => $val)
+					{
 						$v = $this->EE->db->where($lookup_col, $val)->get($lookup_table);
 						
-						if ($v->num_rows > 0) {
+						if ($v->num_rows > 0)
+						{
 							$new_vals[] = $v->row($lookup_id);
-						} else {
+						}
+						else
+						{
 							$new_vals[] = $val;
 						}
 					}
-				} else {
+				}
+				else
+				{
 					$new_vals = $vals;
 				}
 				
 				$this->EE->db->where_not_in($id_col, $new_vals);
-			} else {
+			}
+			else
+			{
 				// one not
 				$string = str_replace("not ", "", $string);
 				$string = trim($string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_val = array();
 					$v = $this->EE->db->where($lookup_col, $string)->get($lookup_table);
 						
-					if ($v->num_rows > 0) {
+					if ($v->num_rows > 0)
+					{
 						$new_val = $v->row($lookup_id);
-					} else {
+					}
+					else
+					{
 						$new_val = $string;
 					}
-				} else {
+				}
+				else
+				{
 					$new_val = $string;
 				}
 				
 				$this->EE->db->where($id_col.' !=', $new_val);
 			}
-		} else {
-			if (strpos('|', $string)) {
+		}
+		else
+		{
+			if (strpos('|', $string)) 
+			{
 				// multiple vals
 				$string = str_replace(" ", "", $string);
 				$vals = explode('|', $string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_vals = array();
 					
-					foreach ($vals as $key => $val) {
+					foreach ($vals as $key => $val)
+					{
 						$v = $this->EE->db->where($lookup_col, $val)->get($lookup_table);
 						
-						if ($v->num_rows > 0) {
+						if ($v->num_rows > 0)
+						{
 							$new_vals[] = $v->row($lookup_id);
-						} else {
+						}
+						else
+						{
 							$new_vals[] = $val;
 						}
 					}
-				} else {
+				}
+				else
+				{
 					$new_vals = $vals;
 				}
 				
 				$this->EE->db->where_in($id_col, $new_vals);
-			} else {
+			}
+			else
+			{
 				// single value
 				$string = str_replace("not ", "", $string);
 				$string = trim($string);
 				
 				// Lookup?
-				if ($lookup_table) {
+				if ($lookup_table)
+				{
 					$new_val = array();
 					$v = $this->EE->db->where($lookup_col, $string)->get($lookup_table);
 						
-					if ($v->num_rows > 0) {
+					if ($v->num_rows > 0)
+					{
 						$new_val = $v->row($lookup_id);
-					} else {
+					}
+					else
+					{
 						$new_val = $string;
 					}
-				} else {
+				}
+				else
+				{
 					$new_val = $string;
 				}
 				
@@ -978,14 +1011,16 @@ class Taggable_ft extends EE_Fieldtype {
 			}
 		}
 	}
+
+	/* --------------------------------------------------------------
+     * INSTALLATION
+     * ------------------------------------------------------------ */
 	
 	/**
 	 * Install the fieldtype
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function install() {
+	public function install()
+	{
 		$this->EE->load->dbforge();
 		
 		// exp_taggable_tags
@@ -1014,22 +1049,22 @@ class Taggable_ft extends EE_Fieldtype {
 		$this->EE->dbforge->create_table('taggable_tags_entries');
 		
 		// Add license key to config file
-		if (!$this->EE->config->item('taggable_license_key')) {
+		if (!$this->EE->config->item('taggable_license_key'))
+		{
 			$this->EE->config->_update_config(array('taggable_license_key' => 'ENTER YOUR LICENSE KEY HERE'));
 		}
 		
-		if (!$this->EE->config->item('taggable_default_theme')) {
+		if (!$this->EE->config->item('taggable_default_theme'))
+		{
 			$this->EE->config->_update_config(array('taggable_default_theme' => 'taggable-tokens'));
 		}
 	}
 	
 	/**
 	 * Uninstall the fieldtype
-	 *
-	 * @return void
-	 * @author Jamie Rumbelow
 	 */
-	public function uninstall() {
+	public function uninstall()
+	{
 		$this->EE->load->dbforge();
 		
 		$this->EE->dbforge->drop_table('taggable_tags');
