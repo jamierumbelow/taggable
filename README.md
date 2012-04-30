@@ -1,8 +1,17 @@
-# taggable
+# Taggable
 
 Taggable is a formerly commercial ExpressionEngine 2 tagging add-on. It's been a popular solution for tagging in EE2 since day one; it was the first EE2 compatible tagging system. Taggable is an easy-to use, powerful and advanced tag module/add-on designed exclusively for EE. It is compatible, flexible and sophisticated.
 
 After much deliberation, I decided to retire my add-ons at [Sparkplugs](http://getsparkplugs.com). I'm open sourcing Taggable under the MIT license for the community so that it can remain future-version compatibile and hopefully it will develop and grow into a bigger and better add-on.
+
+## Synopsis
+
+    {exp:channel:entries channel="blog" orderby="date" sort="desc"}
+        <h1>{title}</h1>
+        <p>Tags: {post_tags backspace="2"}{name}, {/post_tags}</p>
+
+        {content}
+    {/exp:channel:entries}
 
 ## Installation
 
