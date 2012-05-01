@@ -59,26 +59,11 @@ class Taggable_mcp
 			'taggable_doc_title' 			=> $this->docs_url
 		));
 		
-		// Global data
-		$this->data['license_key'] = $this->ee->config->item('taggable_license_key');
-		
 		// MSM
 		$this->site_id = $this->ee->config->item('site_id');
 		
 		// Theme URL
 		define('TAGGABLE_THEME_URL', $this->_theme_url());
-				
-		// License key check
-		if (empty($this->data['license_key']) || !$this->_valid($this->data['license_key']))
-		{
-			$this->ee->cp->add_to_head("
-				<script type=\"text/javascript\">
-					jQuery(function(){
-						$.ee_notice(\"".lang('taggable_no_license_key')."\", {type: 'error'});
-					});
-				</script>
-			");
-		}
 	}
 
 	/* --------------------------------------------------------------
