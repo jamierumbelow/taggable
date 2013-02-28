@@ -26,6 +26,8 @@ And you've installed Taggable!
 Complete usage documentation is available in the repo. I want to convert it all over to Markdown and chuck in this repo's wiki.
 
 ## Changelog
+**Version 1.4.7**
+* Fixed residual references to $license_key bug
 
 **Version 1.4.6**
 * Fixing a styling conflict with Playa 
