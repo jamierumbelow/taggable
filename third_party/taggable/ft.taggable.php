@@ -201,8 +201,8 @@ class Taggable_ft extends EE_Fieldtype
 			$this->settings = array_merge($this->settings, unserialize(base64_decode($this->settings['field_settings'])));
 		}
 		
-		// Are we on a CP request?
-		if (REQ == 'CP')
+		// Are we on a CP request or an ACTION request?
+		if (REQ == 'CP' || REQ == 'ACTION')
 		{
 			if ($data)
 			{
