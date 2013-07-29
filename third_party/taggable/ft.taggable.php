@@ -36,7 +36,7 @@ class Taggable_ft extends EE_Fieldtype
 	 */
 	public function __construct()
 	{
-		parent::EE_Fieldtype();
+		parent::__construct();
 		$this->EE->lang->loadfile('taggable');
 	}
 
