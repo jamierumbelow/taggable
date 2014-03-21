@@ -27,6 +27,9 @@ Complete usage documentation is available in the repo. I want to convert it all 
 
 ## Changelog
 **Version 1.4.7**
+* Replaced calls that were deprecated in EE version 2.6
+
+**Version 1.4.7**
 * Fixed residual references to $license_key bug
 
 **Version 1.4.6**
