@@ -1,8 +1,5 @@
 <img src="<?=TAGGABLE_THEME_URL.'images/taggable-small.png'?>" alt="Taggable" style="float:left;margin:5px;margin-right:15px" />
 <p style="padding:10px"><?=lang('taggable_welcome_message')?></p>
-<p><?=lang('taggable_your_license_key_is')?> <strong>
-<?php if($license_key): ?><?=$license_key?><?php else: ?><?=lang('taggable_not_applicable')?><?php endif; ?>
-</strong></p>
 <br />
 </div></div>
 
