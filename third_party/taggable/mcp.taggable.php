@@ -677,6 +677,8 @@ class Taggable_mcp
 	
 	/**
 	 * Get an assoc array of IDs and names
+	 * 
+	 * @since version 1.4.8 Replaced deprecated call to set_variable for page title
 	 */
 	protected function _get_ids_and_names($data)
 	{
@@ -704,7 +706,8 @@ class Taggable_mcp
 	{
 		$this->data['title'] = lang($title);
 		
-		$this->ee->cp->set_variable('cp_page_title', lang($title)); 
+		$this->ee->view->cp_page_title = lang($title); 
+		
 		$this->ee->cp->set_breadcrumb(TAGGABLE_URL, "Taggable");
 	}
 	
