@@ -8,7 +8,8 @@
  * @author Jamie Rumbelow <http://jamierumbelow.net>
  * @copyright Copyright (c)2010 Jamie Rumbelow
  * @license http://getsparkplugs.com/taggable/docs#license
- * @version 1.4.6
+ * @version  1.4.8
+ * 
  **/
 
 require_once PATH_THIRD."taggable/libraries/Model.php";
@@ -33,10 +34,12 @@ class Taggable_ft extends EE_Fieldtype
 	
 	/**
 	 * Constructor
+	 * 
+	 * @since vsrion 1.4.8 Replaced deprecated call parent::EE_FiedldType()
 	 */
 	public function __construct()
 	{
-		parent::EE_Fieldtype();
+		EE_Fieldtype::__construct();
 		$this->EE->lang->loadfile('taggable');
 	}
 
@@ -712,6 +715,8 @@ class Taggable_ft extends EE_Fieldtype
 	
 	/**
 	 * Sets up JavaScript globals
+	 * 
+	 * @since version 1.4.8 Replaced deprecated call to generate_json()
 	 */
 	private function _setup_javascript()
 	{		
@@ -731,7 +736,7 @@ class Taggable_ft extends EE_Fieldtype
 			);
 			
 			// Set and output the JS
-			$json = $this->EE->javascript->generate_json($js);
+			$json = json_encode($js);
 			$output = '<script type="text/javascript">if (typeof EE == "undefined" || ! EE) {'."\n".'var EE = {"taggable": '.$json;
 			$output .= '};} else { EE.taggable = ' . $json . ' }</script>';
 			$this->EE->cp->add_to_foot($output);
