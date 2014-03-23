@@ -736,7 +736,7 @@ class Taggable_ft extends EE_Fieldtype
 			);
 			
 			// Set and output the JS
-			$json = json_encode($js);
+			$json = json_encode($js, JSON_FORCE_OBJECT);
 			$output = '<script type="text/javascript">if (typeof EE == "undefined" || ! EE) {'."\n".'var EE = {"taggable": '.$json;
 			$output .= '};} else { EE.taggable = ' . $json . ' }</script>';
 			$this->EE->cp->add_to_foot($output);
