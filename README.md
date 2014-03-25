@@ -15,6 +15,8 @@ After much deliberation, I decided to retire my add-ons at [Sparkplugs](http://g
 
 ## Installation
 
+**Note: Taggable will not work with EE2.8.0.  Please upgrade to EE2.8.1**
+
 Install Taggable like any other ExpressionEngine 2 addon. Simply drag the _taggable/_ folder found in your download into the _system/expressionengine/third_party/_ folder. Then go into the EE control panel, navigate to the **Modules** page and find Taggable in the list.
 
 Click the install link and you should see a set of form fields allowing you to enable or disable the various parts of the addon. Make sure you enable every part of the addon - the _module_ and _fieldtype_.
