@@ -499,6 +499,8 @@ class Taggable_ft extends EE_Fieldtype
 	public function display_cell_settings($data)
 	{
 		// Output the autocomplete JavaScript
+		$this->_setup_javascript();
+		$this->_insert_theme_js('jquery.autocomplete.js');
 		$this->_insert_theme_js('jquery.taggable.js');
 		$this->EE->cp->add_to_foot("<style type='text/css'>.matrix .taggable-field { border:0; }</style>");
 		
